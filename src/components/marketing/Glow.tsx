@@ -1,6 +1,12 @@
 // A soft coloured glow behind content. A radial gradient, not a blurred
 // element: CSS blur filters on large elements are expensive to paint on
-// every scroll frame, a gradient costs nothing.
-export default function Glow({ className = "", color = "rgba(79,70,229,0.35)" }: { className?: string; color?: string }) {
-  return <div aria-hidden="true" className={`pointer-events-none absolute rounded-full ${className}`} style={{ background: `radial-gradient(closest-side, ${color}, transparent 72%)` }} />;
+// every scroll frame, a gradient costs nothing. `drift` lets it wander
+// slowly (a transform animation on an inner element, so the positioning
+// classes on the outer one are untouched).
+export default function Glow({ className = "", color = "rgba(79,70,229,0.35)", drift }: { className?: string; color?: string; drift?: "a" | "b" }) {
+  return (
+    <div aria-hidden="true" className={`pointer-events-none absolute ${className}`}>
+      <div className={`h-full w-full rounded-full ${drift === "a" ? "a-drift" : drift === "b" ? "a-drift-2" : ""}`} style={{ background: `radial-gradient(closest-side, ${color}, transparent 72%)` }} />
+    </div>
+  );
 }

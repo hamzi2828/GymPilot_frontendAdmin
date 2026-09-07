@@ -1,12 +1,14 @@
 import { FiBarChart2, FiBell, FiCalendar, FiCheck, FiCreditCard, FiDatabase, FiGlobe, FiMessageCircle, FiShoppingBag, FiSmartphone, FiTarget, FiTrendingUp, FiUserCheck, FiUserPlus, FiUsers, FiZap } from "react-icons/fi";
 import { FEATURES, FEATURES_INTRO } from "@/content/site";
+import { stagger } from "@/lib/motion";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 
 /* ------------------------------------------------------------------------
    A bento grid: six columns on desktop, every row full. Three of the twelve
    cards are wide (text beside the picture); the rest stack picture over
-   text. Each picture is a small piece of the real product drawn in markup.
+   text. Each picture is a small piece of the real product drawn in markup,
+   and animates in (v-* classes) when its card scrolls into view.
    ------------------------------------------------------------------------ */
 
 const LAYOUT: Record<string, { span: string; wide?: boolean }> = {
@@ -63,25 +65,29 @@ function Frame({ children, className = "" }: { children: React.ReactNode; classN
 function BillingPicture() {
   return (
     <Frame className="flex h-full flex-col justify-center">
-      <div className="rounded-xl bg-slate-950 p-4 text-white shadow-lift">
+      <div className="v-rise rounded-xl bg-slate-950 p-4 text-white shadow-lift" style={stagger(0)}>
         <div className="flex items-start justify-between">
           <div>
             <p className="text-[10px] uppercase tracking-wider text-slate-400">Membership</p>
             <p className="font-display text-base font-semibold">Unlimited monthly</p>
           </div>
-          <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-300 ring-1 ring-inset ring-emerald-500/30">Active</span>
+          <span className="v-pop rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-300 ring-1 ring-inset ring-emerald-500/30" style={stagger(3)}>
+            Active
+          </span>
         </div>
         <p className="mt-3 font-display text-2xl font-bold">
           $59<span className="text-sm font-normal text-slate-400"> / month</span>
         </p>
         <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-          <div className="h-full w-[72%] rounded-full bg-gradient-to-r from-brand-400 to-purple-400" />
+          <div className="v-fill h-full w-[72%] origin-left rounded-full bg-gradient-to-r from-brand-400 to-purple-400" style={stagger(4)} />
         </div>
         <p className="mt-1.5 text-[11px] text-slate-400">Renews 4 Nov · card •••• 4242</p>
         <div className="mt-3 flex gap-2 text-[11px] font-semibold">
-          <span className="rounded-lg bg-white/10 px-2.5 py-1">Pause</span>
-          <span className="rounded-lg bg-white/10 px-2.5 py-1">Upgrade</span>
-          <span className="rounded-lg bg-white/10 px-2.5 py-1">Invoice PDF</span>
+          {["Pause", "Upgrade", "Invoice PDF"].map((b, i) => (
+            <span key={b} className="v-pop rounded-lg bg-white/10 px-2.5 py-1" style={stagger(5 + i)}>
+              {b}
+            </span>
+          ))}
         </div>
       </div>
       <div className="mt-3 space-y-1.5 text-[11px]">
@@ -89,8 +95,8 @@ function BillingPicture() {
           ["Invoice #1042 emailed", "Paid by card", "text-emerald-600"],
           ["Bank transfer receipt uploaded", "Waiting for a check", "text-amber-600"],
           ["Renewal reminder", "Sent 3 days before", "text-slate-500"],
-        ].map(([a, b, c]) => (
-          <div key={a} className="flex items-center justify-between rounded-lg bg-white px-3 py-1.5 ring-1 ring-slate-100">
+        ].map(([a, b, c], i) => (
+          <div key={a} className="v-rise flex items-center justify-between rounded-lg bg-white px-3 py-1.5 ring-1 ring-slate-100" style={stagger(8 + i)}>
             <span className="font-medium text-slate-700">{a}</span>
             <span className={`font-semibold ${c}`}>{b}</span>
           </div>
@@ -109,6 +115,7 @@ function BookingPicture() {
     Thu: [{ t: "Spin", c: "bg-sky-500" }],
     Fri: [{ t: "HIIT", c: "bg-brand-500" }, { t: "Yoga", c: "bg-emerald-500" }],
   };
+  let n = 0;
   return (
     <Frame>
       <div className="grid grid-cols-5 gap-1.5">
@@ -117,7 +124,7 @@ function BookingPicture() {
             <p className="mb-1.5 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">{d}</p>
             <div className="space-y-1.5">
               {blocks[d].map((b) => (
-                <div key={b.t + d} className={`rounded-md ${b.c} px-1.5 py-1.5 text-[10px] font-semibold text-white`}>
+                <div key={b.t + d} className={`v-pop rounded-md ${b.c} px-1.5 py-1.5 text-[10px] font-semibold text-white`} style={stagger(n++)}>
                   {b.t}
                   {b.s && <span className="block text-[9px] font-medium opacity-90">{b.s}</span>}
                 </div>
@@ -126,7 +133,7 @@ function BookingPicture() {
           </div>
         ))}
       </div>
-      <p className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-500">
+      <p className="v-rise mt-3 flex items-center gap-1.5 text-[11px] text-slate-500" style={stagger(9)}>
         <FiBell className="h-3.5 w-3.5 text-brand-500" /> “A spot opened in Pilates — you&apos;re in!”
       </p>
     </Frame>
@@ -144,7 +151,7 @@ function PtPicture() {
   ];
   return (
     <Frame>
-      <div className="flex items-center gap-2.5">
+      <div className="v-rise flex items-center gap-2.5" style={stagger(0)}>
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-[11px] font-bold text-white">MJ</span>
         <div>
           <p className="text-xs font-semibold text-slate-900">Coach Marcus · today</p>
@@ -152,13 +159,13 @@ function PtPicture() {
         </div>
       </div>
       <div className="mt-3 grid grid-cols-3 gap-1.5">
-        {slots.map(([t, s]) => (
-          <div key={t} className={`rounded-md px-2 py-1.5 text-center text-[11px] font-semibold ${s === "free" ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200" : s === "booked" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400 line-through"}`}>
+        {slots.map(([t, s], i) => (
+          <div key={t} className={`v-pop rounded-md px-2 py-1.5 text-center text-[11px] font-semibold ${s === "free" ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200" : s === "booked" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400 line-through"}`} style={stagger(1 + i)}>
             {t}
           </div>
         ))}
       </div>
-      <p className="mt-3 text-[11px] text-slate-500">
+      <p className="v-rise mt-3 text-[11px] text-slate-500" style={stagger(8)}>
         Sara M. · <span className="font-semibold text-slate-800">8 of 10</span> sessions left
       </p>
     </Frame>
@@ -171,25 +178,30 @@ function FrontDeskPicture() {
   return (
     <Frame>
       <div className="flex items-center gap-4">
-        <div className="grid shrink-0 grid-cols-8 gap-[2px] rounded-lg bg-white p-2 ring-1 ring-slate-200">
+        <div className="v-pop relative grid shrink-0 grid-cols-8 gap-[2px] overflow-hidden rounded-lg bg-white p-2 ring-1 ring-slate-200" style={stagger(0)}>
           {cells.map((c, i) => (
             <span key={i} className={`h-2 w-2 ${c === "1" ? "bg-slate-900" : "bg-transparent"}`} />
           ))}
+          <span className="a-scan pointer-events-none absolute inset-x-0 top-0 h-2 bg-gradient-to-b from-brand-400/0 via-brand-400/70 to-brand-400/0" aria-hidden="true" />
         </div>
         <div className="min-w-0 text-[11px]">
-          <p className="flex items-center gap-1.5 font-semibold text-emerald-700">
+          <p className="v-rise flex items-center gap-1.5 font-semibold text-emerald-700" style={stagger(1)}>
             <FiCheck className="h-3.5 w-3.5" /> Sara M. checked in 07:42
           </p>
-          <p className="mt-0.5 text-slate-500">Visit 14 this month</p>
-          <p className="mt-2 flex items-center gap-1.5 text-rose-600">
+          <p className="v-rise mt-0.5 text-slate-500" style={stagger(2)}>
+            Visit 14 this month
+          </p>
+          <p className="v-rise mt-2 flex items-center gap-1.5 text-rose-600" style={stagger(3)}>
             <FiZap className="h-3.5 w-3.5" /> Omar A. · membership ended · not let in
           </p>
         </div>
       </div>
       <div className="mt-3 flex gap-2 text-[10px] font-semibold text-slate-600">
-        <span className="rounded-full bg-white px-2 py-0.5 ring-1 ring-slate-200">QR kiosk</span>
-        <span className="rounded-full bg-white px-2 py-0.5 ring-1 ring-slate-200">Fingerprint app</span>
-        <span className="rounded-full bg-white px-2 py-0.5 ring-1 ring-slate-200">312 inside now</span>
+        {["QR kiosk", "Fingerprint app", "312 inside now"].map((c, i) => (
+          <span key={c} className="v-pop rounded-full bg-white px-2 py-0.5 ring-1 ring-slate-200" style={stagger(4 + i)}>
+            {c}
+          </span>
+        ))}
       </div>
     </Frame>
   );
@@ -199,15 +211,15 @@ function MessagingPicture() {
   return (
     <Frame className="flex h-full flex-col justify-center">
       <div className="space-y-2.5">
-        <div className="flex items-end gap-2">
+        <div className="v-bubble-l flex items-end gap-2" style={stagger(0)}>
           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">W</span>
           <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-emerald-500 px-3 py-2 text-[11px] text-white">Hi Sara, HIIT Blast is tonight at 18:00 in Studio A. See you there!</div>
         </div>
-        <div className="flex items-end justify-end gap-2">
+        <div className="v-bubble-r flex items-end justify-end gap-2" style={stagger(3)}>
           <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-slate-900 px-3 py-2 text-[11px] text-white">Your membership renews tomorrow. Nothing to do — your card •••• 4242 will be charged $59.</div>
           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-700 text-[10px] font-bold text-white">S</span>
         </div>
-        <div className="flex items-center gap-2.5 rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">
+        <div className="v-rise flex items-center gap-2.5 rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200" style={stagger(6)}>
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
             <FiBell className="h-3.5 w-3.5" />
           </span>
@@ -218,8 +230,8 @@ function MessagingPicture() {
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] font-semibold">
-        {["Not been in for 2 weeks → “we miss you”", "Membership ended → “come back” offer", "Birthday → a treat"].map((a) => (
-          <span key={a} className="rounded-full bg-fuchsia-50 px-2 py-0.5 text-fuchsia-700 ring-1 ring-inset ring-fuchsia-100">
+        {["Not been in for 2 weeks → “we miss you”", "Membership ended → “come back” offer", "Birthday → a treat"].map((a, i) => (
+          <span key={a} className="v-pop rounded-full bg-fuchsia-50 px-2 py-0.5 text-fuchsia-700 ring-1 ring-inset ring-fuchsia-100" style={stagger(8 + i)}>
             {a}
           </span>
         ))}
@@ -229,29 +241,30 @@ function MessagingPicture() {
 }
 
 function PosPicture() {
+  const lines = [
+    ["Protein shake", "$6.00"],
+    ["Whey 1kg", "$42.00"],
+    ["Locker · Sep", "$10.00"],
+  ];
   return (
     <Frame>
-      <div className="mx-auto max-w-[220px] rounded-lg bg-white px-3 py-3 font-mono text-[11px] text-slate-700 shadow-card ring-1 ring-slate-200">
+      <div className="v-rise mx-auto max-w-[220px] rounded-lg bg-white px-3 py-3 font-mono text-[11px] text-slate-700 shadow-card ring-1 ring-slate-200" style={stagger(0)}>
         <p className="text-center text-[10px] font-semibold tracking-widest text-slate-400">RECEIPT 00418</p>
         <div className="mt-2 space-y-1">
-          <p className="flex justify-between">
-            <span>Protein shake</span>
-            <span>$6.00</span>
-          </p>
-          <p className="flex justify-between">
-            <span>Whey 1kg</span>
-            <span>$42.00</span>
-          </p>
-          <p className="flex justify-between">
-            <span>Locker · Sep</span>
-            <span>$10.00</span>
-          </p>
+          {lines.map(([a, b], i) => (
+            <p key={a} className="v-rise flex justify-between" style={stagger(2 + i)}>
+              <span>{a}</span>
+              <span>{b}</span>
+            </p>
+          ))}
         </div>
-        <p className="mt-2 flex justify-between border-t border-dashed border-slate-200 pt-2 font-semibold text-slate-900">
+        <p className="v-rise mt-2 flex justify-between border-t border-dashed border-slate-200 pt-2 font-semibold text-slate-900" style={stagger(6)}>
           <span>Total</span>
           <span>$58.00</span>
         </p>
-        <p className="mt-1 text-center text-[10px] text-emerald-600">Paid by card · stock updated</p>
+        <p className="v-pop mt-1 text-center text-[10px] text-emerald-600" style={stagger(8)}>
+          Paid by card · stock updated
+        </p>
       </div>
     </Frame>
   );
@@ -264,34 +277,35 @@ function StaffPicture() {
     ["Trainer", "bg-amber-500"],
     ["Accountant", "bg-emerald-500"],
   ];
+  const rows = [
+    ["Salary", "$1,800", ""],
+    ["PT commission · 17 sessions", "$340", ""],
+    ["Unpaid day off", "−$82", "text-rose-600"],
+  ];
   return (
     <Frame>
       <div className="flex flex-wrap gap-1.5">
-        {roles.map(([r, c]) => (
-          <span key={r} className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 ring-1 ring-slate-200">
+        {roles.map(([r, c], i) => (
+          <span key={r} className="v-pop inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 ring-1 ring-slate-200" style={stagger(i)}>
             <span className={`h-2 w-2 rounded-full ${c}`} /> {r}
           </span>
         ))}
       </div>
-      <div className="mt-3 rounded-lg bg-white p-3 ring-1 ring-slate-200">
+      <div className="v-rise mt-3 rounded-lg bg-white p-3 ring-1 ring-slate-200" style={stagger(4)}>
         <div className="flex items-center justify-between text-[11px]">
           <p className="font-semibold text-slate-900">Payslip · September</p>
-          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">Paid</span>
+          <span className="v-pop rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700" style={stagger(9)}>
+            Paid
+          </span>
         </div>
         <div className="mt-2 space-y-1 text-[11px] text-slate-600">
-          <p className="flex justify-between">
-            <span>Salary</span>
-            <span>$1,800</span>
-          </p>
-          <p className="flex justify-between">
-            <span>PT commission · 17 sessions</span>
-            <span>$340</span>
-          </p>
-          <p className="flex justify-between text-rose-600">
-            <span>Unpaid day off</span>
-            <span>−$82</span>
-          </p>
-          <p className="flex justify-between border-t border-slate-100 pt-1 font-semibold text-slate-900">
+          {rows.map(([l, v, c], i) => (
+            <p key={l} className={`v-rise flex justify-between ${c}`} style={stagger(5 + i)}>
+              <span>{l}</span>
+              <span>{v}</span>
+            </p>
+          ))}
+          <p className="v-rise flex justify-between border-t border-slate-100 pt-1 font-semibold text-slate-900" style={stagger(8)}>
             <span>Take home</span>
             <span>$2,058</span>
           </p>
@@ -305,8 +319,10 @@ function MembersPicture() {
   return (
     <Frame>
       <div className="flex items-center gap-3">
-        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 text-sm font-bold text-white">SM</span>
-        <div className="min-w-0">
+        <span className="v-pop flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 text-sm font-bold text-white" style={stagger(0)}>
+          SM
+        </span>
+        <div className="v-rise min-w-0" style={stagger(1)}>
           <p className="text-sm font-semibold text-slate-900">Sara Malik</p>
           <p className="truncate text-[11px] text-slate-500">Unlimited monthly · member since Mar 2025</p>
         </div>
@@ -317,14 +333,14 @@ function MembersPicture() {
           ["Agreement", "Signed", "text-emerald-600"],
           ["Emergency contact", "Added", "text-emerald-600"],
           ["ID document", "Missing", "text-amber-600"],
-        ].map(([l, v, c]) => (
-          <div key={l} className="flex items-center justify-between rounded-md bg-white px-2.5 py-1.5 ring-1 ring-slate-200">
+        ].map(([l, v, c], i) => (
+          <div key={l} className="v-pop flex items-center justify-between rounded-md bg-white px-2.5 py-1.5 ring-1 ring-slate-200" style={stagger(2 + i)}>
             <span className="text-slate-600">{l}</span>
             <span className={`font-semibold ${c}`}>{v}</span>
           </div>
         ))}
       </div>
-      <p className="mt-3 text-[11px] text-slate-500">
+      <p className="v-rise mt-3 text-[11px] text-slate-500" style={stagger(7)}>
         Imported <span className="font-semibold text-slate-800">312 members</span> from members.csv
       </p>
     </Frame>
@@ -340,18 +356,20 @@ function LeadsPicture() {
   return (
     <Frame>
       <ul className="space-y-1.5">
-        {leads.map(([n, s, st, c]) => (
-          <li key={n} className="flex items-center gap-2.5 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200">
+        {leads.map(([n, s, st, c], i) => (
+          <li key={n} className="v-rise flex items-center gap-2.5 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200" style={stagger(i * 2)}>
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-[10px] font-bold text-slate-700">{n[0]}</span>
             <div className="min-w-0 flex-1 text-[11px]">
               <p className="font-semibold text-slate-900">{n}</p>
               <p className="truncate text-slate-500">{s}</p>
             </div>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${c}`}>{st}</span>
+            <span className={`v-pop rounded-full px-2 py-0.5 text-[10px] font-semibold ${c}`} style={stagger(i * 2 + 2)}>
+              {st}
+            </span>
           </li>
         ))}
       </ul>
-      <p className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-500">
+      <p className="v-rise mt-3 flex items-center gap-1.5 text-[11px] text-slate-500" style={stagger(7)}>
         <FiUserPlus className="h-3.5 w-3.5 text-orange-500" /> From your website&apos;s contact form
       </p>
     </Frame>
@@ -365,11 +383,11 @@ function ReportsPicture() {
   return (
     <Frame>
       <div className="flex items-start justify-between">
-        <div>
+        <div className="v-rise" style={stagger(0)}>
           <p className="text-[10px] uppercase tracking-wider text-slate-400">This month</p>
           <p className="font-display text-xl font-bold text-slate-900">$38,420</p>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+        <span className="v-pop inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700" style={stagger(6)}>
           <FiTrendingUp className="h-3 w-3" /> +4.2%
         </span>
       </div>
@@ -380,16 +398,16 @@ function ReportsPicture() {
             <stop offset="1" stopColor="#6366f1" stopOpacity="0" />
           </linearGradient>
         </defs>
-        <polygon points={`0,42 ${d} 100,42`} fill="url(#spark)" />
-        <polyline points={d} fill="none" stroke="#4f46e5" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+        <polygon className="v-fade" style={stagger(4)} points={`0,42 ${d} 100,42`} fill="url(#spark)" />
+        <polyline className="v-draw" style={stagger(1)} points={d} pathLength={1} fill="none" stroke="#4f46e5" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
       </svg>
       <div className="mt-2 grid grid-cols-3 gap-1.5 text-center text-[10px]">
         {[
           ["Members", "1,248"],
           ["Came in", "92%"],
           ["New leads", "37"],
-        ].map(([l, v]) => (
-          <div key={l} className="rounded-md bg-white py-1.5 ring-1 ring-slate-200">
+        ].map(([l, v], i) => (
+          <div key={l} className="v-pop rounded-md bg-white py-1.5 ring-1 ring-slate-200" style={stagger(7 + i)}>
             <p className="font-semibold text-slate-900">{v}</p>
             <p className="text-slate-500">{l}</p>
           </div>
@@ -402,7 +420,7 @@ function ReportsPicture() {
 function WebsitePicture() {
   return (
     <Frame className="flex h-full flex-col justify-center">
-      <div className="overflow-hidden rounded-lg bg-white shadow-card ring-1 ring-slate-200">
+      <div className="v-rise overflow-hidden rounded-lg bg-white shadow-card ring-1 ring-slate-200" style={stagger(0)}>
         <div className="flex items-center gap-1.5 border-b border-slate-100 bg-slate-50 px-3 py-1.5">
           <span className="h-2 w-2 rounded-full bg-slate-300" />
           <span className="h-2 w-2 rounded-full bg-slate-300" />
@@ -414,25 +432,31 @@ function WebsitePicture() {
         <div className="p-3">
           <div className="flex items-center justify-between text-[10px]">
             <span className="font-display font-bold text-slate-900">IRON WORKS</span>
-            <span className="rounded-full bg-orange-500 px-2 py-0.5 font-semibold text-white">Join</span>
+            <span className="v-pop rounded-full bg-orange-500 px-2 py-0.5 font-semibold text-white" style={stagger(5)}>
+              Join
+            </span>
           </div>
-          <div className="mt-2 rounded-md bg-gradient-to-br from-slate-900 to-orange-900 p-3 text-white">
+          <div className="v-rise mt-2 rounded-md bg-gradient-to-br from-slate-900 to-orange-900 p-3 text-white" style={stagger(2)}>
             <p className="font-display text-xs font-bold">Train with coaches who know your name</p>
             <p className="mt-1 text-[9px] text-orange-200">Classes · trainers · prices · blog · map</p>
           </div>
           <div className="mt-2 grid grid-cols-3 gap-1.5">
-            {["bg-orange-400", "bg-emerald-400", "bg-slate-700"].map((c) => (
-              <div key={c} className={`h-6 rounded ${c}`} />
+            {["bg-orange-400", "bg-emerald-400", "bg-slate-700"].map((c, i) => (
+              <div key={c} className={`v-pop h-6 rounded ${c}`} style={stagger(3 + i)} />
             ))}
           </div>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[10px] font-semibold">
-        <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-slate-700 ring-1 ring-slate-200">
+        <span className="v-pop inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-slate-700 ring-1 ring-slate-200" style={stagger(7)}>
           <FiSmartphone className="h-3 w-3" /> Installs as an app
         </span>
-        <span className="rounded-full bg-white px-2 py-0.5 text-slate-700 ring-1 ring-slate-200">Padlock (SSL) automatic</span>
-        <span className="rounded-full bg-white px-2 py-0.5 text-slate-700 ring-1 ring-slate-200">Found on Google</span>
+        <span className="v-pop rounded-full bg-white px-2 py-0.5 text-slate-700 ring-1 ring-slate-200" style={stagger(8)}>
+          Padlock (SSL) automatic
+        </span>
+        <span className="v-pop rounded-full bg-white px-2 py-0.5 text-slate-700 ring-1 ring-slate-200" style={stagger(9)}>
+          Found on Google
+        </span>
       </div>
     </Frame>
   );
@@ -441,7 +465,7 @@ function WebsitePicture() {
 function DataPicture() {
   return (
     <Frame>
-      <div className="flex items-center gap-3 rounded-lg bg-slate-950 px-3 py-2.5 text-white">
+      <div className="v-rise flex items-center gap-3 rounded-lg bg-slate-950 px-3 py-2.5 text-white" style={stagger(0)}>
         <FiDatabase className="h-5 w-5 text-brand-300" />
         <div className="min-w-0 text-[11px]">
           <p className="font-semibold">ironworks · private database</p>
@@ -449,13 +473,15 @@ function DataPicture() {
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-1.5">
-        {["English", "العربية", "اردو", "Español", "Français"].map((l) => (
-          <span key={l} className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 ring-1 ring-slate-200">
+        {["English", "العربية", "اردو", "Español", "Français"].map((l, i) => (
+          <span key={l} className="v-pop rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 ring-1 ring-slate-200" style={stagger(2 + i)}>
             {l}
           </span>
         ))}
       </div>
-      <p className="mt-3 text-[11px] text-slate-500">Download everything as a spreadsheet whenever you like.</p>
+      <p className="v-rise mt-3 text-[11px] text-slate-500" style={stagger(8)}>
+        Download everything as a spreadsheet whenever you like.
+      </p>
     </Frame>
   );
 }
@@ -491,14 +517,18 @@ export default function Features() {
             const layout = LAYOUT[f.key] || { span: "lg:col-span-2" };
             const text = (
               <div className={layout.wide ? "flex flex-col justify-center" : ""}>
-                <span className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ring-1 ring-inset ${ICON_TINT[f.key]}`}>
+                <span className={`v-pop inline-flex h-10 w-10 items-center justify-center rounded-xl ring-1 ring-inset transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110 ${ICON_TINT[f.key]}`} style={stagger(0)}>
                   <Icon className="h-[18px] w-[18px]" />
                 </span>
-                <h3 className="mt-4 font-display text-lg font-semibold tracking-tight text-slate-900">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">{f.text}</p>
+                <h3 className="v-rise mt-4 font-display text-lg font-semibold tracking-tight text-slate-900" style={stagger(1)}>
+                  {f.title}
+                </h3>
+                <p className="v-rise mt-2 text-sm leading-relaxed text-slate-600" style={stagger(2)}>
+                  {f.text}
+                </p>
                 <ul className="mt-4 space-y-1.5 text-sm text-slate-700">
-                  {f.points.map((p) => (
-                    <li key={p} className="flex items-start gap-2">
+                  {f.points.map((p, j) => (
+                    <li key={p} className="v-rise flex items-start gap-2" style={stagger(3 + j)}>
                       <FiCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" /> {p}
                     </li>
                   ))}
@@ -507,7 +537,7 @@ export default function Features() {
             );
             return (
               <Reveal key={f.key} delay={(i % 3) * 80} className={layout.span} as="article">
-                <div className="group h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lift">
+                <div className="group h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lift">
                   {layout.wide ? (
                     <div className="grid h-full gap-6 lg:grid-cols-[1fr_1.1fr]">
                       {text}

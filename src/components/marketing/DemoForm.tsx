@@ -7,6 +7,8 @@ import { useState } from "react";
 import { FiArrowRight, FiCheckCircle, FiMail, FiPhone } from "react-icons/fi";
 import { DEMO_FORM, SITE } from "@/content/site";
 import { publicFetch } from "@/lib/api";
+import { stagger } from "@/lib/motion";
+import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 import Glow from "./Glow";
 
@@ -43,13 +45,15 @@ export default function DemoForm() {
       <div className="relative mx-auto grid max-w-7xl gap-12 px-5 sm:px-8 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
         <div>
           <SectionHeading dark align="left" eyebrow={DEMO_FORM.eyebrow} title={DEMO_FORM.title} text={DEMO_FORM.text} />
-          <ul className="mt-8 space-y-3 text-sm text-slate-300">
-            {["A 30-minute walkthrough on a gym like yours", "Your questions on migration, payments and the domain", "A written quote the same day"].map((t) => (
-              <li key={t} className="flex items-start gap-2.5">
-                <FiCheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" /> {t}
-              </li>
-            ))}
-          </ul>
+          <Reveal delay={200} as="div">
+            <ul className="mt-8 space-y-3 text-sm text-slate-300">
+              {["A 30-minute walkthrough on a gym like yours", "Your questions on migration, payments and the domain", "A written quote the same day"].map((t, i) => (
+                <li key={t} className="v-rise flex items-start gap-2.5" style={stagger(i)}>
+                  <FiCheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" /> {t}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
           {(SITE.contactEmail || SITE.contactPhone) && (
             <div className="mt-8 flex flex-col gap-2 text-sm text-slate-400">
               {SITE.contactEmail && (
@@ -69,11 +73,13 @@ export default function DemoForm() {
         <div className="glass rounded-3xl p-6 sm:p-8">
           {done ? (
             <div className="flex h-full min-h-[320px] flex-col items-center justify-center text-center">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-300">
+              <span className="a-pop flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-300">
                 <FiCheckCircle className="h-7 w-7" />
               </span>
-              <h3 className="mt-5 font-display text-2xl font-semibold">Request received</h3>
-              <p className="mt-2 max-w-sm text-sm text-slate-300">Thanks {form.name.split(" ")[0]}. We will be in touch at {form.email} within one working day to set up the walkthrough.</p>
+              <h3 className="a-rise mt-5 font-display text-2xl font-semibold" style={stagger(2)}>
+                Request received
+              </h3>
+              <p className="a-rise mt-2 max-w-sm text-sm text-slate-300" style={stagger(3)}>Thanks {form.name.split(" ")[0]}. We will be in touch at {form.email} within one working day to set up the walkthrough.</p>
             </div>
           ) : (
             <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2" noValidate>
@@ -118,7 +124,7 @@ export default function DemoForm() {
 
               <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-[11px] text-slate-500">We use these details only to arrange the demo.</p>
-                <button type="submit" disabled={busy || !form.name.trim() || !form.email.trim() || !form.gymName.trim()} className="group inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-slate-900 transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
+                <button type="submit" disabled={busy || !form.name.trim() || !form.email.trim() || !form.gymName.trim()} className="btn-shine btn-shine-dark group inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-slate-900 transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
                   {busy ? "Sending…" : "Book my demo"} <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </button>
               </div>
