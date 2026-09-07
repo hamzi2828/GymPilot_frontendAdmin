@@ -76,7 +76,7 @@ export function Field({ label, hint, children, className = "" }: { label: string
 }
 
 // Full width unless the caller sets a width of its own (w-72, w-40 …).
-const widthOf = (className?: string) => (/w-/.test(className || "") ? "" : "w-full");
+const widthOf = (className?: string) => (/(^|s)w-/.test(className || "") ? "" : "w-full");
 
 export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={cx(inputClass, widthOf(props.className), props.className)} />;
