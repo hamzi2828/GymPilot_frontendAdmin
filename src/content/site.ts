@@ -67,7 +67,7 @@ export const WHAT_YOU_GET = {
 export const AUDIENCES = ["Boutique studios", "24/7 gyms", "CrossFit boxes", "Martial arts & boxing", "Yoga & pilates", "Personal training teams", "Ladies-only gyms", "Multi-trainer clubs"];
 
 export const PROOF = [
-  { value: "1", label: "private database per gym", hint: "Your members, payments and records are never mixed with anyone else's." },
+  { value: "1", label: "private online presence per gym", hint: "Your own website, member app and database. Your members, payments and records are never mixed with anyone else's." },
   { value: "4", label: "messaging channels", hint: "Email, SMS, WhatsApp and push — with automations that run themselves." },
   { value: "5", label: "languages, RTL included", hint: "English, Arabic, Urdu, Spanish and French out of the box." },
   { value: "0", label: "add-ons to buy", hint: "Billing, booking, POS, payroll, reports — every plan is the full product." },
@@ -148,9 +148,9 @@ export const FEATURES: { key: string; title: string; text: string; points: strin
   },
   {
     key: "data",
-    title: "Safe, private, in your language",
-    text: "Your gym gets its own private database — never mixed with another gym. Use it in English, Arabic, Urdu, Spanish or French.",
-    points: ["A private database for each gym", "5 languages, right-to-left too", "Export your data any time"],
+    title: "Your private online presence",
+    text: "Your gym gets its own website, its own app and its own private database — never mixed with another gym. Use it in English, Arabic, Urdu, Spanish or French.",
+    points: ["Your own website, app and database", "Never mixed with anyone else's", "5 languages, right-to-left too", "Export your data any time"],
   },
 ];
 
