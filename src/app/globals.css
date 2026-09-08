@@ -202,6 +202,11 @@ details > summary::-webkit-details-marker {
   animation: m-edge 6s linear infinite;
   pointer-events: none;
 }
+/* The same edge in green, for an add-on a plan gives away. */
+.edge-glow-free::before {
+  background: linear-gradient(110deg, rgba(16,185,129,0.75), rgba(45,212,191,0.75), rgba(16,185,129,0.75));
+  background-size: 200% 100%;
+}
 .a-point-r { animation: m-point-r 1.15s ease-in-out infinite; }
 .a-point-l { animation: m-point-l 1.15s ease-in-out infinite; }
 .a-ping-ring { animation: m-ping-ring 2.4s cubic-bezier(0, 0, 0.2, 1) infinite; }

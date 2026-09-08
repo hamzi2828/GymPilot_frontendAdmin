@@ -21,6 +21,75 @@ function addonIcon(slug: string) {
   return FiPlus;
 }
 
+/**
+ * An add-on on a plan card. The same tile whether it is being sold or given
+ * away -- a plan that includes it should look like it won something, not like
+ * it is missing a box the others have.
+ */
+function AddonTile({
+  addon,
+  included,
+  isPopular,
+  yearly,
+}: {
+  addon: PublicAddon;
+  included: boolean;
+  isPopular: boolean;
+  yearly: boolean;
+}) {
+  const Icon = addonIcon(addon.slug);
+  const perMonth = yearly && addon.price.yearly > 0 ? addon.price.yearly / 12 : addon.price.monthly;
+
+  return (
+    <div
+      className={`edge-glow group/addon relative overflow-hidden rounded-2xl p-3.5 transition-transform duration-300 hover:-translate-y-0.5 ${
+        isPopular ? "bg-white/[0.07]" : included ? "bg-gradient-to-br from-emerald-50 to-teal-50" : "bg-gradient-to-br from-brand-50 to-fuchsia-50"
+      } ${included ? "edge-glow-free" : ""}`}
+    >
+      <div className="flex items-center gap-2.5">
+        <span
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover/addon:-rotate-6 group-hover/addon:scale-110 ${
+            isPopular ? "bg-white/10 text-white" : included ? "bg-white text-emerald-600 shadow-card" : "bg-white text-brand-600 shadow-card"
+          }`}
+        >
+          <Icon className="h-[18px] w-[18px]" />
+        </span>
+        <p className={`min-w-0 flex-1 text-sm font-bold leading-tight ${isPopular ? "text-white" : "text-slate-900"}`}>{addon.name}</p>
+        <span
+          className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.06em] ${
+            isPopular ? "bg-white/10 text-slate-300" : included ? "bg-emerald-600 text-white" : "bg-white/80 text-brand-700"
+          }`}
+        >
+          {included ? "Included" : "Add-on"}
+        </span>
+      </div>
+
+      {addon.description && (
+        <p className={`mt-2 line-clamp-2 text-xs leading-snug ${isPopular ? "text-slate-400" : "text-slate-600"}`}>{addon.description}</p>
+      )}
+
+      <p className="mt-2.5 flex flex-wrap items-baseline gap-x-1.5">
+        {included ? (
+          <>
+            <span className={`font-display text-xl font-extrabold tracking-tight ${isPopular ? "text-white" : "text-emerald-700"}`}>Free</span>
+            <span className={`text-xs ${isPopular ? "text-slate-400" : "text-slate-500"}`}>
+              on this plan · normally{" "}
+              <span className="line-through">{formatMoney(perMonth, addon.price.currency)}</span>
+            </span>
+          </>
+        ) : (
+          <>
+            <span className={`font-display text-xl font-extrabold tracking-tight ${isPopular ? "text-white" : "text-slate-900"}`}>
+              +{formatMoney(perMonth, addon.price.currency)}
+            </span>
+            <span className={`text-xs ${isPopular ? "text-slate-400" : "text-slate-500"}`}>/ month</span>
+          </>
+        )}
+      </p>
+    </div>
+  );
+}
+
 export default function Pricing() {
   const [plans, setPlans] = useState<PublicPlan[] | null>(null);
   const [addons, setAddons] = useState<PublicAddon[]>([]);
@@ -37,6 +106,10 @@ export default function Pricing() {
       .then((res) => setAddons(res.data))
       .catch(() => setAddons([]));
   }, []);
+
+  /** The add-ons a plan hands over for nothing. */
+  const includedFor = (plan: PublicPlan) =>
+    (plan.includedAddons || []).map((slug) => addons.find((a) => a.slug === slug)).filter((a): a is PublicAddon => !!a);
 
   // What a plan can be sold on top of it: not what it already comes with,
   // and only where the add-on is offered.
@@ -141,76 +214,19 @@ export default function Pricing() {
                       ))}
                     </dl>
 
-                    {(plan.includedAddons || []).length > 0 && (
-                      <ul className={`mt-6 space-y-2 text-sm ${isPopular ? "text-slate-200" : "text-slate-700"}`}>
-                        {(plan.includedAddons || []).map((slug) => {
-                          const addon = addons.find((a) => a.slug === slug);
-                          return (
-                            <li key={slug} className="flex items-start gap-2">
-                              <FiCheck className={`mt-0.5 h-4 w-4 shrink-0 ${isPopular ? "text-emerald-400" : "text-emerald-500"}`} />
-                              <span>
-                                <span className="font-semibold">{addon?.name || slug}</span> included
-                              </span>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
-
-                    {/* The extras. Given a card of its own rather than a line
-                        of small print: it is a second thing to buy, and it
-                        should look like one. */}
-                    {sellableFor(plan).length > 0 && (
+                    {/* Add-ons get a card of their own rather than a line of
+                        small print -- whether the plan sells it or gives it
+                        away. */}
+                    {(includedFor(plan).length > 0 || sellableFor(plan).length > 0) && (
                       <div className="mt-6 space-y-2.5">
-                        {sellableFor(plan).map((addon) => {
-                          const Icon = addonIcon(addon.slug);
-                          return (
-                            <div
-                              key={addon.slug}
-                              className={`edge-glow group/addon relative overflow-hidden rounded-2xl p-3.5 transition-transform duration-300 hover:-translate-y-0.5 ${
-                                isPopular ? "bg-white/[0.07]" : "bg-gradient-to-br from-brand-50 to-fuchsia-50"
-                              }`}
-                            >
-                              {/* Stacked, not side by side: a plan column is
-                                  narrow, and a price that wraps looks broken. */}
-                              <div className="flex items-center gap-2.5">
-                                <span
-                                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover/addon:-rotate-6 group-hover/addon:scale-110 ${
-                                    isPopular ? "bg-white/10 text-white" : "bg-white text-brand-600 shadow-card"
-                                  }`}
-                                >
-                                  <Icon className="h-[18px] w-[18px]" />
-                                </span>
-                                <p className={`min-w-0 flex-1 truncate text-sm font-bold ${isPopular ? "text-white" : "text-slate-900"}`}>
-                                  {addon.name}
-                                </p>
-                                <span
-                                  className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] ${
-                                    isPopular ? "bg-white/10 text-slate-300" : "bg-white/80 text-brand-700"
-                                  }`}
-                                >
-                                  Add-on
-                                </span>
-                              </div>
-
-                              {addon.description && (
-                                <p className={`mt-2 line-clamp-2 text-xs leading-snug ${isPopular ? "text-slate-400" : "text-slate-600"}`}>
-                                  {addon.description}
-                                </p>
-                              )}
-
-                              <p className="mt-2.5 flex flex-wrap items-baseline gap-x-1.5">
-                                <span className={`font-display text-xl font-extrabold tracking-tight ${isPopular ? "text-white" : "text-slate-900"}`}>
-                                  +{formatMoney(yearly && addon.price.yearly > 0 ? addon.price.yearly / 12 : addon.price.monthly, addon.price.currency)}
-                                </span>
-                                <span className={`text-xs ${isPopular ? "text-slate-400" : "text-slate-500"}`}>/ month</span>
-                              </p>
-                            </div>
-                          );
-                        })}
+                        {includedFor(plan).map((addon) => (
+                          <AddonTile key={addon.slug} addon={addon} included isPopular={isPopular} yearly={yearly} />
+                        ))}
+                        {sellableFor(plan).map((addon) => (
+                          <AddonTile key={addon.slug} addon={addon} included={false} isPopular={isPopular} yearly={yearly} />
+                        ))}
                       </div>
                     )}
-
                     {plan.features.length > 0 && (
                       <ul className={`mt-6 space-y-2 text-sm ${isPopular ? "text-slate-200" : "text-slate-700"}`}>
                         {plan.features.map((f, j) => (
