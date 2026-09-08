@@ -252,7 +252,7 @@ function NewGymForm() {
                     </>
                   }
                 >
-                  <Input value={databaseName} readOnly tabIndex={-1} className="cursor-not-allowed bg-slate-50 font-mono text-slate-500" />
+                  <Input value={databaseName} disabled readOnly className="font-mono" />
                 </Field>
               </div>
               <div className="md:col-span-2">
@@ -296,9 +296,9 @@ function NewGymForm() {
                   value={form.ownerEmail}
                   onChange={on("ownerEmail")}
                   required
+                  disabled={emailLocked}
                   readOnly={emailLocked}
                   autoComplete="off"
-                  className={emailLocked ? "cursor-not-allowed bg-slate-50 text-slate-500" : undefined}
                 />
               </Field>
               <Field label="Phone">

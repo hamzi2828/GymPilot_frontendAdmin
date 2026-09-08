@@ -63,7 +63,10 @@ export function Button({ children, onClick, type = "button", disabled, variant =
   );
 }
 
-export const inputClass = "h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:bg-slate-50 disabled:text-slate-500";
+// A field nobody may edit looks the same whether it is disabled or merely
+// read-only: greyed, with a cursor that says so.
+export const inputClass =
+  "h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 disabled:shadow-none read-only:cursor-not-allowed read-only:bg-slate-50 read-only:text-slate-500 read-only:shadow-none";
 
 export function Field({ label, hint, children, className = "" }: { label: string; hint?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
