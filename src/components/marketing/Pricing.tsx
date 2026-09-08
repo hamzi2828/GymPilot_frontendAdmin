@@ -4,7 +4,7 @@
 // in the panel), so the website never disagrees with what a gym is charged.
 
 import { useEffect, useState } from "react";
-import { FiArrowRight, FiCheck } from "react-icons/fi";
+import { FiArrowRight, FiCheck, FiPlus, FiSmartphone } from "react-icons/fi";
 import { PRICING } from "@/content/site";
 import { formatMoney, publicFetch, type PublicAddon, type PublicPlan } from "@/lib/api";
 import { stagger } from "@/lib/motion";
@@ -13,6 +13,12 @@ import SectionHeading from "./SectionHeading";
 
 function limit(n: number) {
   return n ? n.toLocaleString() : "Unlimited";
+}
+
+/** A face for an add-on. Anything we have no icon for gets a plus. */
+function addonIcon(slug: string) {
+  if (slug.includes("app")) return FiSmartphone;
+  return FiPlus;
 }
 
 export default function Pricing() {
@@ -151,18 +157,57 @@ export default function Pricing() {
                       </ul>
                     )}
 
+                    {/* The extras. Given a card of its own rather than a line
+                        of small print: it is a second thing to buy, and it
+                        should look like one. */}
                     {sellableFor(plan).length > 0 && (
-                      <div className={`mt-6 rounded-2xl border border-dashed px-4 py-3 ${isPopular ? "border-white/20" : "border-slate-200"}`}>
-                        <p className={`text-[10px] font-semibold uppercase tracking-wider ${isPopular ? "text-slate-400" : "text-slate-400"}`}>Add if you want it</p>
-                        {sellableFor(plan).map((addon) => (
-                            <div key={addon.slug} className="mt-1.5 flex items-baseline justify-between gap-3 text-sm">
-                              <span className={isPopular ? "text-slate-200" : "text-slate-700"}>{addon.name}</span>
-                              <span className={`whitespace-nowrap font-semibold ${isPopular ? "text-white" : "text-slate-900"}`}>
-                                +{formatMoney(yearly && addon.price.yearly > 0 ? addon.price.yearly / 12 : addon.price.monthly, addon.price.currency)}
-                                <span className={`text-xs font-normal ${isPopular ? "text-slate-400" : "text-slate-500"}`}> /mo</span>
-                              </span>
+                      <div className="mt-6 space-y-2.5">
+                        {sellableFor(plan).map((addon) => {
+                          const Icon = addonIcon(addon.slug);
+                          return (
+                            <div
+                              key={addon.slug}
+                              className={`edge-glow group/addon relative overflow-hidden rounded-2xl p-3.5 transition-transform duration-300 hover:-translate-y-0.5 ${
+                                isPopular ? "bg-white/[0.07]" : "bg-gradient-to-br from-brand-50 to-fuchsia-50"
+                              }`}
+                            >
+                              {/* Stacked, not side by side: a plan column is
+                                  narrow, and a price that wraps looks broken. */}
+                              <div className="flex items-center gap-2.5">
+                                <span
+                                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover/addon:-rotate-6 group-hover/addon:scale-110 ${
+                                    isPopular ? "bg-white/10 text-white" : "bg-white text-brand-600 shadow-card"
+                                  }`}
+                                >
+                                  <Icon className="h-[18px] w-[18px]" />
+                                </span>
+                                <p className={`min-w-0 flex-1 truncate text-sm font-bold ${isPopular ? "text-white" : "text-slate-900"}`}>
+                                  {addon.name}
+                                </p>
+                                <span
+                                  className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] ${
+                                    isPopular ? "bg-white/10 text-slate-300" : "bg-white/80 text-brand-700"
+                                  }`}
+                                >
+                                  Add-on
+                                </span>
+                              </div>
+
+                              {addon.description && (
+                                <p className={`mt-2 line-clamp-2 text-xs leading-snug ${isPopular ? "text-slate-400" : "text-slate-600"}`}>
+                                  {addon.description}
+                                </p>
+                              )}
+
+                              <p className="mt-2.5 flex flex-wrap items-baseline gap-x-1.5">
+                                <span className={`font-display text-xl font-extrabold tracking-tight ${isPopular ? "text-white" : "text-slate-900"}`}>
+                                  +{formatMoney(yearly && addon.price.yearly > 0 ? addon.price.yearly / 12 : addon.price.monthly, addon.price.currency)}
+                                </span>
+                                <span className={`text-xs ${isPopular ? "text-slate-400" : "text-slate-500"}`}>/ month</span>
+                              </p>
                             </div>
-                          ))}
+                          );
+                        })}
                       </div>
                     )}
 
