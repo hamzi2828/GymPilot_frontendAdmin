@@ -1,10 +1,14 @@
 // What GymPilot does, in the buyer's words.
 //
 // One list, used twice: the landing page shows the six marked `highlight`
-// and links to /features, which shows all of them grouped, with the longer
-// explanation and the screens each one actually lives on. `screens` mirrors
-// the real product (GymPilot_frontend), so nothing here promises a screen
-// that does not exist.
+// and links to /features, which shows all of them grouped, with a line of
+// detail and the screens each one actually lives on. `screens` mirrors the
+// real product (GymPilot_frontend and the member app), so nothing here
+// promises a screen that does not exist.
+//
+// House style: `text` is one sentence a busy owner reads in a glance,
+// `points` are three to five short phrases, `detail` is at most two short
+// sentences. If it needs a paragraph, it is not written plainly enough.
 
 export interface Feature {
   key: string;
@@ -12,10 +16,10 @@ export interface Feature {
   /** On the landing page too. */
   highlight?: boolean;
   title: string;
-  /** One or two sentences. Used in both places. */
+  /** One sentence. Used in both places. */
   text: string;
   points: string[];
-  /** The longer, plainer explanation, only on /features. */
+  /** One or two short sentences, only on /features. */
   detail: string;
   /** Where it lives in the product. */
   screens: string[];
@@ -28,21 +32,21 @@ export const FEATURE_GROUPS: { key: GroupKey; label: string; title: string; text
   { key: "classes", label: "Classes & training", title: "Classes and training", text: "Your timetable, your trainers, and members booking themselves in." },
   { key: "gym", label: "In the gym", title: "Day to day in the gym", text: "The front desk, the shop and your team — the parts that run while you are on the floor." },
   { key: "reach", label: "Reaching members", title: "Reaching your members", text: "Your website, your app, and the messages that bring people back." },
-  { key: "control", label: "Where you stand", title: "Knowing where you stand", text: "The numbers, and the promise that your gym's data is only ever yours." },
+  { key: "control", label: "Where you stand", title: "Knowing where you stand", text: "The numbers, the switches, and the promise that your gym's data is only ever yours." },
 ];
 
 export const FEATURES_INTRO = {
   eyebrow: "What's inside",
   title: "Everything a gym needs, in one app",
-  text: "No extra apps to buy and nothing to bolt on. Here are the six gyms notice first — every plan has these and everything else from day one.",
+  text: "The six gyms buy us for. The rest are one click away, and every plan gets all of them.",
   cta: "See all features",
 };
 
 export const FEATURES_PAGE = {
   eyebrow: "Every feature",
   title: "What you get with GymPilot",
-  lead: "The whole product, explained in plain English — no jargon, no add-ons, nothing held back for a higher plan. Each one lists the screens it lives on, so you can see exactly what your gym is getting.",
-  note: "Every feature on this page is in every plan. Plans differ only by how many members, staff, trainers and classes you have.",
+  lead: "Every feature, in plain English. All of them are in every plan — plans differ only by how many members, staff and classes you have.",
+  note: "Nothing on this page is an add-on, an upgrade or an extra monthly fee.",
 };
 
 export const FEATURES: Feature[] = [
@@ -52,30 +56,36 @@ export const FEATURES: Feature[] = [
     group: "money",
     highlight: true,
     title: "Get paid on time, every time",
-    text: "Members pay by card, bank transfer or cash. Renewals happen by themselves, invoices go out by themselves, and if a card fails GymPilot tries again and lets the member know.",
-    points: ["Monthly and yearly memberships", "Class packs and PT packs", "Pause, upgrade or cancel in a tap", "Bank transfer with a photo of the receipt", "Invoices sent automatically"],
-    detail:
-      "You set up your memberships once — the price, how long they last, what they include. After that a member joins on your website, pays, and the next payment takes care of itself. If someone wants to pause for a holiday or move up a plan, they can do it themselves or you can do it for them, and the money is worked out to the day. Card money goes straight into your own Stripe account, never through us.",
-    screens: ["Admin → Packages", "Admin → Package Orders", "Admin → Registrations", "Admin → Coupons", "Settings → Stripe & Banks", "Member app → Membership"],
+    text: "Card, bank transfer or cash — and renewals happen without you asking.",
+    points: ["Monthly, yearly and class packs", "Renews and retries by itself", "Invoices sent automatically", "Pause, upgrade or cancel in a tap", "Card money into your own Stripe"],
+    detail: "Set your prices once. Members join on your website and pay, and the next payment looks after itself. Card money goes straight into your Stripe account, never through us.",
+    screens: ["Admin → Packages", "Admin → Package Orders", "Admin → Registrations", "Settings → Stripe & Banks", "Member app → Membership"],
+  },
+  {
+    key: "offers",
+    group: "money",
+    title: "Discount codes and joining offers",
+    text: "Make a code, choose what it takes off, and set when it stops working.",
+    points: ["Percent off or a fixed amount", "Start and end dates", "Limit how many can use it", "One package or all of them", "First payment or every renewal"],
+    detail: "Members type the code at checkout. It stops working on the date you set, or after the number of uses you allow.",
+    screens: ["Admin → Coupons", "Website → Packages & Checkout"],
   },
   {
     key: "members",
     group: "money",
     title: "Every member in one place",
-    text: "Photo, contact details, emergency contact, health form, signed agreement, documents and notes. Bring your existing members in from a spreadsheet.",
-    points: ["Health questionnaire (PAR-Q)", "Agreement signed on screen", "Import members from CSV"],
-    detail:
-      "No more folders behind the desk. Each member has one page with everything on it: who to call in an emergency, what they told you about their health, the agreement they signed and when, any documents you scanned, and your own private notes that only staff can see. Moving from another system? Send us your spreadsheet and your members arrive with their join dates and expiry dates intact.",
+    text: "Contact details, health form, signed agreement, documents and private notes.",
+    points: ["Health questionnaire (PAR-Q)", "Agreement signed on screen", "Emergency contact on file", "Import from a spreadsheet"],
+    detail: "One page per member instead of a folder behind the desk. Coming from another system? Your members arrive with their join and expiry dates intact.",
     screens: ["Admin → Users", "Admin → Users → Profile", "Settings → Memberships", "Member app → Profile"],
   },
   {
     key: "leads",
     group: "money",
-    title: "Turn visitors into members",
-    text: "Every enquiry from your website becomes a lead. Follow up, add notes, and turn them into a member with one click.",
-    points: ["Website contact form → lead", "Follow-up notes and status", "Convert to member"],
-    detail:
-      "Someone fills in the form on your website asking about prices. Instead of an email you might miss, it lands in a list with a status you can move along: new, contacted, trial booked, joined. Write down what you agreed on the phone. When they sign up, one click turns the lead into a real member — no retyping.",
+    title: "Turn enquiries into members",
+    text: "Every website enquiry becomes a lead you can follow up and convert.",
+    points: ["Contact form becomes a lead", "New, contacted, trial, joined", "Notes from every call", "One click to make them a member"],
+    detail: "Nothing gets lost in an inbox. Move a lead along as you talk to them, and turn them into a member without retyping anything.",
     screens: ["Admin → Leads", "Admin → Contact Queries", "Website → Contact"],
   },
 
@@ -85,20 +95,18 @@ export const FEATURES: Feature[] = [
     group: "classes",
     highlight: true,
     title: "Members book classes from their phone",
-    text: "Put your classes on the timetable. Members tap to book. When a class is full they join the waitlist and get a message the moment a spot opens.",
-    points: ["Waitlists that fill themselves", "Rules for late cancels and no-shows", "Holidays and cover instructors"],
-    detail:
-      "Your timetable goes up once and repeats every week. Members see it on your website and in the app and book themselves in, so nobody is texting you at 6am. You decide the rules: how far ahead people can book, when booking closes, how late is too late to cancel, and what happens to somebody who books and never turns up. Closing for a holiday or swapping an instructor for one day changes that day only.",
-    screens: ["Admin → Classes", "Admin → Bookings", "Admin → Timetable changes", "Website → Timetable", "Member app → Bookings"],
+    text: "Your timetable goes up once; members tap to book and waitlists fill themselves.",
+    points: ["Repeats every week", "Waitlist moves up on its own", "Rules for late cancels and no-shows", "Holidays and cover instructors"],
+    detail: "Nobody texts you at 6am. You decide how far ahead people book, when booking closes, and how late is too late to cancel.",
+    screens: ["Admin → Classes", "Admin → Bookings", "Admin → Timetable changes", "Website → Timetable", "Member app → Classes"],
   },
   {
     key: "pt",
     group: "classes",
     title: "Sell personal training",
-    text: "Trainers set the hours they are free. Members buy a pack of sessions and book them. Each trainer's share is worked out for you.",
-    points: ["Trainer calendar", "Packs of 5 or 10 sessions", "Trainer commission on the payslip"],
-    detail:
-      "Each trainer says which hours they are available. GymPilot takes out the classes they are already teaching and the sessions already booked, and shows members only the times that are genuinely free. Members buy a pack of sessions up front and spend them one at a time. When a session is marked done, the trainer's cut is calculated and carried through to their payslip.",
+    text: "Trainers set their free hours; members buy a pack and book the slots.",
+    points: ["Trainer's own calendar", "Packs of 5 or 10 sessions", "Only genuinely free times shown", "Commission lands on the payslip"],
+    detail: "Classes and booked sessions are taken out automatically, so a member can only pick a time the trainer is really free.",
     screens: ["Admin → Personal Training", "Admin → Trainers", "Settings → Bookings & PT", "Member app → Personal training"],
   },
 
@@ -108,55 +116,77 @@ export const FEATURES: Feature[] = [
     group: "gym",
     highlight: true,
     title: "Know who is in the gym",
-    text: "Members scan a QR code or use a fingerprint at the door. If their membership has run out, the door says no and the desk sees why.",
-    points: ["QR check-in on any tablet", "Fingerprint app for the front desk", "See who is inside right now"],
-    detail:
-      "Stand any tablet at the door and it becomes a check-in kiosk: the member shows the QR code in their app and they are in. Prefer fingerprints? There is a Windows app for the front desk that does the same thing. Either way you get an honest record of who came and when — useful for fire safety, for staffing the quiet hours, and for spotting the member who has not been in for a month.",
+    text: "QR code or fingerprint at the door — an expired membership is turned away.",
+    points: ["QR check-in on any tablet", "Fingerprint app for the desk", "See who is inside right now", "Spot who stopped coming"],
+    detail: "Any tablet becomes a kiosk. You get an honest record of who came and when — for fire safety, staffing, and win-backs.",
     screens: ["Admin → Attendance", "Kiosk (any tablet)", "Windows desktop app", "Member app → Check in"],
   },
   {
     key: "pos",
     group: "gym",
-    title: "Sell drinks, supplements and lockers",
-    text: "Ring up sales at the desk, keep count of stock, print or email receipts, and rent out lockers.",
-    points: ["Receipts and refunds", "Stock counted for you", "Lockers given to members"],
-    detail:
-      "The desk becomes a till. Add a shake or a pair of gloves to a member's tab or take the money there and then; the receipt goes out by email and the stock count drops by one. When something runs low you can see it before a member does. Lockers work the same way: assign one to a member for the month, and release it when they are done.",
-    screens: ["Admin → Shop / POS", "Admin → Inventory", "Admin → Lockers", "Member app → Receipts"],
+    title: "Sell drinks, kit and lockers",
+    text: "Ring up sales at the desk, keep count of stock, and rent out lockers.",
+    points: ["Receipts and refunds", "Stock counted for you", "Warned before it runs out", "Lockers given to members"],
+    detail: "The desk becomes a till. Take the money there and then or add it to a member's tab; the receipt is emailed and the stock count drops by one.",
+    screens: ["Admin → Shop / POS", "Admin → Inventory", "Admin → Lockers", "Website → My account (their receipts)"],
   },
   {
     key: "staff",
     group: "gym",
     title: "Run your team",
-    text: "Give each staff member only what they may see. Plan shifts, approve time off and create payslips in one click.",
-    points: ["Manager, front desk, trainer, accountant", "Rota and time-off requests", "Payslips with PT commission"],
-    detail:
-      "Your receptionist does not need to see the books and your accountant does not need to edit the timetable. Roles decide who sees what, and you can make your own. Shifts go on a rota everyone can see, time-off requests come to you to approve, and at the end of the month payslips are worked out from salary or hours, minus unpaid days, plus each trainer's PT commission.",
-    screens: ["Admin → Staff", "Admin → Staff → Roster, Leave, Payslips", "Admin → Roles & Access", "Member app → My work"],
+    text: "Rotas, time off and payslips — and everyone sees only their own part.",
+    points: ["Manager, front desk, trainer, accountant", "Shift rota everyone can see", "Time-off requests to approve", "Payslips with PT commission", "Staff see their own shifts online"],
+    detail: "Your receptionist does not need the books and your accountant does not need the timetable. Roles decide who sees what, and you can make your own.",
+    screens: ["Admin → Staff", "Admin → Staff → Roster, Leave, Payslips", "Admin → Roles & Access", "Website → My account → My work"],
   },
 
   /* ------------------------------ reach ------------------------------ */
+  {
+    key: "website",
+    group: "reach",
+    highlight: true,
+    title: "Your own website, on your own address",
+    text: "A real website at yourgym.com — classes, prices, trainers, blog, map — in your colours.",
+    points: ["Your domain, logo and colours", "People join and pay on it", "Change a price, the site follows", "Found on Google"],
+    detail: "Home, classes, trainers, prices, blog, opening hours, a map and a contact form. Nothing to email us about and nothing to redeploy.",
+    screens: ["Website → Home, Classes, Trainers, Memberships", "Website → Blog, About, Contact, FAQs", "Settings → Website, Logo, Colour scheme"],
+  },
+  {
+    key: "app",
+    group: "reach",
+    title: "A phone app for your members",
+    text: "They sign in with a username you issue, and your gym is in their pocket.",
+    points: ["Your logo and colours", "Book classes and check in", "Pause or cancel a membership", "Every visit and payment", "No sign-up: you issue the login"],
+    detail: "One app, every gym — and it becomes yours the moment a member signs in. Only people on your books can get in.",
+    screens: ["Member app → Home, Classes, Membership, Profile", "Member app → Check in (QR)", "Admin → Users (issues the username)"],
+  },
+  {
+    key: "selfservice",
+    group: "reach",
+    title: "Members look after themselves",
+    text: "Bookings, invoices, details and their check-in code — all on their own account page.",
+    points: ["Their classes and PT sessions", "Every payment and invoice", "Change their own details", "Two-step sign-in and privacy", "Check-in QR in the browser too"],
+    detail: "Every question a member would ask at the desk is answered on their own page. That is a quieter front desk.",
+    screens: ["Website → My account → Profile", "Website → My account → My classes, Personal training", "Website → My account → History, Recent visits", "Website → My account → Check-in QR"],
+  },
+  {
+    key: "content",
+    group: "reach",
+    title: "Change your website yourself",
+    text: "Edit the home page, slides, blog and FAQs without waiting on a developer.",
+    points: ["Home page sections and hero slides", "Blog posts and pages", "Testimonials and FAQs", "Privacy policy and terms", "Timetable you can embed anywhere"],
+    detail: "Everything on the public site is edited in the admin. Drop your timetable onto another website with an embed and it stays in step.",
+    screens: ["Admin → Homepage", "Admin → Hero slides", "Admin → Blogs, Blog Settings", "Admin → Pages (FAQs, privacy, terms)", "Admin → Testimonials", "Website → Embedded timetable"],
+  },
   {
     key: "messaging",
     group: "reach",
     highlight: true,
     title: "Talk to members where they already are",
-    text: "Send emails, texts, WhatsApp messages and app notifications. Set it up once and GymPilot reminds people about classes, renewals and birthdays by itself.",
-    points: ["Email, SMS, WhatsApp and push", "Send to everyone or just a group", "Notices on your website and app", "Automatic: missed you, come back, happy birthday", "Members can opt out any time"],
-    detail:
-      "Most of what a gym sends is the same every week, so GymPilot sends it for you: the class reminder the evening before, the renewal notice three days out, the nudge to someone who has not been in for a fortnight, the offer to someone whose membership lapsed last month. You write the wording once. When you do want to say something yourself — a bank holiday timetable, a new class — you can send it to everyone or just to one group, and put a notice on your website at the same time.",
+    text: "Email, SMS, WhatsApp and app notifications — most of it sent for you.",
+    points: ["Class and renewal reminders", "Missed-you and win-back nudges", "Birthday messages", "Everyone, or just one group", "Members can opt out any time"],
+    detail: "Write the wording once and GymPilot sends it on time, every time. When you want to say something yourself, you choose who hears it.",
     screens: ["Admin → Messaging", "Admin → Messaging → Campaigns & Wording", "Settings → Messaging", "Member app → Notifications"],
-  },
-  {
-    key: "website",
-    group: "reach",
-    highlight: true,
-    title: "Your own website and member app",
-    text: "A good-looking website on your own web address, with your logo and colours. Members install it as an app on their phone, and Google can find you.",
-    points: ["Your own domain, like yourgym.com", "Your logo, colours and photos", "Works as an app on any phone", "Classes, trainers, prices, blog, map and hours"],
-    detail:
-      "This is the part most gym software leaves out. You get a real website at your own address — home page, classes, trainers, prices, blog, opening hours, a map and a contact form — with your logo and a colour scheme you pick. People join and pay on it. Members add it to their phone's home screen and from then on it behaves like an app, notifications and all. Change your prices in the admin and the website changes with them; there is nobody to email and nothing to redeploy.",
-    screens: ["Website → Home, Classes, Trainers, Memberships", "Website → Blog, About, Contact, FAQs", "Admin → Homepage, Hero slides, Testimonials", "Admin → Blogs & Pages", "Settings → Website, Logo, Colour scheme"],
   },
 
   /* ----------------------------- control ----------------------------- */
@@ -165,22 +195,55 @@ export const FEATURES: Feature[] = [
     group: "control",
     highlight: true,
     title: "See how the business is doing",
-    text: "Money in, members joined, who came in, which classes are full — on one screen, with a download for your accountant.",
-    points: ["Revenue and memberships", "Attendance and bookings", "Expenses and downloads (CSV)"],
-    detail:
-      "Open one screen and know how the month is going: what came in, how many joined, how many left, which hours are busy and which classes never fill. The books add up your sales, your expenses and your equipment in one place. Anything you can see, your accountant can download as a spreadsheet.",
-    screens: ["Admin → Dashboard", "Admin → Reports", "Admin → Accounts (books)", "Admin → Audit log"],
+    text: "Money in, members joined, who came, which classes fill — on one screen.",
+    points: ["Revenue and memberships", "Attendance and bookings", "Busy hours and quiet ones", "Download as a spreadsheet"],
+    detail: "Open one screen and know how the month is going. Anything you can see, your accountant can download.",
+    screens: ["Admin → Dashboard", "Admin → Reports"],
+  },
+  {
+    key: "books",
+    group: "control",
+    title: "Keep the books",
+    text: "Sales, expenses and equipment in one place, ready for your accountant.",
+    points: ["Sales and expenses by month", "Equipment and service dates", "Filter by date or category", "CSV for the accountant"],
+    detail: "What came in, what went out, and what you own. No spreadsheet to keep up to date on the side.",
+    screens: ["Admin → Accounts → Overview", "Admin → Accounts → Sales, Expenses, Assets"],
+  },
+  {
+    key: "security",
+    group: "control",
+    title: "Locked down by default",
+    text: "Two-step sign-in, roles for staff, and a record of every change.",
+    points: ["Two-factor sign-in by email", "Sign out every device at once", "Roles decide who sees what", "Audit log of every change", "Members download their own data"],
+    detail: "Staff see only their part of the gym, and anything that changes is written down with who did it.",
+    screens: ["Admin → Roles & Access", "Admin → Audit log", "Member → Privacy & security"],
+  },
+  {
+    key: "setup",
+    group: "control",
+    title: "Set it up your way",
+    text: "Country, currency, language, colours and opening hours are all switches.",
+    points: ["Guided setup on day one", "Country and currency", "5 languages, right-to-left too", "8 colour schemes", "Your logo, email and bank details"],
+    detail: "No code and no support ticket. Pick a currency and every price follows; pick a colour scheme and the website and the app both change.",
+    screens: ["Admin → Setup (first run)", "Settings → General (Business, Money & time, Website)", "Settings → Logo, Colour Scheme", "Settings → Stripe, SMTP, Banks, Messaging"],
   },
   {
     key: "data",
     group: "control",
     title: "Your private online presence",
-    text: "Your gym gets its own website, its own app and its own private database — never mixed with another gym. Use it in English, Arabic, Urdu, Spanish or French.",
-    points: ["Your own website, app and database", "Never mixed with anyone else's", "5 languages, right-to-left too", "Export your data any time"],
-    detail:
-      "Your members, payments and attendance live in a database of your own, not in a shared pile with every other gym. That is unusual, and it is the reason we can promise that nobody else's data is ever a query away from yours. Everything is in your language — including Arabic and Urdu, which read right to left — and you can download the lot whenever you want. It is your business; it should be your data.",
-    screens: ["A database per gym", "5 languages across website, app and admin", "Downloads from every report"],
+    text: "Your gym gets its own website, its own app and its own private database.",
+    points: ["A database per gym", "Never mixed with another gym", "Export everything any time", "Still yours if you leave"],
+    detail: "That is unusual, and it is why we can promise nobody else's data is ever a query away from yours.",
+    screens: ["A database per gym", "Downloads from every report"],
   },
 ];
 
 export const HIGHLIGHTS = FEATURES.filter((f) => f.highlight);
+
+/** Numbers on the features page. The first is counted, never typed. */
+export const FEATURE_STATS: { value: number; label: string }[] = [
+  { value: FEATURES.length, label: "features, all included" },
+  { value: 5, label: "languages, 2 right-to-left" },
+  { value: 8, label: "colour schemes" },
+  { value: 0, label: "add-ons to buy" },
+];

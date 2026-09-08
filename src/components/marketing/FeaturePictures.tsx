@@ -2,7 +2,7 @@
 // than screenshotted so nothing goes stale and everything stays crisp. Each
 // one animates in (v-* classes) when its card scrolls into view.
 
-import { FiBarChart2, FiBell, FiCalendar, FiCheck, FiCreditCard, FiDatabase, FiGlobe, FiMessageCircle, FiShoppingBag, FiSmartphone, FiTarget, FiTrendingUp, FiUserCheck, FiUserPlus, FiUsers, FiZap } from "react-icons/fi";
+import { FiBarChart2, FiBell, FiBookOpen, FiCalendar, FiCheck, FiCreditCard, FiDatabase, FiEdit3, FiGlobe, FiLock, FiMessageCircle, FiShield, FiShoppingBag, FiSliders, FiSmartphone, FiTag, FiTarget, FiTrendingUp, FiUser, FiUserCheck, FiUserPlus, FiUsers, FiZap } from "react-icons/fi";
 import { stagger } from "@/lib/motion";
 
 function Frame({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -433,9 +433,275 @@ function DataPicture() {
   );
 }
 
+function OffersPicture() {
+  return (
+    <Frame className="flex h-full flex-col justify-center">
+      <div className="v-pop relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-500 to-rose-500 p-4 text-white shadow-lift" style={stagger(0)}>
+        <span className="absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-white" aria-hidden="true" />
+        <span className="absolute -right-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-white" aria-hidden="true" />
+        <p className="text-[10px] uppercase tracking-[0.2em] text-white/70">September offer</p>
+        <p className="font-display text-2xl font-extrabold tracking-[0.15em]">SEPT25</p>
+        <p className="mt-1 text-[11px] text-white/85">25% off the first payment</p>
+      </div>
+      <div className="mt-3 space-y-1.5 text-[11px]">
+        {[
+          ["Runs until", "30 Sep"],
+          ["Used", "18 of 50"],
+          ["Applies to", "Unlimited monthly"],
+        ].map(([a, b], i) => (
+          <div key={a} className="v-rise flex items-center justify-between rounded-lg bg-white px-3 py-1.5 ring-1 ring-slate-100" style={stagger(2 + i)}>
+            <span className="text-slate-500">{a}</span>
+            <span className="font-semibold text-slate-800">{b}</span>
+          </div>
+        ))}
+      </div>
+      <p className="v-rise mt-3 flex items-center justify-center gap-2 text-[11px] font-semibold text-slate-600" style={stagger(6)}>
+        <FiTag className="h-3.5 w-3.5 text-orange-500" />
+        <span className="text-slate-400 line-through">$59.00</span>
+        <span className="text-slate-900">$44.25 at checkout</span>
+      </p>
+    </Frame>
+  );
+}
+
+function AppPicture() {
+  return (
+    <Frame className="flex h-full items-center justify-center">
+      <div className="v-rise w-[190px] overflow-hidden rounded-[22px] bg-slate-950 p-2.5 shadow-lift ring-1 ring-slate-800" style={stagger(0)}>
+        <span className="mx-auto mb-2 block h-1 w-10 rounded-full bg-white/25" aria-hidden="true" />
+        <div className="flex items-center justify-between px-0.5">
+          <div>
+            <p className="text-[9px] text-slate-400">Iron Works</p>
+            <p className="font-display text-sm font-bold text-white">Hi Sara</p>
+          </div>
+          <span className="v-pop flex h-6 w-6 items-center justify-center rounded-lg bg-lime-300 text-[10px] font-black text-slate-900" style={stagger(2)}>
+            IW
+          </span>
+        </div>
+
+        <div className="v-pop mt-2 flex items-center gap-2 rounded-xl bg-lime-300 px-2.5 py-2 text-slate-900" style={stagger(3)}>
+          <FiSmartphone className="h-4 w-4" />
+          <div>
+            <p className="text-[10px] font-extrabold leading-tight">Check in</p>
+            <p className="text-[8px] font-medium opacity-70">Show this at the desk</p>
+          </div>
+        </div>
+
+        <div className="v-rise mt-2 rounded-xl bg-white/5 p-2.5 ring-1 ring-white/10" style={stagger(4)}>
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-semibold text-white">Unlimited monthly</p>
+            <span className="rounded-full bg-emerald-400/15 px-1.5 py-0.5 text-[8px] font-bold text-emerald-300">active</span>
+          </div>
+          <p className="mt-1 text-[9px] text-slate-400">Runs until 22 Oct · 14 days</p>
+        </div>
+
+        <div className="mt-2 space-y-1">
+          {[
+            ["07:00", "Sunrise Yoga"],
+            ["18:00", "Boxing"],
+          ].map(([t, n], i) => (
+            <div key={n} className="v-pop flex items-center gap-2 rounded-lg bg-white/5 px-2 py-1.5" style={stagger(5 + i)}>
+              <span className="text-[9px] font-bold text-white">{t}</span>
+              <span className="flex-1 truncate text-[9px] text-slate-300">{n}</span>
+              <span className="text-[8px] font-semibold text-emerald-300">booked</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-2 flex items-center justify-between border-t border-white/10 px-2 pt-1.5">
+          {["Home", "Classes", "Card", "You"].map((t, i) => (
+            <span key={t} className={`text-[8px] font-semibold ${i === 0 ? "text-lime-300" : "text-slate-500"}`}>
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+    </Frame>
+  );
+}
+
+function ContentPicture() {
+  const rows = [
+    ["Hero slides", "3 slides", "bg-brand-500"],
+    ["About / Intro", "Live", "bg-emerald-500"],
+    ["Stats band", "Live", "bg-emerald-500"],
+    ["Testimonials", "6 quotes", "bg-amber-500"],
+  ];
+  return (
+    <Frame>
+      <ul className="space-y-1.5">
+        {rows.map(([l, v, c], i) => (
+          <li key={l} className="v-rise flex items-center gap-2.5 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200" style={stagger(i)}>
+            <span className="flex flex-col gap-[3px]" aria-hidden="true">
+              <span className="h-[2px] w-3 rounded bg-slate-300" />
+              <span className="h-[2px] w-3 rounded bg-slate-300" />
+              <span className="h-[2px] w-3 rounded bg-slate-300" />
+            </span>
+            <span className="flex-1 text-[11px] font-semibold text-slate-800">{l}</span>
+            <span className={`h-1.5 w-1.5 rounded-full ${c}`} />
+            <span className="text-[10px] font-medium text-slate-500">{v}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-3 grid grid-cols-4 gap-1.5">
+        {["bg-slate-800", "bg-brand-400", "bg-emerald-400", "bg-amber-400"].map((c, i) => (
+          <div key={c} className={`v-pop h-8 rounded-md ${c}`} style={stagger(5 + i)} />
+        ))}
+      </div>
+      <p className="v-rise mt-3 flex items-center gap-1.5 text-[11px] text-slate-500" style={stagger(9)}>
+        <FiEdit3 className="h-3.5 w-3.5 text-pink-500" /> Saved · your website is already showing it
+      </p>
+    </Frame>
+  );
+}
+
+function BooksPicture() {
+  const months = [38, 52, 44, 61, 57, 70];
+  return (
+    <Frame>
+      <div className="grid grid-cols-3 gap-1.5 text-center">
+        {[
+          ["In", "$38,420", "text-emerald-600"],
+          ["Out", "$11,905", "text-rose-600"],
+          ["Own", "$76,300", "text-slate-900"],
+        ].map(([l, v, c], i) => (
+          <div key={l} className="v-pop rounded-lg bg-white py-2 ring-1 ring-slate-200" style={stagger(i)}>
+            <p className={`font-display text-sm font-bold ${c}`}>{v}</p>
+            <p className="text-[10px] text-slate-500">{l}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 flex h-16 items-end gap-1.5">
+        {months.map((h, i) => (
+          <span key={i} className="v-fill-y flex-1 rounded-t bg-gradient-to-t from-brand-500 to-fuchsia-400" style={{ ...stagger(3 + i), height: `${h}%` }} />
+        ))}
+      </div>
+      <div className="mt-3 space-y-1 text-[11px]">
+        {[
+          ["Rent · September", "−$2,400"],
+          ["Treadmill · serviced", "next Mar"],
+        ].map(([a, b], i) => (
+          <div key={a} className="v-rise flex justify-between rounded-lg bg-white px-3 py-1.5 ring-1 ring-slate-100" style={stagger(9 + i)}>
+            <span className="text-slate-600">{a}</span>
+            <span className="font-semibold text-slate-800">{b}</span>
+          </div>
+        ))}
+      </div>
+    </Frame>
+  );
+}
+
+function SecurityPicture() {
+  return (
+    <Frame>
+      <div className="v-rise flex items-center gap-3 rounded-lg bg-slate-950 px-3 py-2.5 text-white" style={stagger(0)}>
+        <FiShield className="h-5 w-5 shrink-0 text-emerald-400" />
+        <div className="min-w-0 text-[11px]">
+          <p className="font-semibold">Two-step sign-in is on</p>
+          <p className="text-slate-400">A code by email before anyone gets in.</p>
+        </div>
+      </div>
+      <div className="mt-3 space-y-1.5 text-[11px]">
+        {[
+          ["Front desk", "Members, bookings"],
+          ["Accountant", "The books only"],
+          ["Trainer", "Own classes"],
+        ].map(([r, s], i) => (
+          <div key={r} className="v-rise flex items-center justify-between rounded-lg bg-white px-3 py-1.5 ring-1 ring-slate-100" style={stagger(2 + i)}>
+            <span className="font-semibold text-slate-800">{r}</span>
+            <span className="flex items-center gap-1 font-medium text-emerald-600">
+              <FiLock className="h-3 w-3" /> {s}
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className="v-rise mt-3 font-mono text-[10px] text-slate-500" style={stagger(7)}>
+        14:02 · Sara changed Unlimited monthly $59 → $62
+      </p>
+    </Frame>
+  );
+}
+
+function SetupPicture() {
+  // The eight schemes a gym can pick, in their real accent colours.
+  const swatches = ["#ff6b2c", "#f5f5f7", "#38bdf8", "#e11d48", "#bee304", "#8b5cf6", "#10b981", "#f5a524"];
+  return (
+    <Frame>
+      <div className="space-y-1.5 text-[11px]">
+        {[
+          ["Country", "Pakistan"],
+          ["Currency", "PKR ₨"],
+          ["Clock", "24-hour · Asia/Karachi"],
+        ].map(([l, v], i) => (
+          <div key={l} className="v-rise flex items-center justify-between rounded-lg bg-white px-3 py-1.5 ring-1 ring-slate-200" style={stagger(i)}>
+            <span className="text-slate-500">{l}</span>
+            <span className="font-semibold text-slate-800">{v}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {["English", "العربية", "اردو", "Español", "Français"].map((l, i) => (
+          <span key={l} className="v-pop rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-700 ring-1 ring-slate-200" style={stagger(3 + i)}>
+            {l}
+          </span>
+        ))}
+      </div>
+      <div className="mt-3 flex items-center gap-2">
+        <FiSliders className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+        <div className="flex flex-1 gap-1.5">
+          {swatches.map((c, i) => (
+            <span key={c} className={`v-pop h-5 flex-1 rounded ${i === 4 ? "ring-2 ring-slate-900 ring-offset-1" : "ring-1 ring-slate-200"}`} style={{ ...stagger(8 + i), background: c }} />
+          ))}
+        </div>
+      </div>
+    </Frame>
+  );
+}
+
+function SelfServicePicture() {
+  const tabs = ["Profile", "My classes", "History", "Check-in QR"];
+  return (
+    <Frame>
+      <div className="v-rise overflow-hidden rounded-lg bg-white shadow-card ring-1 ring-slate-200" style={stagger(0)}>
+        <div className="flex items-center gap-1.5 border-b border-slate-100 bg-slate-50 px-3 py-1.5 text-[10px] text-slate-500">
+          <span className="h-2 w-2 rounded-full bg-slate-300" />
+          <span className="ml-1 truncate">ironworks.fit/my-account</span>
+        </div>
+        <div className="flex gap-1 border-b border-slate-100 px-2 pt-2">
+          {tabs.map((t, i) => (
+            <span
+              key={t}
+              className={`v-pop rounded-t-md px-2 py-1 text-[9.5px] font-semibold ${i === 0 ? "bg-slate-900 text-white" : "text-slate-500"}`}
+              style={stagger(1 + i)}
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+        <div className="space-y-1.5 p-2.5 text-[11px]">
+          {[
+            ["Next class", "Boxing · Tue 18:00"],
+            ["Membership", "Unlimited · to 22 Oct"],
+            ["Invoice #1042", "Download"],
+          ].map(([a, b], i) => (
+            <div key={a} className="v-rise flex items-center justify-between rounded-md bg-slate-50 px-2.5 py-1.5" style={stagger(5 + i)}>
+              <span className="text-slate-500">{a}</span>
+              <span className="font-semibold text-slate-800">{b}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="v-rise mt-3 flex items-center gap-1.5 text-[11px] text-slate-500" style={stagger(9)}>
+        <FiUser className="h-3.5 w-3.5 text-yellow-600" /> Nobody had to ask the front desk
+      </p>
+    </Frame>
+  );
+}
+
 /** Keyed by the feature key in content/features.ts. */
 export const FEATURE_PICTURES: Record<string, React.ComponentType> = {
   billing: BillingPicture,
+  offers: OffersPicture,
   booking: BookingPicture,
   pt: PtPicture,
   frontdesk: FrontDeskPicture,
@@ -445,13 +711,20 @@ export const FEATURE_PICTURES: Record<string, React.ComponentType> = {
   members: MembersPicture,
   leads: LeadsPicture,
   reports: ReportsPicture,
+  books: BooksPicture,
+  security: SecurityPicture,
+  setup: SetupPicture,
   website: WebsitePicture,
+  app: AppPicture,
+  selfservice: SelfServicePicture,
+  content: ContentPicture,
   data: DataPicture,
 };
 
 /** The icon and its tint for each feature, shared by both places it appears. */
 export const FEATURE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   billing: FiCreditCard,
+  offers: FiTag,
   booking: FiCalendar,
   pt: FiTarget,
   frontdesk: FiZap,
@@ -461,12 +734,19 @@ export const FEATURE_ICONS: Record<string, React.ComponentType<{ className?: str
   members: FiUserCheck,
   leads: FiUserPlus,
   reports: FiBarChart2,
+  books: FiBookOpen,
+  security: FiShield,
+  setup: FiSliders,
   website: FiGlobe,
+  app: FiSmartphone,
+  selfservice: FiUser,
+  content: FiEdit3,
   data: FiDatabase,
 };
 
 export const FEATURE_TINTS: Record<string, string> = {
   billing: "bg-emerald-50 text-emerald-600 ring-emerald-100",
+  offers: "bg-orange-50 text-orange-600 ring-orange-100",
   booking: "bg-brand-50 text-brand-600 ring-brand-100",
   pt: "bg-amber-50 text-amber-600 ring-amber-100",
   frontdesk: "bg-sky-50 text-sky-600 ring-sky-100",
@@ -476,6 +756,12 @@ export const FEATURE_TINTS: Record<string, string> = {
   members: "bg-teal-50 text-teal-600 ring-teal-100",
   leads: "bg-orange-50 text-orange-600 ring-orange-100",
   reports: "bg-cyan-50 text-cyan-600 ring-cyan-100",
+  books: "bg-lime-50 text-lime-700 ring-lime-100",
+  security: "bg-slate-900 text-emerald-300 ring-slate-700",
+  setup: "bg-purple-50 text-purple-600 ring-purple-100",
   website: "bg-indigo-50 text-indigo-600 ring-indigo-100",
+  app: "bg-blue-50 text-blue-600 ring-blue-100",
+  selfservice: "bg-yellow-50 text-yellow-700 ring-yellow-100",
+  content: "bg-pink-50 text-pink-600 ring-pink-100",
   data: "bg-slate-100 text-slate-700 ring-slate-200",
 };

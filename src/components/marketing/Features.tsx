@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FiArrowRight, FiCheck } from "react-icons/fi";
-import { FEATURES_INTRO, HIGHLIGHTS } from "@/content/features";
+import { FEATURES, FEATURES_INTRO, HIGHLIGHTS } from "@/content/features";
 import { stagger } from "@/lib/motion";
 import { FEATURE_ICONS, FEATURE_PICTURES, FEATURE_TINTS } from "./FeaturePictures";
 import Reveal from "./Reveal";
@@ -43,8 +43,10 @@ export default function Features() {
                 <p className="v-rise mt-2 text-sm leading-relaxed text-slate-600" style={stagger(2)}>
                   {f.text}
                 </p>
+                {/* Three at most: the landing page is a shop window, and the
+                    rest of each list is on /features. */}
                 <ul className="mt-4 space-y-1.5 text-sm text-slate-700">
-                  {f.points.map((p, j) => (
+                  {f.points.slice(0, 3).map((p, j) => (
                     <li key={p} className="v-rise flex items-start gap-2" style={stagger(3 + j)}>
                       <FiCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" /> {p}
                     </li>
@@ -72,11 +74,31 @@ export default function Features() {
           })}
         </div>
 
-        <Reveal delay={200} className="mt-10 flex justify-center">
-          <Link href="/features" className="btn-shine group inline-flex h-12 items-center gap-2 rounded-full bg-slate-900 px-7 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5">
-            {FEATURES_INTRO.cta}
-            <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+        {/* The six above are a sixth of the product, so this is the most
+            important link on the page: a lit halo, a shine that sweeps by
+            itself and an arrow that keeps nudging. Nobody scrolls past it
+            wondering whether there is more. */}
+        <Reveal delay={200} className="mt-14 flex flex-col items-center">
+          <div className="relative">
+            <span
+              aria-hidden="true"
+              className="a-halo pointer-events-none absolute -inset-5 rounded-full"
+              style={{ background: "radial-gradient(closest-side, rgba(124,58,237,0.55), transparent 72%)" }}
+            />
+            <Link
+              href="/features"
+              className="btn-sweep group relative inline-flex h-14 items-center gap-3 rounded-full bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 px-7 text-base font-bold text-white shadow-lift ring-1 ring-white/25 transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.03] sm:px-9 sm:text-lg"
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 font-display text-sm font-extrabold">
+                {FEATURES.length}
+              </span>
+              {FEATURES_INTRO.cta}
+              <FiArrowRight className="a-nudge h-5 w-5" />
+            </Link>
+          </div>
+          <p className="mt-4 text-sm font-medium text-slate-500">
+            {FEATURES.length} in total — every one of them in every plan.
+          </p>
         </Reveal>
       </div>
     </section>

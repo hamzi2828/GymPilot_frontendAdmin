@@ -129,6 +129,11 @@ details > summary::-webkit-details-marker {
 @keyframes m-pop { 0% { opacity: 0; transform: scale(0.6); } 70% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes m-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes m-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes m-fill-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes m-slide-l { from { opacity: 0; transform: translateX(-32px); } to { opacity: 1; transform: none; } }
+@keyframes m-slide-r { from { opacity: 0; transform: translateX(32px); } to { opacity: 1; transform: none; } }
+@keyframes m-tilt { from { opacity: 0; transform: perspective(900px) rotateY(9deg) translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes m-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
 @keyframes m-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes m-bubble-l { from { opacity: 0; transform: translate(-14px, 8px) scale(0.95); } to { opacity: 1; transform: none; } }
 @keyframes m-bubble-r { from { opacity: 0; transform: translate(14px, 8px) scale(0.95); } to { opacity: 1; transform: none; } }
@@ -137,9 +142,13 @@ details > summary::-webkit-details-marker {
 @keyframes m-spin { to { transform: rotate(360deg); } }
 @keyframes m-scan { 0% { transform: translateY(-100%); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(900%); opacity: 0; } }
 @keyframes m-blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.8); } }
+@keyframes m-halo { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.85; transform: scale(1.07); } }
+@keyframes m-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
+/* Sweeps across in the first third, then waits, so it catches the eye without strobing. */
+@keyframes m-sweep { 0% { transform: translateX(-160%) skewX(-20deg); } 32%, 100% { transform: translateX(280%) skewX(-20deg); } }
 
 .a-rise, .a-pop, .a-fill,
-.v-rise, .v-pop, .v-fade, .v-fill, .v-draw, .v-bubble-l, .v-bubble-r {
+.v-rise, .v-pop, .v-fade, .v-fill, .v-fill-y, .v-draw, .v-bubble-l, .v-bubble-r, .v-slide-l, .v-slide-r, .v-tilt {
   animation-delay: calc(var(--i, 0) * 90ms + var(--d, 0ms));
   animation-fill-mode: both;
 }
@@ -150,6 +159,11 @@ details > summary::-webkit-details-marker {
 .reveal.is-visible .v-pop { animation-name: m-pop; animation-duration: 0.55s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
 .reveal.is-visible .v-fade { animation-name: m-fade; animation-duration: 1s; }
 .reveal.is-visible .v-fill { animation-name: m-fill; animation-duration: 1s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+.v-fill-y { transform-origin: bottom; }
+.reveal.is-visible .v-fill-y { animation-name: m-fill-y; animation-duration: 0.9s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+.reveal.is-visible .v-slide-l { animation-name: m-slide-l; animation-duration: 0.8s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+.reveal.is-visible .v-slide-r { animation-name: m-slide-r; animation-duration: 0.8s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+.reveal.is-visible .v-tilt { animation-name: m-tilt; animation-duration: 0.9s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
 .reveal.is-visible .v-draw { stroke-dasharray: 1; animation-name: m-draw; animation-duration: 1.4s; animation-timing-function: ease-out; }
 .reveal.is-visible .v-bubble-l { animation-name: m-bubble-l; animation-duration: 0.6s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
 .reveal.is-visible .v-bubble-r { animation-name: m-bubble-r; animation-duration: 0.6s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
@@ -158,8 +172,17 @@ details > summary::-webkit-details-marker {
 .a-drift { animation: m-drift 16s ease-in-out infinite; }
 .a-drift-2 { animation: m-drift 22s ease-in-out infinite reverse; }
 .a-spin-slow { animation: m-spin 40s linear infinite; }
+.a-float { animation: m-float 7s ease-in-out infinite; }
+.a-float-2 { animation: m-float 9s ease-in-out infinite reverse; }
+/* Same gentle float, but only once the card has been scrolled to. */
+.reveal.is-visible .v-float { animation: m-float 7s ease-in-out infinite; }
 .a-scan { animation: m-scan 2.8s ease-in-out infinite; }
 .a-blink { animation: m-blink 1.6s ease-in-out infinite; }
+.a-halo { animation: m-halo 2.8s ease-in-out infinite; }
+.a-nudge { animation: m-nudge 1.4s ease-in-out infinite; }
+/* Like .btn-shine, but it sweeps on its own rather than waiting for a hover. */
+.btn-sweep { position: relative; overflow: hidden; isolation: isolate; }
+.btn-sweep::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 38%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent); transform: translateX(-160%) skewX(-20deg); pointer-events: none; animation: m-sweep 3.6s ease-in-out infinite; }
 .animate-marquee:hover { animation-play-state: paused; }
 
 /* A light sweep across a button on hover. */
@@ -174,8 +197,10 @@ details[open] > summary ~ * { animation: m-rise 0.45s cubic-bezier(0.22, 1, 0.36
 @media (prefers-reduced-motion: reduce) {
   .a-rise, .a-pop, .a-fill,
   .reveal.is-visible .v-rise, .reveal.is-visible .v-pop, .reveal.is-visible .v-fade, .reveal.is-visible .v-fill,
+  .reveal.is-visible .v-fill-y, .reveal.is-visible .v-slide-l, .reveal.is-visible .v-slide-r, .reveal.is-visible .v-tilt,
   .reveal.is-visible .v-draw, .reveal.is-visible .v-bubble-l, .reveal.is-visible .v-bubble-r,
-  .a-drift, .a-drift-2, .a-spin-slow, .a-scan, .a-blink, .btn-shine:hover::after,
+  .reveal.is-visible .v-float,
+  .a-drift, .a-drift-2, .a-spin-slow, .a-float, .a-float-2, .a-scan, .a-blink, .a-halo, .a-nudge, .btn-sweep::after, .btn-shine:hover::after,
   details[open] > summary ~ * { animation: none !important; }
   .reveal.is-visible .v-draw { stroke-dasharray: none; }
 }

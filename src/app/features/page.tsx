@@ -1,21 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FiArrowRight, FiCheckCircle } from "react-icons/fi";
-import { FEATURES, FEATURE_GROUPS, FEATURES_PAGE } from "@/content/features";
+import { FEATURES, FEATURE_GROUPS, FEATURES_PAGE, FEATURE_STATS } from "@/content/features";
 import { stagger } from "@/lib/motion";
 import SiteHeader from "@/components/marketing/SiteHeader";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import CtaBand from "@/components/marketing/CtaBand";
 import ScrollProgress from "@/components/marketing/ScrollProgress";
+import CountUp from "@/components/marketing/CountUp";
 import FeatureFull from "@/components/marketing/FeatureFull";
+import FeatureIndex from "@/components/marketing/FeatureIndex";
 import Reveal from "@/components/marketing/Reveal";
 import Glow from "@/components/marketing/Glow";
 
 export const metadata: Metadata = {
   title: "Features",
-  description: "Every feature in GymPilot, in plain English: memberships and billing, class booking, personal training, front desk, shop, staff, messaging, your own website and member app, reports, and a private database per gym.",
+  description:
+    "All 18 features in GymPilot, in plain English: memberships and billing, discount codes, class booking, personal training, front desk, shop, staff, messaging, your own website and member app, reports, the books, security and a private database per gym.",
   alternates: { canonical: "/features" },
 };
+
+// The running number down the page (01 … 18), independent of the groups.
+const NUMBER_OF = new Map(FEATURES.map((f, i) => [f.key, i + 1]));
 
 export default function FeaturesPage() {
   return (
@@ -26,6 +32,7 @@ export default function FeaturesPage() {
         <section className="relative overflow-hidden bg-slate-950 pb-16 pt-32 text-white sm:pt-36">
           <div className="bg-grid-dark absolute inset-0 [mask-image:radial-gradient(ellipse_at_top,black_30%,transparent_75%)]" aria-hidden="true" />
           <Glow className="left-1/2 top-0 h-[620px] w-[1100px] -translate-x-1/2 -translate-y-1/2" color="rgba(79,70,229,0.38)" drift="a" />
+          <Glow className="-right-32 top-40 h-[420px] w-[520px]" color="rgba(217,70,239,0.22)" drift="b" />
           <div className="relative mx-auto max-w-4xl px-5 text-center sm:px-8">
             <p className="a-rise text-xs font-semibold uppercase tracking-[0.18em] text-brand-300" style={stagger(0)}>
               {FEATURES_PAGE.eyebrow}
@@ -44,19 +51,26 @@ export default function FeaturesPage() {
                 See pricing
               </Link>
             </div>
+
+            {/* Four numbers that say what kind of product this is. */}
+            <dl className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {FEATURE_STATS.map((s, i) => (
+                <div key={s.label} className="a-pop rounded-2xl border border-white/10 bg-white/5 px-3 py-4 backdrop-blur-sm" style={stagger(4 + i)}>
+                  <dt className="sr-only">{s.label}</dt>
+                  <dd>
+                    <span className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                      <CountUp value={s.value} />
+                    </span>
+                    <span className="mt-1 block text-[11px] font-medium leading-snug text-slate-400">{s.label}</span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </section>
 
-        {/* Jump to a group. Sits under the fixed header. */}
-        <nav aria-label="Feature groups" className="sticky top-16 z-30 border-b border-slate-200 bg-white/95 backdrop-blur-sm">
-          <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-5 py-3 sm:px-8">
-            {FEATURE_GROUPS.map((g) => (
-              <a key={g.key} href={`#${g.key}`} className="whitespace-nowrap rounded-full border border-slate-200 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700">
-                {g.label}
-              </a>
-            ))}
-          </div>
-        </nav>
+        {/* Everything on one screen, then the long read. */}
+        <FeatureIndex />
 
         {/* Every feature, by group */}
         {FEATURE_GROUPS.map((group, gi) => {
@@ -66,8 +80,13 @@ export default function FeaturesPage() {
               <div className="mx-auto max-w-7xl px-5 sm:px-8">
                 <Reveal className="max-w-2xl">
                   <p className="v-rise flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-brand-600" style={stagger(0)}>
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-600 text-[11px] font-bold text-white">{gi + 1}</span>
+                    <span className="v-pop inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-600 text-[11px] font-bold text-white" style={stagger(0)}>
+                      {gi + 1}
+                    </span>
                     {group.label}
+                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold tracking-normal text-slate-500">
+                      {items.length} features
+                    </span>
                   </p>
                   <h2 className="v-rise mt-3 font-display text-3xl font-bold tracking-[-0.02em] text-slate-900 sm:text-4xl" style={stagger(1)}>
                     {group.title}
@@ -80,7 +99,7 @@ export default function FeaturesPage() {
 
                 <div className="mt-14 space-y-20 lg:space-y-24">
                   {items.map((feature, i) => (
-                    <FeatureFull key={feature.key} feature={feature} index={i} />
+                    <FeatureFull key={feature.key} feature={feature} index={i} number={NUMBER_OF.get(feature.key) || i + 1} />
                   ))}
                 </div>
               </div>
