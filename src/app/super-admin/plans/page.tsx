@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { FiCheck, FiPlus } from "react-icons/fi";
-import { PageHeader, Panel, Button, Field, Input, Textarea, Toggle, Modal, Spinner, EmptyState, Alert, Pill } from "../_shared/ui";
+import { PageHeader, Panel, Button, Field, Input, Select, Textarea, Toggle, Modal, Spinner, EmptyState, Alert, Pill } from "../_shared/ui";
 import { platformFetch, formatMoney, type Plan } from "../_shared/api";
 
 type Draft = {
@@ -22,13 +22,16 @@ type Draft = {
   order: string;
 };
 
+/** What the platform sells in. PKR first: it is what we quote today. */
+const CURRENCIES = ["PKR", "USD", "GBP", "EUR", "AED", "SAR", "INR"];
+
 const emptyDraft: Draft = {
   name: "",
   slug: "",
   description: "",
   monthly: "0",
   yearly: "0",
-  currency: "USD",
+  currency: "PKR",
   maxMembers: "0",
   maxStaff: "0",
   maxTrainers: "0",
@@ -60,6 +63,12 @@ function toDraft(plan: Plan): Draft {
 
 function limit(n: number) {
   return n ? n.toLocaleString() : "Unlimited";
+}
+
+/** What a gym saves by paying for a year up front, as a whole percent. */
+function yearlySaving(plan: Plan) {
+  if (!plan.price.yearly || !plan.price.monthly) return 0;
+  return Math.round((1 - plan.price.yearly / (plan.price.monthly * 12)) * 100);
 }
 
 export default function PlansPage() {
@@ -141,6 +150,9 @@ export default function PlansPage() {
   };
 
   const set = (key: keyof Draft) => (value: string) => setDraft((d) => ({ ...d, [key]: value }));
+  const monthlyNum = Number(draft.monthly) || 0;
+  const yearlyNum = Number(draft.yearly) || 0;
+  const draftSaving = monthlyNum > 0 && yearlyNum > 0 ? Math.round((1 - yearlyNum / (monthlyNum * 12)) * 100) : 0;
   const field = (label: string, key: keyof Draft, type = "text", placeholder?: string) => (
     <Field label={label}>
       <Input type={type} value={String(draft[key])} onChange={(e) => set(key)(e.target.value)} placeholder={placeholder} />
@@ -152,7 +164,7 @@ export default function PlansPage() {
       <PageHeader
         eyebrow="Platform"
         title="Plans"
-        description="What you sell to gyms: price, trial length and the limits each tier gets. A limit of 0 means unlimited."
+        description="What you sell to gyms: the price, the trial and the limits each tier gets. A limit of 0 means unlimited. Gyms already on a plan keep the price they agreed — changes here apply to the next gym you set up."
         actions={
           <Button onClick={openNew}>
             <FiPlus className="h-4 w-4" /> New plan
@@ -167,7 +179,7 @@ export default function PlansPage() {
       ) : !plans.length ? (
         <EmptyState title="No plans yet" hint="Create the plans you sell to gyms. New gyms start on a plan's trial period." action={<Button onClick={openNew}>Create the first plan</Button>} />
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {plans.map((plan) => (
             <Panel
               key={plan.id}
@@ -196,11 +208,20 @@ export default function PlansPage() {
                 {!plan.isActive && <Pill tone="neutral">inactive</Pill>}
               </div>
               <p className="mt-4 text-3xl font-semibold tracking-tight text-slate-900">
-                {formatMoney(plan.price.monthly, plan.price.currency)}
-                <span className="text-sm font-normal text-slate-500"> /month</span>
+                {plan.price.monthly === 0 ? "Free" : formatMoney(plan.price.monthly, plan.price.currency)}
+                {plan.price.monthly > 0 && <span className="text-sm font-normal text-slate-500"> /month</span>}
               </p>
               <p className="text-xs text-slate-500">
-                {formatMoney(plan.price.yearly, plan.price.currency)} /year · {plan.trialDays}-day trial
+                {plan.price.yearly > 0 ? (
+                  <>
+                    {formatMoney(plan.price.yearly, plan.price.currency)} /year
+                    {yearlySaving(plan) > 0 && <span className="font-semibold text-emerald-600"> · saves {yearlySaving(plan)}%</span>}
+                  </>
+                ) : (
+                  "no yearly price"
+                )}
+                {" · "}
+                {plan.trialDays}-day trial
               </p>
               {plan.description && <p className="mt-3 text-sm text-slate-600">{plan.description}</p>}
               <dl className="mt-5 grid grid-cols-2 gap-3">
@@ -239,12 +260,20 @@ export default function PlansPage() {
               <Textarea value={draft.description} onChange={(e) => set("description")(e.target.value)} />
             </Field>
           </div>
-          {field("Monthly price", "monthly", "number")}
-          {field("Yearly price", "yearly", "number")}
           <Field label="Currency">
-            <Input value={draft.currency} onChange={(e) => set("currency")(e.target.value.toUpperCase())} />
+            <Select value={draft.currency} onChange={(e) => set("currency")(e.target.value)}>
+              {CURRENCIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </Select>
           </Field>
           {field("Trial days", "trialDays", "number")}
+          {field(`Monthly price (${draft.currency})`, "monthly", "number")}
+          <Field label={`Yearly price (${draft.currency})`} hint={draftSaving > 0 ? `${draftSaving}% off paying monthly` : undefined}>
+            <Input type="number" value={draft.yearly} onChange={(e) => set("yearly")(e.target.value)} />
+          </Field>
           {field("Max members (0 = unlimited)", "maxMembers", "number")}
           {field("Max staff (0 = unlimited)", "maxStaff", "number")}
           {field("Max trainers (0 = unlimited)", "maxTrainers", "number")}

@@ -26,7 +26,9 @@ export default function Pricing() {
       .catch(() => setFailed(true));
   }, []);
 
-  const popular = plans && plans.length >= 3 ? 1 : 0;
+  // The one we point at: the middle of three, the second-from-top of four --
+  // the tier most gyms actually land on, never the cheapest or the dearest.
+  const popular = !plans ? 0 : plans.length >= 4 ? 2 : plans.length >= 3 ? 1 : 0;
   const anyYearly = !!plans?.some((p) => p.price.yearly > 0);
 
   return (
@@ -73,7 +75,17 @@ export default function Pricing() {
           )}
 
           {plans && plans.length > 0 && (
-            <div className={`grid gap-5 ${plans.length === 1 ? "mx-auto max-w-md" : plans.length === 2 ? "mx-auto max-w-4xl md:grid-cols-2" : "md:grid-cols-2 xl:grid-cols-3"}`}>
+            <div
+              className={`grid gap-5 ${
+                plans.length === 1
+                  ? "mx-auto max-w-md"
+                  : plans.length === 2
+                  ? "mx-auto max-w-4xl md:grid-cols-2"
+                  : plans.length === 3
+                  ? "md:grid-cols-2 xl:grid-cols-3"
+                  : "md:grid-cols-2 xl:grid-cols-4"
+              }`}
+            >
               {plans.map((plan, i) => {
                 const isPopular = i === popular;
                 const perMonth = yearly && plan.price.yearly > 0 ? plan.price.yearly / 12 : plan.price.monthly;

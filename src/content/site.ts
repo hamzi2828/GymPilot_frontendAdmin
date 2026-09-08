@@ -126,7 +126,7 @@ export const PRICING = {
   eyebrow: "Pricing",
   title: "One price. The whole product.",
   text: "Every plan includes billing, booking, PT, front desk, shop, messaging, staff, reports and the website. Plans differ only by size. Prices below come straight from your GymPilot account.",
-  included: ["Own domain & website", "Member app (PWA)", "Stripe & bank transfer billing", "Class & PT booking", "Messaging: email, SMS, WhatsApp, push", "POS, stock & lockers", "Staff roles, leave & payslips", "Reports & CSV exports", "5 languages", "Daily backups & private database"],
+  included: ["Own domain & website", "Member phone app, in your colours", "Stripe & bank transfer billing", "Class & PT booking", "Messaging: email, SMS, WhatsApp, push", "POS, stock & lockers", "Staff roles, leave & payslips", "Reports & CSV exports", "5 languages", "Daily backups & private database"],
   fallback: "Plans are being set up. Book a demo and we will send you a quote the same day.",
 };
 
