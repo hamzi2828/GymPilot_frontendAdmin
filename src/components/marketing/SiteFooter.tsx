@@ -32,15 +32,11 @@ export default function SiteFooter() {
               <ul className="mt-4 space-y-2.5 text-sm">
                 {col.links.map((l) => (
                   <li key={l.href + l.label}>
-                    {l.href.startsWith("#") ? (
-                      <a href={l.href} className="hover:text-white">
-                        {l.label}
-                      </a>
-                    ) : (
-                      <Link href={l.href} className="hover:text-white">
-                        {l.label}
-                      </Link>
-                    )}
+                    {/* A section of the landing page is reachable from every
+                        page, so its link always carries the leading slash. */}
+                    <Link href={l.href.startsWith("#") ? `/${l.href}` : l.href} className="hover:text-white">
+                      {l.label}
+                    </Link>
                   </li>
                 ))}
               </ul>

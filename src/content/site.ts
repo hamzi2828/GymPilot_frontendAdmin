@@ -73,86 +73,8 @@ export const PROOF = [
   { value: "0", label: "add-ons to buy", hint: "Billing, booking, POS, payroll, reports — every plan is the full product." },
 ];
 
-export const FEATURES_INTRO = {
-  eyebrow: "What's inside",
-  title: "Everything a gym needs, in one app",
-  text: "No extra apps to buy and nothing to bolt on. Every plan has all of this from day one.",
-};
-
-export const FEATURES: { key: string; title: string; text: string; points: string[] }[] = [
-  {
-    key: "billing",
-    title: "Get paid on time, every time",
-    text: "Members pay by card, bank transfer or cash. Renewals happen by themselves, invoices go out by themselves, and if a card fails GymPilot tries again and lets the member know.",
-    points: ["Monthly and yearly memberships", "Class packs and PT packs", "Pause, upgrade or cancel in a tap", "Bank transfer with a photo of the receipt", "Invoices sent automatically"],
-  },
-  {
-    key: "booking",
-    title: "Members book classes from their phone",
-    text: "Put your classes on the timetable. Members tap to book. When a class is full they join the waitlist and get a message the moment a spot opens.",
-    points: ["Waitlists that fill themselves", "Rules for late cancels and no-shows", "Holidays and cover instructors"],
-  },
-  {
-    key: "pt",
-    title: "Sell personal training",
-    text: "Trainers set the hours they are free. Members buy a pack of sessions and book them. Each trainer's share is worked out for you.",
-    points: ["Trainer calendar", "Packs of 5 or 10 sessions", "Trainer commission on the payslip"],
-  },
-  {
-    key: "frontdesk",
-    title: "Know who is in the gym",
-    text: "Members scan a QR code or use a fingerprint at the door. If their membership has run out, the door says no and the desk sees why.",
-    points: ["QR check-in on any tablet", "Fingerprint app for the front desk", "See who is inside right now"],
-  },
-  {
-    key: "pos",
-    title: "Sell drinks, supplements and lockers",
-    text: "Ring up sales at the desk, keep count of stock, print or email receipts, and rent out lockers.",
-    points: ["Receipts and refunds", "Stock counted for you", "Lockers given to members"],
-  },
-  {
-    key: "messaging",
-    title: "Talk to members where they already are",
-    text: "Send emails, texts, WhatsApp messages and app notifications. Set it up once and GymPilot reminds people about classes, renewals and birthdays by itself.",
-    points: ["Email, SMS, WhatsApp and push", "Send to everyone or just a group", "Notices on your website and app", "Automatic: missed you, come back, happy birthday", "Members can opt out any time"],
-  },
-  {
-    key: "staff",
-    title: "Run your team",
-    text: "Give each staff member only what they may see. Plan shifts, approve time off and create payslips in one click.",
-    points: ["Manager, front desk, trainer, accountant", "Rota and time-off requests", "Payslips with PT commission"],
-  },
-  {
-    key: "members",
-    title: "Every member in one place",
-    text: "Photo, contact details, emergency contact, health form, signed agreement, documents and notes. Bring your existing members in from a spreadsheet.",
-    points: ["Health questionnaire (PAR-Q)", "Agreement signed on screen", "Import members from CSV"],
-  },
-  {
-    key: "leads",
-    title: "Turn visitors into members",
-    text: "Every enquiry from your website becomes a lead. Follow up, add notes, and turn them into a member with one click.",
-    points: ["Website contact form → lead", "Follow-up notes and status", "Convert to member"],
-  },
-  {
-    key: "reports",
-    title: "See how the business is doing",
-    text: "Money in, members joined, who came in, which classes are full — on one screen, with a download for your accountant.",
-    points: ["Revenue and memberships", "Attendance and bookings", "Expenses and downloads (CSV)"],
-  },
-  {
-    key: "website",
-    title: "Your own website and member app",
-    text: "A good-looking website on your own web address, with your logo and colours. Members install it as an app on their phone, and Google can find you.",
-    points: ["Your own domain, like yourgym.com", "Your logo, colours and photos", "Works as an app on any phone", "Classes, trainers, prices, blog, map and hours"],
-  },
-  {
-    key: "data",
-    title: "Your private online presence",
-    text: "Your gym gets its own website, its own app and its own private database — never mixed with another gym. Use it in English, Arabic, Urdu, Spanish or French.",
-    points: ["Your own website, app and database", "Never mixed with anyone else's", "5 languages, right-to-left too", "Export your data any time"],
-  },
-];
+// The feature list moved to content/features.ts: the landing page shows the
+// six marked `highlight`, /features shows all of them.
 
 export const HOW_IT_WORKS = {
   eyebrow: "How it works",
@@ -280,6 +202,7 @@ export const FOOTER = {
     {
       title: "For gyms",
       links: [
+        { label: "All features", href: "/features" },
         { label: "Book a demo", href: "#demo" },
         { label: "Pricing", href: "#pricing" },
         { label: "Member app", href: "#product" },

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FiArrowRight } from "react-icons/fi";
 import { stagger } from "@/lib/motion";
 import Reveal from "./Reveal";
@@ -20,12 +21,13 @@ export default function CtaBand() {
                 Book a demo and see your timetable, memberships and website on GymPilot before you decide anything.
               </p>
               <div className="v-rise mt-8 flex flex-col justify-center gap-3 sm:flex-row" style={stagger(2)}>
-                <a href="#demo" className="btn-shine btn-shine-dark group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-7 text-sm font-semibold text-slate-900 transition-transform hover:-translate-y-0.5">
+                {/* Always absolute: this band appears on more than one page. */}
+                <Link href="/#demo" className="btn-shine btn-shine-dark group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-7 text-sm font-semibold text-slate-900 transition-transform hover:-translate-y-0.5">
                   Book a demo <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </a>
-                <a href="#pricing" className="btn-shine inline-flex h-12 items-center justify-center rounded-full border border-white/20 bg-white/10 px-7 text-sm font-semibold text-white transition-colors hover:bg-white/15">
+                </Link>
+                <Link href="/#pricing" className="btn-shine inline-flex h-12 items-center justify-center rounded-full border border-white/20 bg-white/10 px-7 text-sm font-semibold text-white transition-colors hover:bg-white/15">
                   See pricing
-                </a>
+                </Link>
               </div>
             </div>
           </div>
