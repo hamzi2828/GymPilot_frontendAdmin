@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { FiAlertTriangle, FiCalendar, FiCreditCard, FiExternalLink, FiGlobe, FiLayers, FiShield, FiUsers } from "react-icons/fi";
 import { PageHeader, Crumbs, Panel, StatCard, KeyValue, Button, Field, Input, Select, Textarea, Modal, Spinner, Alert, Pill, StatusPill, Avatar } from "../../_shared/ui";
-import { platformFetch, formatDate, formatMoney, SUBSCRIPTION_STATUSES, BILLING_CYCLES, type Gym, type GymStats, type Plan } from "../../_shared/api";
+import { platformFetch, formatDate, formatMoney, SUBSCRIPTION_STATUSES, BILLING_CYCLES, type Addon, type Gym, type GymStats, type Plan } from "../../_shared/api";
 
 type Detail = Gym & { plan: Plan | null; stats: GymStats };
 type Admin = { id: string; name: string; email: string; is_active: boolean; last_login: string | null };
@@ -35,6 +35,8 @@ export default function GymDetailPage() {
   const [details, setDetails] = useState({ name: "", ownerFirstName: "", ownerLastName: "", ownerEmail: "", ownerPhone: "", timezone: "", currency: "", country: "", notes: "" });
   const [domainsText, setDomainsText] = useState("");
   const [sub, setSub] = useState({ planId: "", status: "trialing", billingCycle: "monthly", amount: "", currency: "", currentPeriodEnd: "", notes: "" });
+  const [addons, setAddons] = useState<Addon[]>([]);
+  const [addonSlugs, setAddonSlugs] = useState<string[]>([]);
   const [resetOpen, setResetOpen] = useState(false);
   const [reset, setReset] = useState({ email: "", password: "" });
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -59,19 +61,25 @@ export default function GymDetailPage() {
       planId: g.plan ? g.plan.id || g.plan._id || "" : "",
       status: g.subscription.status,
       billingCycle: g.subscription.billingCycle,
-      amount: String(g.subscription.amount ?? ""),
+      amount: String(g.subscription.planAmount ?? g.subscription.amount ?? ""),
       currency: g.subscription.currency || "USD",
       currentPeriodEnd: g.subscription.currentPeriodEnd ? String(g.subscription.currentPeriodEnd).slice(0, 10) : "",
       notes: g.subscription.notes || "",
     });
+    setAddonSlugs((g.subscription.addons || []).map((a) => a.slug));
     setReset((r) => ({ ...r, email: g.owner.email || "" }));
   }, []);
 
   const load = useCallback(async () => {
     try {
-      const [detail, planList] = await Promise.all([platformFetch<{ data: Detail }>(`/gyms/${id}`), platformFetch<{ data: Plan[] }>("/plans")]);
+      const [detail, planList, addonList] = await Promise.all([
+        platformFetch<{ data: Detail }>(`/gyms/${id}`),
+        platformFetch<{ data: Plan[] }>("/plans"),
+        platformFetch<{ data: Addon[] }>("/addons"),
+      ]);
       hydrate(detail.data);
       setPlans(planList.data);
+      setAddons(addonList.data);
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load this gym");
@@ -81,6 +89,21 @@ export default function GymDetailPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // What this plan comes with for nothing, and what can be sold on top of it.
+  const chosenPlan = plans.find((p) => p.id === sub.planId);
+  const includedSlugs = chosenPlan?.includedAddons || [];
+  const includedAddons = addons.filter((addon) => addon.isActive && includedSlugs.includes(addon.slug));
+  const sellableAddons = addons.filter(
+    (addon) =>
+      addon.isActive &&
+      !includedSlugs.includes(addon.slug) &&
+      (!addon.planSlugs.length || addon.planSlugs.includes(chosenPlan?.slug || ""))
+  );
+  const chosenAddons = sellableAddons.filter((addon) => addonSlugs.includes(addon.slug));
+  const priceOf = (addon: Addon) => (sub.billingCycle === "yearly" ? addon.price.yearly : addon.price.monthly);
+  const planShare = Number(sub.amount) || 0;
+  const billTotal = chosenAddons.reduce((total, addon) => total + priceOf(addon), planShare);
 
   useEffect(() => {
     platformFetch<{ data: Admin[] }>(`/gyms/${id}/admins`)
@@ -309,6 +332,8 @@ export default function GymDetailPage() {
         </Panel>
 
         {/* Subscription */}
+        {/* What the gym will pay once this is saved: the plan, plus whatever
+            add-ons are ticked. The server works out the same total. */}
         <Panel
           title={
             <span className="flex items-center gap-2">
@@ -321,6 +346,9 @@ export default function GymDetailPage() {
               <span className="text-xs text-slate-500">
                 Currently {gym.subscription.status.replace("_", " ")}
                 {gym.subscription.currentPeriodEnd ? ` until ${formatDate(gym.subscription.currentPeriodEnd)}` : ""} · {formatMoney(gym.subscription.amount, gym.subscription.currency)} / {gym.subscription.billingCycle}
+                {(gym.subscription.addons || []).length > 0 && (
+                  <> · {formatMoney(gym.subscription.planAmount ?? 0, gym.subscription.currency)} plan + {(gym.subscription.addons || []).map((a) => a.name).join(", ")}</>
+                )}
               </span>
               <Button
                 disabled={busy}
@@ -333,6 +361,7 @@ export default function GymDetailPage() {
                         status: sub.status,
                         billingCycle: sub.billingCycle,
                         amount: sub.amount === "" ? undefined : Number(sub.amount),
+                        addonSlugs,
                         currency: sub.currency,
                         currentPeriodEnd: sub.currentPeriodEnd || null,
                         notes: sub.notes,
@@ -378,12 +407,69 @@ export default function GymDetailPage() {
             <Field label="Period ends">
               <Input type="date" value={sub.currentPeriodEnd} onChange={s("currentPeriodEnd")} />
             </Field>
-            <Field label="Amount per cycle">
+            <Field label="Plan price per cycle" hint="Leave as the plan's own price unless this gym agreed something else.">
               <Input type="number" value={sub.amount} onChange={s("amount")} />
             </Field>
             <Field label="Currency">
               <Input value={sub.currency} onChange={(e) => setSub((x) => ({ ...x, currency: e.target.value.toUpperCase() }))} maxLength={3} />
             </Field>
+            <div className="md:col-span-2">
+              <Field label="Add-ons" hint="Charged on top of the plan. Manage the list and its prices under Plans.">
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {includedAddons.map((addon) => (
+                    <span
+                      key={addon.slug}
+                      title={`${chosenPlan?.name || "This plan"} comes with it`}
+                      className="rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-sm font-medium text-emerald-700"
+                    >
+                      {addon.name} · included
+                    </span>
+                  ))}
+                  {sellableAddons.map((addon) => {
+                    const on = addonSlugs.includes(addon.slug);
+                    return (
+                      <button
+                        key={addon.slug}
+                        type="button"
+                        onClick={() => setAddonSlugs((list) => (on ? list.filter((sl) => sl !== addon.slug) : [...list, addon.slug]))}
+                        className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                          on ? "border-indigo-600 bg-indigo-600 text-white" : "border-slate-200 text-slate-600 hover:border-slate-300"
+                        }`}
+                      >
+                        {addon.name} +{formatMoney(priceOf(addon), addon.price.currency)}
+                      </button>
+                    );
+                  })}
+                  {includedAddons.length === 0 && sellableAddons.length === 0 && (
+                    <p className="text-sm text-slate-500">Nothing is sold with this plan.</p>
+                  )}
+                </div>
+              </Field>
+            </div>
+
+            <div className="md:col-span-2 rounded-xl bg-slate-50 px-4 py-3 text-sm">
+              <div className="flex justify-between text-slate-600">
+                <span>Plan</span>
+                <span className="font-medium text-slate-900">{formatMoney(planShare, sub.currency || "PKR")}</span>
+              </div>
+              {includedAddons.map((addon) => (
+                <div key={addon.slug} className="mt-1 flex justify-between text-slate-600">
+                  <span>{addon.name}</span>
+                  <span className="font-medium text-emerald-700">included</span>
+                </div>
+              ))}
+              {chosenAddons.map((addon) => (
+                <div key={addon.slug} className="mt-1 flex justify-between text-slate-600">
+                  <span>{addon.name}</span>
+                  <span className="font-medium text-slate-900">+{formatMoney(priceOf(addon), addon.price.currency)}</span>
+                </div>
+              ))}
+              <div className="mt-2 flex justify-between border-t border-slate-200 pt-2 font-semibold text-slate-900">
+                <span>Total per {sub.billingCycle === "yearly" ? "year" : "month"}</span>
+                <span>{formatMoney(billTotal, sub.currency || "PKR")}</span>
+              </div>
+            </div>
+
             <div className="md:col-span-2">
               <Field label="Billing notes">
                 <Textarea value={sub.notes} onChange={s("notes")} />

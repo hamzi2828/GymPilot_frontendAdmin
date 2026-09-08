@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiCheck, FiPlus } from "react-icons/fi";
 import { PageHeader, Panel, Button, Field, Input, Select, Textarea, Toggle, Modal, Spinner, EmptyState, Alert, Pill } from "../_shared/ui";
-import { platformFetch, formatMoney, type Plan } from "../_shared/api";
+import { platformFetch, formatMoney, type Addon, type Plan } from "../_shared/api";
+import AddonsPanel from "./AddonsPanel";
 
 type Draft = {
   name: string;
@@ -17,6 +18,7 @@ type Draft = {
   maxTrainers: string;
   maxClasses: string;
   features: string;
+  includedAddons: string[];
   trialDays: string;
   isActive: boolean;
   order: string;
@@ -37,6 +39,7 @@ const emptyDraft: Draft = {
   maxTrainers: "0",
   maxClasses: "0",
   features: "",
+  includedAddons: [],
   trialDays: "14",
   isActive: true,
   order: "0",
@@ -55,6 +58,7 @@ function toDraft(plan: Plan): Draft {
     maxTrainers: String(plan.limits.maxTrainers),
     maxClasses: String(plan.limits.maxClasses),
     features: (plan.features || []).join("\n"),
+    includedAddons: plan.includedAddons || [],
     trialDays: String(plan.trialDays),
     isActive: plan.isActive,
     order: String(plan.order),
@@ -73,6 +77,7 @@ function yearlySaving(plan: Plan) {
 
 export default function PlansPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [addons, setAddons] = useState<Addon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -83,8 +88,12 @@ export default function PlansPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await platformFetch<{ data: Plan[] }>("/plans");
-      setPlans(res.data);
+      const [planList, addonList] = await Promise.all([
+        platformFetch<{ data: Plan[] }>("/plans"),
+        platformFetch<{ data: Addon[] }>("/addons"),
+      ]);
+      setPlans(planList.data);
+      setAddons(addonList.data);
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load plans");
@@ -123,6 +132,7 @@ export default function PlansPage() {
         maxClasses: Number(draft.maxClasses) || 0,
       },
       features: draft.features,
+      includedAddons: draft.includedAddons,
       trialDays: Number(draft.trialDays) || 0,
       isActive: draft.isActive,
       order: Number(draft.order) || 0,
@@ -237,6 +247,14 @@ export default function PlansPage() {
                   </div>
                 ))}
               </dl>
+              {plan.includedAddons.length > 0 && (
+                <p className="mt-4 text-xs text-slate-500">
+                  Comes with:{" "}
+                  <span className="font-medium text-slate-700">
+                    {plan.includedAddons.map((slug) => addons.find((a) => a.slug === slug)?.name || slug).join(", ")}
+                  </span>
+                </p>
+              )}
               {plan.features.length > 0 && (
                 <ul className="mt-4 space-y-1.5 text-sm text-slate-600">
                   {plan.features.map((f) => (
@@ -250,6 +268,9 @@ export default function PlansPage() {
           ))}
         </div>
       )}
+
+      {/* Sold beside the plans, on top of them. */}
+      {!loading && <AddonsPanel plans={plans} addons={addons} onChanged={load} />}
 
       <Modal open={open} onClose={() => setOpen(false)} title={editing ? `Edit ${editing.name}` : "New plan"} size="lg">
         <div className="grid gap-4 md:grid-cols-2">
@@ -283,6 +304,34 @@ export default function PlansPage() {
               <Textarea value={draft.features} onChange={(e) => set("features")(e.target.value)} />
             </Field>
           </div>
+          {addons.length > 0 && (
+            <div className="md:col-span-2">
+              <Field label="Add-ons this plan comes with" hint="Ticked ones are free on this plan. Everything else is sold separately.">
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {addons.map((addon) => {
+                    const on = draft.includedAddons.includes(addon.slug);
+                    return (
+                      <button
+                        key={addon.slug}
+                        type="button"
+                        onClick={() =>
+                          setDraft((d) => ({
+                            ...d,
+                            includedAddons: on ? d.includedAddons.filter((s) => s !== addon.slug) : [...d.includedAddons, addon.slug],
+                          }))
+                        }
+                        className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+                          on ? "border-emerald-600 bg-emerald-600 text-white" : "border-slate-200 text-slate-600 hover:border-slate-300"
+                        }`}
+                      >
+                        {addon.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </Field>
+            </div>
+          )}
           {field("Sort order", "order", "number")}
           <div className="flex items-end pb-2">
             <Toggle label="Active (offered to new gyms)" checked={draft.isActive} onChange={(v) => setDraft((d) => ({ ...d, isActive: v }))} />

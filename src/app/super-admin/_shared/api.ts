@@ -108,7 +108,25 @@ export interface Plan {
   price: { monthly: number; yearly: number; currency: string };
   limits: { maxMembers: number; maxStaff: number; maxTrainers: number; maxClasses: number };
   features: string[];
+  /** Add-on slugs this plan gives away rather than sells. */
+  includedAddons: string[];
   trialDays: number;
+  isActive: boolean;
+  order: number;
+  gym_count?: number;
+}
+
+/** Something sold beside a plan -- see platform/models/platformAddonModel.js. */
+export interface Addon {
+  id: string;
+  _id?: string;
+  name: string;
+  slug: string;
+  description: string;
+  price: { monthly: number; yearly: number; currency: string };
+  /** Empty means it can go on any plan. */
+  planSlugs: string[];
+  isPublic: boolean;
   isActive: boolean;
   order: number;
   gym_count?: number;
@@ -140,7 +158,10 @@ export interface Gym {
   subscription: {
     status: "trialing" | "active" | "past_due" | "expired" | "cancelled";
     billingCycle: "monthly" | "yearly";
+    /** The whole bill for a cycle: the plan plus whatever add-ons are on. */
     amount: number;
+    planAmount?: number;
+    addons?: { slug: string; name: string; amount: number }[];
     currency: string;
     startedAt: string | null;
     currentPeriodEnd: string | null;

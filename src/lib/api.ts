@@ -39,8 +39,20 @@ export interface PublicPlan {
   price: { monthly: number; yearly: number; currency: string };
   limits: { maxMembers: number; maxStaff: number; maxTrainers: number; maxClasses: number };
   features: string[];
+  /** Add-on slugs this plan comes with at no extra charge. */
+  includedAddons: string[];
   trialDays: number;
   order: number;
+}
+
+/** Sold beside a plan. `planSlugs` empty means it goes with any of them. */
+export interface PublicAddon {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  price: { monthly: number; yearly: number; currency: string };
+  planSlugs: string[];
 }
 
 export function formatMoney(amount: number, currency: string, fractionDigits = 0): string {

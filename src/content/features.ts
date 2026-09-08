@@ -23,6 +23,8 @@ export interface Feature {
   detail: string;
   /** Where it lives in the product. */
   screens: string[];
+  /** Bought alongside a plan rather than included in it. */
+  addon?: boolean;
 }
 
 export type GroupKey = "money" | "classes" | "gym" | "reach" | "control";
@@ -154,10 +156,11 @@ export const FEATURES: Feature[] = [
   {
     key: "app",
     group: "reach",
+    addon: true,
     title: "A phone app for your members",
     text: "They sign in with a username you issue, and your gym is in their pocket.",
     points: ["Your logo and colours", "Book classes and check in", "Pause or cancel a membership", "Every visit and payment", "No sign-up: you issue the login"],
-    detail: "One app, every gym — and it becomes yours the moment a member signs in. Only people on your books can get in.",
+    detail: "One app, every gym — and it becomes yours the moment a member signs in. Only people on your books can get in. It goes on any plan for a price of its own.",
     screens: ["Member app → Home, Classes, Membership, Profile", "Member app → Check in (QR)", "Admin → Users (issues the username)"],
   },
   {

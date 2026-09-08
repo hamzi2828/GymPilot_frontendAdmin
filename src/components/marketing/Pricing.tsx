@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import { FiArrowRight, FiCheck } from "react-icons/fi";
 import { PRICING } from "@/content/site";
-import { formatMoney, publicFetch, type PublicPlan } from "@/lib/api";
+import { formatMoney, publicFetch, type PublicAddon, type PublicPlan } from "@/lib/api";
 import { stagger } from "@/lib/motion";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
@@ -17,6 +17,7 @@ function limit(n: number) {
 
 export default function Pricing() {
   const [plans, setPlans] = useState<PublicPlan[] | null>(null);
+  const [addons, setAddons] = useState<PublicAddon[]>([]);
   const [failed, setFailed] = useState(false);
   const [yearly, setYearly] = useState(false);
 
@@ -24,7 +25,19 @@ export default function Pricing() {
     publicFetch<{ data: PublicPlan[] }>("/plans")
       .then((res) => setPlans(res.data))
       .catch(() => setFailed(true));
+    // Add-ons are a bonus on the card: if this call fails the prices still
+    // render, they just do not mention the extras.
+    publicFetch<{ data: PublicAddon[] }>("/addons")
+      .then((res) => setAddons(res.data))
+      .catch(() => setAddons([]));
   }, []);
+
+  // What a plan can be sold on top of it: not what it already comes with,
+  // and only where the add-on is offered.
+  const sellableFor = (plan: PublicPlan) =>
+    addons.filter(
+      (addon) => !(plan.includedAddons || []).includes(addon.slug) && (!addon.planSlugs.length || addon.planSlugs.includes(plan.slug))
+    );
 
   // The one we point at: the middle of three, the second-from-top of four --
   // the tier most gyms actually land on, never the cheapest or the dearest.
@@ -121,6 +134,37 @@ export default function Pricing() {
                         </div>
                       ))}
                     </dl>
+
+                    {(plan.includedAddons || []).length > 0 && (
+                      <ul className={`mt-6 space-y-2 text-sm ${isPopular ? "text-slate-200" : "text-slate-700"}`}>
+                        {(plan.includedAddons || []).map((slug) => {
+                          const addon = addons.find((a) => a.slug === slug);
+                          return (
+                            <li key={slug} className="flex items-start gap-2">
+                              <FiCheck className={`mt-0.5 h-4 w-4 shrink-0 ${isPopular ? "text-emerald-400" : "text-emerald-500"}`} />
+                              <span>
+                                <span className="font-semibold">{addon?.name || slug}</span> included
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+
+                    {sellableFor(plan).length > 0 && (
+                      <div className={`mt-6 rounded-2xl border border-dashed px-4 py-3 ${isPopular ? "border-white/20" : "border-slate-200"}`}>
+                        <p className={`text-[10px] font-semibold uppercase tracking-wider ${isPopular ? "text-slate-400" : "text-slate-400"}`}>Add if you want it</p>
+                        {sellableFor(plan).map((addon) => (
+                            <div key={addon.slug} className="mt-1.5 flex items-baseline justify-between gap-3 text-sm">
+                              <span className={isPopular ? "text-slate-200" : "text-slate-700"}>{addon.name}</span>
+                              <span className={`whitespace-nowrap font-semibold ${isPopular ? "text-white" : "text-slate-900"}`}>
+                                +{formatMoney(yearly && addon.price.yearly > 0 ? addon.price.yearly / 12 : addon.price.monthly, addon.price.currency)}
+                                <span className={`text-xs font-normal ${isPopular ? "text-slate-400" : "text-slate-500"}`}> /mo</span>
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+                    )}
 
                     {plan.features.length > 0 && (
                       <ul className={`mt-6 space-y-2 text-sm ${isPopular ? "text-slate-200" : "text-slate-700"}`}>

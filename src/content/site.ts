@@ -30,7 +30,7 @@ export const HERO = {
     "GymPilot gives your gym its own website on its own web address, an app your members keep on their phone, and the system that runs everything behind the desk — memberships, payments, classes, staff and messages. One setup, live in a day, built to take your gym to the next level.",
   primary: { label: "Book a demo", href: "#demo" },
   secondary: { label: "See what's included", href: "#included" },
-  trust: ["Your own website included", "Member app included", "Everything set up for you"],
+  trust: ["Your own website included", "Member app on any plan", "Everything set up for you"],
 };
 
 export const WHAT_YOU_GET = {
@@ -125,8 +125,8 @@ export const SHOWCASES = [
 export const PRICING = {
   eyebrow: "Pricing",
   title: "One price. The whole product.",
-  text: "Every plan includes billing, booking, PT, front desk, shop, messaging, staff, reports and the website. Plans differ only by size. Prices below come straight from your GymPilot account.",
-  included: ["Own domain & website", "Member phone app, in your colours", "Stripe & bank transfer billing", "Class & PT booking", "Messaging: email, SMS, WhatsApp, push", "POS, stock & lockers", "Staff roles, leave & payslips", "Reports & CSV exports", "5 languages", "Daily backups & private database"],
+  text: "Every plan includes billing, booking, PT, front desk, shop, messaging, staff, reports and the website. Plans differ by size; the member app is added to any of them. Prices come straight from your GymPilot account.",
+  included: ["Own domain & website", "Stripe & bank transfer billing", "Class & PT booking", "Messaging: email, SMS, WhatsApp, push", "POS, stock & lockers", "Staff roles, leave & payslips", "Reports & CSV exports", "5 languages", "Daily backups & private database"],
   fallback: "Plans are being set up. Book a demo and we will send you a quote the same day.",
 };
 
