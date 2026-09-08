@@ -19,11 +19,12 @@ import Glow from "@/components/marketing/Glow";
 type Cycle = "monthly" | "yearly";
 
 const FIELDS = [
-  { key: "gymName", label: "Gym name", placeholder: "Iron Works Fitness", required: true, autoComplete: "organization" },
-  { key: "name", label: "Your name", placeholder: "Aisha Khan", required: true, autoComplete: "name" },
-  { key: "email", label: "Email", placeholder: "you@yourgym.com", required: true, type: "email", autoComplete: "email" },
-  { key: "phone", label: "Phone", placeholder: "+92 300 1234567", required: false, type: "tel", autoComplete: "tel" },
-  { key: "country", label: "City / country", placeholder: "Karachi, Pakistan", required: false, autoComplete: "address-level2" },
+  { key: "gymName", label: "Gym name", placeholder: "Iron Works Fitness", required: true, autoComplete: "organization", wide: true },
+  { key: "firstName", label: "First name", placeholder: "Aisha", required: true, autoComplete: "given-name", wide: false },
+  { key: "lastName", label: "Last name", placeholder: "Khan", required: true, autoComplete: "family-name", wide: false },
+  { key: "email", label: "Email", placeholder: "you@yourgym.com", required: true, type: "email", autoComplete: "email", wide: false },
+  { key: "phone", label: "Phone", placeholder: "+92 300 1234567", required: false, type: "tel", autoComplete: "tel", wide: false },
+  { key: "country", label: "City / country", placeholder: "Karachi, Pakistan", required: false, autoComplete: "address-level2", wide: true },
 ] as const;
 
 type FieldKey = (typeof FIELDS)[number]["key"];
@@ -46,7 +47,7 @@ export default function CheckoutClient() {
   const [planSlug, setPlanSlug] = useState(params.get("plan") || "");
   const [cycle, setCycle] = useState<Cycle>(params.get("cycle") === "yearly" ? "yearly" : "monthly");
   const [chosenAddons, setChosenAddons] = useState<string[]>([]);
-  const [form, setForm] = useState<Record<FieldKey, string>>({ gymName: "", name: "", email: "", phone: "", country: "" });
+  const [form, setForm] = useState<Record<FieldKey, string>>({ gymName: "", firstName: "", lastName: "", email: "", phone: "", country: "" });
   const [webAddress, setWebAddress] = useState("");
   const [touchedAddress, setTouchedAddress] = useState(false);
   const [message, setMessage] = useState("");
@@ -110,6 +111,9 @@ export default function CheckoutClient() {
         body: {
           kind: "trial",
           ...form,
+          // The record keeps one name; the form asks for both halves because
+          // that is how the owner's account inside the gym is created.
+          name: `${form.firstName} ${form.lastName}`.trim(),
           message,
           website, // honeypot: a person never fills this
           preferredSlug: webAddress || slugify(form.gymName),
@@ -206,7 +210,7 @@ export default function CheckoutClient() {
 
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
                   {FIELDS.map((f) => (
-                    <label key={f.key} className={f.key === "gymName" ? "sm:col-span-2" : ""}>
+                    <label key={f.key} className={f.wide ? "sm:col-span-2" : ""}>
                       <span className="text-sm font-semibold text-slate-700">
                         {f.label}
                         {!f.required && <span className="ml-1 font-normal text-slate-400">optional</span>}

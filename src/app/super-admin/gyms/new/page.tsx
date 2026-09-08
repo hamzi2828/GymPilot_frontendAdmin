@@ -44,9 +44,14 @@ function NewGymForm() {
   // Where this gym came from: a checkout or a demo request, if any.
   const fromId = params.get("from") || "";
   const [request, setRequest] = useState<DemoRequest | null>(null);
+  // The address they signed up with is not ours to retype; it is where the
+  // sign-in details go.
+  const [emailLocked, setEmailLocked] = useState(false);
   const [addons, setAddons] = useState<Addon[]>([]);
   const [addonSlugs, setAddonSlugs] = useState<string[]>([]);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
+  // The tail of the database name. Fixed for as long as the form is open.
+  const [databaseId, setDatabaseId] = useState("");
   const [plans, setPlans] = useState<Plan[]>([]);
   const [config, setConfig] = useState<PlatformConfig | null>(null);
   const [busy, setBusy] = useState(false);
@@ -71,6 +76,14 @@ function NewGymForm() {
 
   const set = (key: keyof typeof form) => (value: string) => setForm((f) => ({ ...f, [key]: value }));
   const on = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => set(key)(e.target.value);
+
+  useEffect(() => {
+    setDatabaseId(
+      Array.from(crypto.getRandomValues(new Uint8Array(3)))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("")
+    );
+  }, []);
 
   useEffect(() => {
     platformFetch<{ data: Plan[] }>("/plans")
@@ -110,6 +123,7 @@ function NewGymForm() {
           .filter(Boolean)
           .join("\n"),
       }));
+      if (r.email) setEmailLocked(true);
       if (r.plan) {
         setBillingCycle(r.plan.billingCycle);
         setAddonSlugs(r.plan.addonSlugs || []);
@@ -138,8 +152,11 @@ function NewGymForm() {
   }, [params, fromId]);
 
   const suggestedSlug = form.slug || form.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  // Mirrors databaseNameFor() on the server: <prefix><slug>, unsafe characters replaced.
-  const suggestedDatabase = `${config?.tenant_database_prefix ?? ""}${suggestedSlug.replace(/[^a-z0-9_-]/gi, "_")}`;
+  // Mirrors the server: <prefix><slug>_<id>. The id is settled when the form
+  // opens rather than as you type, so the name shown is the name created.
+  const databaseName = suggestedSlug
+    ? `${config?.tenant_database_prefix ?? ""}${suggestedSlug.replace(/[^a-z0-9_-]/gi, "_")}_${databaseId}`
+    : "";
   const selectedPlan = plans.find((p) => p.id === form.planId);
   const includedSlugs = selectedPlan?.includedAddons || [];
   const sellableAddons = addons.filter(
@@ -155,8 +172,11 @@ function NewGymForm() {
         method: "POST",
         body: {
           name: form.name,
-          slug: suggestedSlug,
-          database: form.databaseName.trim() ? { name: form.databaseName.trim() } : undefined,
+          // A preference, not a decision: the address they asked for at
+          // checkout if there was one, otherwise the name decides, and a
+          // clash only adds a number.
+          preferredSlug: form.slug || undefined,
+          database: databaseName ? { name: databaseName } : undefined,
           domains: form.domains
             .split(/[\s,]+/)
             .map((d) => d.trim())
@@ -204,25 +224,35 @@ function NewGymForm() {
                 <FiDatabase className="h-4 w-4 text-indigo-600" /> Gym
               </span>
             }
-            description="The slug names the gym's database and can be used as slug.yourplatform.com. It cannot be changed later."
+            description="The name is the only thing to decide. The web address and the database follow from it, and neither can be changed later."
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Gym name">
-                <Input value={form.name} onChange={on("name")} required placeholder="Iron Works Fitness" />
-              </Field>
-              <Field label="Slug">
-                <Input value={form.slug} onChange={on("slug")} placeholder={suggestedSlug || "iron-works"} className="font-mono" />
-              </Field>
               <div className="md:col-span-2">
                 <Field
-                  label="Database name (optional)"
+                  label="Gym name"
+                  hint={
+                    suggestedSlug ? (
+                      <>
+                        Its web address will be <span className="font-mono">{suggestedSlug}</span>, and a number is added if that name is already
+                        taken.
+                      </>
+                    ) : undefined
+                  }
+                >
+                  <Input value={form.name} onChange={on("name")} required placeholder="Iron Works Fitness" />
+                </Field>
+              </div>
+              <div className="md:col-span-2">
+                <Field
+                  label="Database name"
                   hint={
                     <>
-                      Leave empty to use <span className="font-mono">{suggestedDatabase || `${config?.tenant_database_prefix ?? ""}<slug>`}</span> — a new database beside <span className="font-mono">{config?.platform_database || "the main database"}</span> on the same cluster.
+                      Its own database beside <span className="font-mono">{config?.platform_database || "the main database"}</span> on the same
+                      cluster. Named after the gym with an id on the end, so no two gyms can ever share one.
                     </>
                   }
                 >
-                  <Input value={form.databaseName} onChange={on("databaseName")} placeholder={suggestedDatabase || `${config?.tenant_database_prefix ?? ""}iron-works`} className="font-mono" />
+                  <Input value={databaseName} readOnly tabIndex={-1} className="cursor-not-allowed bg-slate-50 font-mono text-slate-500" />
                 </Field>
               </div>
               <div className="md:col-span-2">
@@ -248,8 +278,28 @@ function NewGymForm() {
               <Field label="Last name">
                 <Input value={form.ownerLastName} onChange={on("ownerLastName")} autoComplete="off" />
               </Field>
-              <Field label="Email">
-                <Input type="email" value={form.ownerEmail} onChange={on("ownerEmail")} required autoComplete="off" />
+              <Field
+                label="Email"
+                hint={
+                  emailLocked ? (
+                    <>
+                      From their signup.{" "}
+                      <button type="button" onClick={() => setEmailLocked(false)} className="font-semibold text-indigo-600 hover:text-indigo-700">
+                        Change it
+                      </button>
+                    </>
+                  ) : undefined
+                }
+              >
+                <Input
+                  type="email"
+                  value={form.ownerEmail}
+                  onChange={on("ownerEmail")}
+                  required
+                  readOnly={emailLocked}
+                  autoComplete="off"
+                  className={emailLocked ? "cursor-not-allowed bg-slate-50 text-slate-500" : undefined}
+                />
               </Field>
               <Field label="Phone">
                 <Input value={form.ownerPhone} onChange={on("ownerPhone")} autoComplete="off" />
