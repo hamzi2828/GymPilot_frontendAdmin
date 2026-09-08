@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiMail, FiPhone } from "react-icons/fi";
 import { PageHeader, DataTable, Spinner, Alert, Avatar, Pill, Button, Modal, Field, Select, Textarea, relativeTime, cx } from "../_shared/ui";
-import { platformFetch, DEMO_REQUEST_STATUSES, type DemoRequest, type DemoRequestStatus } from "../_shared/api";
+import { platformFetch, formatMoney, DEMO_REQUEST_STATUSES, type DemoRequest, type DemoRequestStatus } from "../_shared/api";
 
 const TONE: Record<DemoRequestStatus, string> = { new: "primary", contacted: "warn", converted: "good", closed: "neutral" };
 
@@ -104,9 +104,20 @@ export default function DemoRequestsPage() {
               </div>
             </div>,
             <div key="g" className="min-w-0">
-              <p className="truncate text-sm font-medium text-slate-900">{r.gymName || "—"}</p>
+              <p className="truncate text-sm font-medium text-slate-900">
+                {r.gymName || "—"}
+                {r.kind === "trial" && (
+                  <span className="ml-2 rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-700">
+                    checkout
+                  </span>
+                )}
+              </p>
               <p className="truncate text-xs text-slate-500">
-                {[r.gymSize, r.country].filter(Boolean).join(" · ")}
+                {r.plan
+                  ? `${r.plan.name} · ${formatMoney(r.plan.amount, r.plan.currency)} / ${r.plan.billingCycle === "yearly" ? "yr" : "mo"}${
+                      r.plan.addonNames.length ? ` · ${r.plan.addonNames.join(", ")}` : ""
+                    }`
+                  : [r.gymSize, r.country].filter(Boolean).join(" · ")}
               </p>
             </div>,
             <p key="m" className="max-w-md truncate text-xs text-slate-600" title={r.message}>
@@ -132,6 +143,43 @@ export default function DemoRequestsPage() {
                 </a>
               )}
             </div>
+            {open.plan && (
+              <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-700">Chose at checkout</p>
+                <div className="mt-2 space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Plan</span>
+                    <span className="font-semibold text-slate-900">
+                      {open.plan.name} · {open.plan.billingCycle}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Add-ons</span>
+                    <span className="font-medium text-slate-900">{open.plan.addonNames.join(", ") || "none"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Trial</span>
+                    <span className="font-medium text-slate-900">{open.plan.trialDays ? `${open.plan.trialDays} days` : "none"}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-indigo-200 pt-1.5">
+                    <span className="font-semibold text-slate-900">Then</span>
+                    <span className="font-semibold text-slate-900">
+                      {formatMoney(open.plan.amount, open.plan.currency)} / {open.plan.billingCycle === "yearly" ? "year" : "month"}
+                    </span>
+                  </div>
+                  {open.preferredSlug && (
+                    <div className="flex justify-between pt-1.5">
+                      <span className="text-slate-600">Web address wanted</span>
+                      <span className="font-mono text-xs text-slate-900">{open.preferredSlug}</span>
+                    </div>
+                  )}
+                </div>
+                <Button href={`/super-admin/gyms/new?name=${encodeURIComponent(open.gymName)}&slug=${open.preferredSlug}`} size="sm" className="mt-3">
+                  Set this gym up
+                </Button>
+              </div>
+            )}
+
             <dl className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Gym size</dt>

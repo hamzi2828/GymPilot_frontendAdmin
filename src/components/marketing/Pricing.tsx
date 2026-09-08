@@ -4,6 +4,7 @@
 // in the panel), so the website never disagrees with what a gym is charged.
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { FiArrowRight, FiCheck, FiPlus, FiSmartphone } from "react-icons/fi";
 import { PRICING } from "@/content/site";
 import { formatMoney, publicFetch, type PublicAddon, type PublicPlan } from "@/lib/api";
@@ -196,9 +197,12 @@ export default function Pricing() {
                       {plan.trialDays > 0 ? ` · ${plan.trialDays}-day free trial` : ""}
                     </p>
 
-                    <a href="#demo" className={`btn-shine mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-full text-sm font-semibold transition-transform hover:-translate-y-0.5 ${isPopular ? "btn-shine-dark bg-white text-slate-900" : "bg-slate-900 text-white"}`}>
+                    <Link
+                      href={`/checkout?plan=${plan.slug}&cycle=${yearly ? "yearly" : "monthly"}`}
+                      className={`btn-shine mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-full text-sm font-semibold transition-transform hover:-translate-y-0.5 ${isPopular ? "btn-shine-dark bg-white text-slate-900" : "bg-slate-900 text-white"}`}
+                    >
                       {plan.trialDays > 0 ? "Start free trial" : "Get started"} <FiArrowRight className="h-4 w-4" />
-                    </a>
+                    </Link>
 
                     <dl className={`mt-6 grid grid-cols-2 gap-2 text-xs ${isPopular ? "text-slate-300" : "text-slate-600"}`}>
                       {[

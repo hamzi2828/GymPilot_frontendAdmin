@@ -209,6 +209,20 @@ export interface DemoRequest {
   source: string;
   status: DemoRequestStatus;
   notes: string;
+  /** "trial" came through checkout with a plan chosen; "demo" just asked. */
+  kind: "demo" | "trial";
+  preferredSlug: string;
+  /** What checkout worked out, priced on the server. Null for a demo ask. */
+  plan: {
+    slug: string;
+    name: string;
+    billingCycle: "monthly" | "yearly";
+    addonSlugs: string[];
+    addonNames: string[];
+    amount: number;
+    currency: string;
+    trialDays: number;
+  } | null;
   createdAt: string;
   updatedAt: string;
 }
