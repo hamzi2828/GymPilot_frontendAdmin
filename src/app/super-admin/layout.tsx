@@ -7,7 +7,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { FiExternalLink, FiGrid, FiHome, FiInbox, FiLayers, FiList, FiLogOut, FiMenu, FiPlus, FiUser, FiX } from "react-icons/fi";
+import { FiCreditCard, FiExternalLink, FiGrid, FiHome, FiInbox, FiLayers, FiList, FiLogOut, FiMenu, FiPlus, FiUser, FiX } from "react-icons/fi";
 import { clearPlatformToken, getPlatformToken, platformFetch, type Overview, type PlatformAdmin } from "./_shared/api";
 import { Avatar, cx } from "./_shared/ui";
 
@@ -103,6 +103,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
     {
       heading: "System",
       items: [
+        { name: "Stripe", path: "/super-admin/stripe", icon: <FiCreditCard className="h-[18px] w-[18px]" /> },
         { name: "Audit log", path: "/super-admin/audit", icon: <FiList className="h-[18px] w-[18px]" /> },
         { name: "My account", path: "/super-admin/account", icon: <FiUser className="h-[18px] w-[18px]" /> },
       ],
