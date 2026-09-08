@@ -4,11 +4,11 @@
 // settings, homepage, legal pages and the owner's administrator account --
 // one form, one request.
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FiDatabase, FiGlobe, FiUser } from "react-icons/fi";
 import { PageHeader, Crumbs, Panel, Button, Field, Input, Select, Textarea, Alert } from "../../_shared/ui";
-import { platformFetch, type Plan, type Gym, type PlatformConfig } from "../../_shared/api";
+import { platformFetch, type Addon, type DemoRequest, type Plan, type Gym, type PlatformConfig } from "../../_shared/api";
 
 const COMMON_TIMEZONES = [
   "UTC",
@@ -38,8 +38,15 @@ const COMMON_TIMEZONES = [
   "America/Sao_Paulo",
 ];
 
-export default function NewGymPage() {
+function NewGymForm() {
   const router = useRouter();
+  const params = useSearchParams();
+  // Where this gym came from: a checkout or a demo request, if any.
+  const fromId = params.get("from") || "";
+  const [request, setRequest] = useState<DemoRequest | null>(null);
+  const [addons, setAddons] = useState<Addon[]>([]);
+  const [addonSlugs, setAddonSlugs] = useState<string[]>([]);
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [plans, setPlans] = useState<Plan[]>([]);
   const [config, setConfig] = useState<PlatformConfig | null>(null);
   const [busy, setBusy] = useState(false);
@@ -69,15 +76,75 @@ export default function NewGymPage() {
     platformFetch<{ data: Plan[] }>("/plans")
       .then((res) => setPlans(res.data.filter((p) => p.isActive)))
       .catch(() => setPlans([]));
+    platformFetch<{ data: Addon[] }>("/addons")
+      .then((res) => setAddons(res.data.filter((a) => a.isActive)))
+      .catch(() => setAddons([]));
     platformFetch<{ data: PlatformConfig }>("/config")
       .then((res) => setConfig(res.data))
       .catch(() => setConfig(null));
   }, []);
 
+  // Filling the form in from the request they sent. Waits for the plans,
+  // because the plan is stored as a slug and the form wants its id.
+  const prefill = useCallback(
+    (r: DemoRequest, planList: Plan[]) => {
+      const [first, ...rest] = (r.name || "").trim().split(/\s+/);
+      const plan = r.plan ? planList.find((p) => p.slug === r.plan!.slug) : undefined;
+      setForm((f) => ({
+        ...f,
+        name: r.gymName || f.name,
+        slug: r.preferredSlug || f.slug,
+        ownerFirstName: first || f.ownerFirstName,
+        ownerLastName: rest.join(" ") || f.ownerLastName,
+        ownerEmail: r.email || f.ownerEmail,
+        ownerPhone: r.phone || f.ownerPhone,
+        planId: plan ? plan.id : f.planId,
+        currency: plan ? plan.price.currency : f.currency,
+        notes: [
+          `${r.kind === "trial" ? "Checkout" : "Demo request"} on ${new Date(r.createdAt).toLocaleDateString()}.`,
+          r.country ? `Where: ${r.country}` : "",
+          r.gymSize ? `Size: ${r.gymSize}` : "",
+          r.message ? `They said: ${r.message}` : "",
+          f.notes,
+        ]
+          .filter(Boolean)
+          .join("\n"),
+      }));
+      if (r.plan) {
+        setBillingCycle(r.plan.billingCycle);
+        setAddonSlugs(r.plan.addonSlugs || []);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!fromId || !plans.length || request) return;
+    platformFetch<{ data: DemoRequest }>(`/demo-requests/${fromId}`)
+      .then((res) => {
+        setRequest(res.data);
+        prefill(res.data, plans);
+      })
+      .catch(() => setRequest(null));
+  }, [fromId, plans, request, prefill]);
+
+  // A plain link can still say what to call it.
+  useEffect(() => {
+    const name = params.get("name");
+    const slug = params.get("slug");
+    if (!fromId && (name || slug)) {
+      setForm((f) => ({ ...f, name: name || f.name, slug: slug || f.slug }));
+    }
+  }, [params, fromId]);
+
   const suggestedSlug = form.slug || form.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   // Mirrors databaseNameFor() on the server: <prefix><slug>, unsafe characters replaced.
   const suggestedDatabase = `${config?.tenant_database_prefix ?? ""}${suggestedSlug.replace(/[^a-z0-9_-]/gi, "_")}`;
   const selectedPlan = plans.find((p) => p.id === form.planId);
+  const includedSlugs = selectedPlan?.includedAddons || [];
+  const sellableAddons = addons.filter(
+    (a) => !includedSlugs.includes(a.slug) && (!a.planSlugs.length || a.planSlugs.includes(selectedPlan?.slug || ""))
+  );
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,6 +169,7 @@ export default function NewGymPage() {
             password: form.ownerPassword,
           },
           planId: form.planId || undefined,
+          subscription: form.planId ? { billingCycle, addonSlugs } : undefined,
           locale: { timezone: form.timezone, currency: form.currency, country: form.country },
           notes: form.notes,
         },
@@ -116,6 +184,15 @@ export default function NewGymPage() {
   return (
     <>
       <PageHeader eyebrow={<Crumbs items={[{ label: "Gyms", href: "/super-admin/gyms" }, { label: "New gym" }]} />} title="New gym" description="Creates the platform record, a private database, default roles, settings, homepage, legal pages and the owner's administrator account." />
+
+      {request && (
+        <Alert tone="info">
+          Filled in from {request.kind === "trial" ? "the checkout" : "the demo request"} sent by{" "}
+          <span className="font-semibold">{request.name}</span> ({request.email})
+          {request.plan ? ` — ${request.plan.name}, ${request.plan.billingCycle}${request.plan.addonNames.length ? ` with ${request.plan.addonNames.join(", ")}` : ""}` : ""}. Check
+          it over before you create the gym.
+        </Alert>
+      )}
 
       {error && <Alert tone="error" onDismiss={() => setError(null)}>{error}</Alert>}
 
@@ -195,7 +272,16 @@ export default function NewGymPage() {
             }
           >
             <div className="space-y-4">
-              <Field label="Platform plan" hint={selectedPlan ? `Starts on a ${selectedPlan.trialDays}-day trial, then ${selectedPlan.price.currency} ${selectedPlan.price.monthly}/month.` : "Without a plan the gym is unlimited and not billed."}>
+              <Field
+                label="Platform plan"
+                hint={
+                  selectedPlan
+                    ? `Starts on a ${selectedPlan.trialDays}-day trial, then ${selectedPlan.price.currency} ${
+                        billingCycle === "yearly" ? selectedPlan.price.yearly : selectedPlan.price.monthly
+                      }/${billingCycle === "yearly" ? "year" : "month"}.`
+                    : "For a gym you host without charging: no limits, no renewal date, nothing to bill. Pick a plan to put it on the price list."
+                }
+              >
                 <Select value={form.planId} onChange={on("planId")}>
                   <option value="">No plan (unlimited, no billing)</option>
                   {plans.map((p) => (
@@ -205,6 +291,40 @@ export default function NewGymPage() {
                   ))}
                 </Select>
               </Field>
+
+              {form.planId && (
+                <>
+                  <Field label="Billing cycle">
+                    <Select value={billingCycle} onChange={(e) => setBillingCycle(e.target.value as "monthly" | "yearly")}>
+                      <option value="monthly">Monthly</option>
+                      <option value="yearly">Yearly</option>
+                    </Select>
+                  </Field>
+
+                  {sellableAddons.length > 0 && (
+                    <Field label="Add-ons" hint="Charged on top of the plan. Included ones are added by the plan itself.">
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {sellableAddons.map((addon) => {
+                          const on = addonSlugs.includes(addon.slug);
+                          const price = billingCycle === "yearly" ? addon.price.yearly : addon.price.monthly;
+                          return (
+                            <button
+                              key={addon.slug}
+                              type="button"
+                              onClick={() => setAddonSlugs((list) => (on ? list.filter((s) => s !== addon.slug) : [...list, addon.slug]))}
+                              className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                                on ? "border-indigo-600 bg-indigo-600 text-white" : "border-slate-200 text-slate-600 hover:border-slate-300"
+                              }`}
+                            >
+                              {addon.name} +{addon.price.currency} {price}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </Field>
+                  )}
+                </>
+              )}
               <Field label="Timezone" hint="IANA name. Attendance, timetables and reminders run on this clock.">
                 <Input list="tz-list" value={form.timezone} onChange={on("timezone")} />
                 <datalist id="tz-list">
@@ -239,5 +359,15 @@ export default function NewGymPage() {
         </div>
       </form>
     </>
+  );
+}
+
+export default function NewGymPage() {
+  // The form reads ?from= to fill itself in from a request, and
+  // useSearchParams needs a boundary around it.
+  return (
+    <Suspense fallback={null}>
+      <NewGymForm />
+    </Suspense>
   );
 }

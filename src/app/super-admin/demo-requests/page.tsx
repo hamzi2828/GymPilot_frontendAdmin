@@ -174,7 +174,7 @@ export default function DemoRequestsPage() {
                     </div>
                   )}
                 </div>
-                <Button href={`/super-admin/gyms/new?name=${encodeURIComponent(open.gymName)}&slug=${open.preferredSlug}`} size="sm" className="mt-3">
+                <Button href={`/super-admin/gyms/new?from=${open.id}`} size="sm" className="mt-3">
                   Set this gym up
                 </Button>
               </div>
