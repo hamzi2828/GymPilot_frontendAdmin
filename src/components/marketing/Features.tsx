@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { FaHandPointLeft, FaHandPointRight } from "react-icons/fa";
 import { FiArrowRight, FiCheck } from "react-icons/fi";
-import { FEATURES, FEATURES_INTRO, HIGHLIGHTS } from "@/content/features";
+import { FEATURES_INTRO, HIGHLIGHTS } from "@/content/features";
 import { stagger } from "@/lib/motion";
 import { FEATURE_ICONS, FEATURE_PICTURES, FEATURE_TINTS } from "./FeaturePictures";
 import Reveal from "./Reveal";
@@ -79,26 +80,31 @@ export default function Features() {
             itself and an arrow that keeps nudging. Nobody scrolls past it
             wondering whether there is more. */}
         <Reveal delay={200} className="mt-14 flex flex-col items-center">
-          <div className="relative">
-            <span
-              aria-hidden="true"
-              className="a-halo pointer-events-none absolute -inset-5 rounded-full"
-              style={{ background: "radial-gradient(closest-side, rgba(124,58,237,0.55), transparent 72%)" }}
-            />
-            <Link
-              href="/features"
-              className="btn-sweep group relative inline-flex h-14 items-center gap-3 rounded-full bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 px-7 text-base font-bold text-white shadow-lift ring-1 ring-white/25 transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.03] sm:px-9 sm:text-lg"
-            >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 font-display text-sm font-extrabold">
-                {FEATURES.length}
-              </span>
-              {FEATURES_INTRO.cta}
-              <FiArrowRight className="a-nudge h-5 w-5" />
-            </Link>
+          <div className="flex items-center gap-2 sm:gap-5">
+            <FaHandPointRight aria-hidden="true" className="a-point-r h-7 w-7 shrink-0 text-brand-500 drop-shadow-sm sm:h-10 sm:w-10" />
+
+            <div className="relative">
+              {/* Three layers of "look here": a lit halo, a ring that leaves
+                  the button every couple of seconds, and a shine that sweeps
+                  across on its own. */}
+              <span
+                aria-hidden="true"
+                className="a-halo pointer-events-none absolute -inset-5 rounded-full"
+                style={{ background: "radial-gradient(closest-side, rgba(124,58,237,0.55), transparent 72%)" }}
+              />
+              <span aria-hidden="true" className="a-ping-ring pointer-events-none absolute inset-0 rounded-full ring-2 ring-brand-500" />
+              <Link
+                href="/features"
+                className="btn-sweep group relative inline-flex h-14 items-center gap-3 rounded-full bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 px-7 text-base font-bold text-white shadow-lift ring-1 ring-white/25 transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.03] sm:px-10 sm:text-lg"
+              >
+                {FEATURES_INTRO.cta}
+                <FiArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+            </div>
+
+            <FaHandPointLeft aria-hidden="true" className="a-point-l h-7 w-7 shrink-0 text-brand-500 drop-shadow-sm sm:h-10 sm:w-10" />
           </div>
-          <p className="mt-4 text-sm font-medium text-slate-500">
-            {FEATURES.length} in total — every one of them in every plan.
-          </p>
+          <p className="mt-4 text-sm font-medium text-slate-500">Every one of them is in every plan.</p>
         </Reveal>
       </div>
     </section>

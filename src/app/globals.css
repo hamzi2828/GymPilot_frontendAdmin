@@ -143,7 +143,10 @@ details > summary::-webkit-details-marker {
 @keyframes m-scan { 0% { transform: translateY(-100%); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(900%); opacity: 0; } }
 @keyframes m-blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.8); } }
 @keyframes m-halo { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.85; transform: scale(1.07); } }
-@keyframes m-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
+@keyframes m-point-r { 0%, 100% { transform: translateX(0) scale(1); } 50% { transform: translateX(11px) scale(1.08); } }
+@keyframes m-point-l { 0%, 100% { transform: translateX(0) scale(1); } 50% { transform: translateX(-11px) scale(1.08); } }
+/* A ring that leaves the button and fades, like a tap landing on water. */
+@keyframes m-ping-ring { 0% { transform: scale(1); opacity: 0.6; } 70%, 100% { transform: scale(1.3); opacity: 0; } }
 /* Sweeps across in the first third, then waits, so it catches the eye without strobing. */
 @keyframes m-sweep { 0% { transform: translateX(-160%) skewX(-20deg); } 32%, 100% { transform: translateX(280%) skewX(-20deg); } }
 
@@ -179,7 +182,9 @@ details > summary::-webkit-details-marker {
 .a-scan { animation: m-scan 2.8s ease-in-out infinite; }
 .a-blink { animation: m-blink 1.6s ease-in-out infinite; }
 .a-halo { animation: m-halo 2.8s ease-in-out infinite; }
-.a-nudge { animation: m-nudge 1.4s ease-in-out infinite; }
+.a-point-r { animation: m-point-r 1.15s ease-in-out infinite; }
+.a-point-l { animation: m-point-l 1.15s ease-in-out infinite; }
+.a-ping-ring { animation: m-ping-ring 2.4s cubic-bezier(0, 0, 0.2, 1) infinite; }
 /* Like .btn-shine, but it sweeps on its own rather than waiting for a hover. */
 .btn-sweep { position: relative; overflow: hidden; isolation: isolate; }
 .btn-sweep::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 38%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent); transform: translateX(-160%) skewX(-20deg); pointer-events: none; animation: m-sweep 3.6s ease-in-out infinite; }
@@ -200,7 +205,8 @@ details[open] > summary ~ * { animation: m-rise 0.45s cubic-bezier(0.22, 1, 0.36
   .reveal.is-visible .v-fill-y, .reveal.is-visible .v-slide-l, .reveal.is-visible .v-slide-r, .reveal.is-visible .v-tilt,
   .reveal.is-visible .v-draw, .reveal.is-visible .v-bubble-l, .reveal.is-visible .v-bubble-r,
   .reveal.is-visible .v-float,
-  .a-drift, .a-drift-2, .a-spin-slow, .a-float, .a-float-2, .a-scan, .a-blink, .a-halo, .a-nudge, .btn-sweep::after, .btn-shine:hover::after,
+  .a-drift, .a-drift-2, .a-spin-slow, .a-float, .a-float-2, .a-scan, .a-blink, .a-halo,
+  .a-point-r, .a-point-l, .a-ping-ring, .btn-sweep::after, .btn-shine:hover::after,
   details[open] > summary ~ * { animation: none !important; }
   .reveal.is-visible .v-draw { stroke-dasharray: none; }
 }
