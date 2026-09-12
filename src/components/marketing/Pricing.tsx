@@ -113,10 +113,14 @@ export default function Pricing() {
     (plan.includedAddons || []).map((slug) => addons.find((a) => a.slug === slug)).filter((a): a is PublicAddon => !!a);
 
   // What a plan can be sold on top of it: not what it already comes with,
-  // and only where the add-on is offered.
+  // only where the add-on is offered, and only in the plan's own currency --
+  // a PKR add-on cannot go on a USD bill.
   const sellableFor = (plan: PublicPlan) =>
     addons.filter(
-      (addon) => !(plan.includedAddons || []).includes(addon.slug) && (!addon.planSlugs.length || addon.planSlugs.includes(plan.slug))
+      (addon) =>
+        !(plan.includedAddons || []).includes(addon.slug) &&
+        (!addon.planSlugs.length || addon.planSlugs.includes(plan.slug)) &&
+        addon.price.currency === plan.price.currency
     );
 
   // The one we point at: the middle of three, the second-from-top of four --

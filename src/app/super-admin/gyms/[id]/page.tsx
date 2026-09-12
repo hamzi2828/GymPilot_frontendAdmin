@@ -3,11 +3,11 @@
 // One gym: what it is, what it is on, whether it is being served, and the
 // numbers from inside its own database.
 
-import { useCallback, useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { FiAlertTriangle, FiCalendar, FiCreditCard, FiExternalLink, FiGlobe, FiLayers, FiShield, FiUsers } from "react-icons/fi";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { FiAlertTriangle, FiCalendar, FiCreditCard, FiExternalLink, FiGlobe, FiLayers, FiMail, FiShield, FiUsers } from "react-icons/fi";
 import { PageHeader, Crumbs, Panel, StatCard, KeyValue, Button, Field, Input, Select, Textarea, Modal, Spinner, Alert, Pill, StatusPill, Avatar } from "../../_shared/ui";
-import { platformFetch, formatDate, formatMoney, SUBSCRIPTION_STATUSES, BILLING_CYCLES, type Addon, type Gym, type GymStats, type Plan } from "../../_shared/api";
+import { platformFetch, formatDate, formatMoney, SUBSCRIPTION_STATUSES, BILLING_CYCLES, type Addon, type DomainStatus, type Gym, type GymStats, type Plan } from "../../_shared/api";
 
 type Detail = Gym & { plan: Plan | null; stats: GymStats };
 type Admin = { id: string; name: string; email: string; is_active: boolean; last_login: string | null };
@@ -15,11 +15,23 @@ type Hosting = {
   connected: boolean;
   added: { host: string; added: boolean; verified?: boolean; error?: string; skipped?: string; verification?: { type: string; domain: string; value: string }[]; dns: { type: string; name: string; value: string; note: string } }[];
 };
+type InviteResult = { data: { created: boolean; email: string; passwordSet: boolean; inviteSent: boolean }; warnings?: string[] };
 
-export default function GymDetailPage() {
+/** A plan's price for a cycle, as the amount field shows it. */
+function planPrice(plan: Plan | undefined, cycle: string): string {
+  if (!plan) return "";
+  return String(cycle === "yearly" ? plan.price.yearly : plan.price.monthly);
+}
+
+function GymDetail() {
   const params = useParams<{ id: string }>();
+  const search = useSearchParams();
   const router = useRouter();
   const id = params.id;
+  // Set by the New gym form right after creating this gym: did the owner's
+  // invite go, and what else did not go to plan.
+  const inviteParam = search.get("invite");
+  const creationWarnings = search.getAll("warning");
 
   const [gym, setGym] = useState<Detail | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -29,6 +41,8 @@ export default function GymDetailPage() {
   // What the website host said when domains were saved: added to Vercel,
   // or the DNS record the owner has to create.
   const [hosting, setHosting] = useState<Hosting | null>(null);
+  // Where each registered domain stands on the website host right now.
+  const [domainStatus, setDomainStatus] = useState<{ connected: boolean; data: DomainStatus[] } | null>(null);
   const [busy, setBusy] = useState(false);
 
   // Editors
@@ -81,6 +95,10 @@ export default function GymDetailPage() {
       setPlans(planList.data);
       setAddons(addonList.data);
       setError(null);
+      // Best effort: the page is complete without it.
+      platformFetch<{ connected: boolean; data: DomainStatus[] }>(`/gyms/${id}/domains/status`)
+        .then((res) => setDomainStatus({ connected: res.connected, data: res.data }))
+        .catch(() => setDomainStatus(null));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load this gym");
     }
@@ -90,7 +108,8 @@ export default function GymDetailPage() {
     load();
   }, [load]);
 
-  // What this plan comes with for nothing, and what can be sold on top of it.
+  // What this plan comes with for nothing, and what can be sold on top of it
+  // -- in the plan's currency only; the API refuses the rest.
   const chosenPlan = plans.find((p) => p.id === sub.planId);
   const includedSlugs = chosenPlan?.includedAddons || [];
   const includedAddons = addons.filter((addon) => addon.isActive && includedSlugs.includes(addon.slug));
@@ -98,8 +117,43 @@ export default function GymDetailPage() {
     (addon) =>
       addon.isActive &&
       !includedSlugs.includes(addon.slug) &&
-      (!addon.planSlugs.length || addon.planSlugs.includes(chosenPlan?.slug || ""))
+      (!addon.planSlugs.length || addon.planSlugs.includes(chosenPlan?.slug || "")) &&
+      (!chosenPlan || addon.price.currency === chosenPlan.price.currency)
   );
+
+  // Picking a plan (or a cycle) resets the amount to that plan's price for
+  // the cycle, so a price typed for the old plan is never sent for the new.
+  const choosePlan = (planId: string) =>
+    setSub((x) => {
+      const plan = plans.find((p) => p.id === planId);
+      return { ...x, planId, amount: planPrice(plan, x.billingCycle), currency: plan ? plan.price.currency : x.currency };
+    });
+  const chooseCycle = (billingCycle: string) =>
+    setSub((x) => {
+      const plan = plans.find((p) => p.id === x.planId);
+      return { ...x, billingCycle, amount: plan ? planPrice(plan, billingCycle) : x.amount };
+    });
+
+  // "Resend owner invite": a set-password link, nothing about the password
+  // itself changes. The answer says whether the email went.
+  const sendInvite = async (email: string, password?: string) => {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const res = await platformFetch<InviteResult>(`/gyms/${id}/reset-owner-password`, { method: "POST", body: password ? { email, password } : { email } });
+      if (res.data.inviteSent) {
+        setNotice(`${password ? "Password set. " : ""}A set-password link was emailed to ${res.data.email}.`);
+      } else {
+        setError(`${password ? "Password set, but the" : "The"} email to ${res.data.email} could not be sent${res.warnings?.length ? ` (${res.warnings[0]})` : ""}. Check the API's SMTP settings and try again.`);
+      }
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Request failed");
+    } finally {
+      setBusy(false);
+    }
+  };
   const chosenAddons = sellableAddons.filter((addon) => addonSlugs.includes(addon.slug));
   const priceOf = (addon: Addon) => (sub.billingCycle === "yearly" ? addon.price.yearly : addon.price.monthly);
   const planShare = Number(sub.amount) || 0;
@@ -130,7 +184,10 @@ export default function GymDetailPage() {
   if (!gym) return <Spinner />;
 
   const stats = gym.stats || {};
-  const primaryHost = gym.domains[0]?.host;
+  // Primary domain, else the platform subdomain, else the API's fallback --
+  // computed by the API so it matches the links in the gym's emails.
+  const siteUrl = gym.siteUrl || (gym.domains[0]?.host ? `https://${gym.domains[0].host}` : "");
+  const siteHost = siteUrl.replace(/^https?:\/\//, "");
   const d = (key: keyof typeof details) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setDetails((x) => ({ ...x, [key]: e.target.value }));
   const s = (key: keyof typeof sub) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setSub((x) => ({ ...x, [key]: e.target.value }));
 
@@ -153,8 +210,8 @@ export default function GymDetailPage() {
         }
         actions={
           <>
-            {primaryHost && (
-              <Button variant="secondary" href={`https://${primaryHost}`}>
+            {siteUrl && (
+              <Button variant="secondary" href={siteUrl}>
                 <FiExternalLink className="h-4 w-4" /> Open website
               </Button>
             )}
@@ -178,6 +235,27 @@ export default function GymDetailPage() {
           </span>
         </Alert>
       )}
+      {inviteParam === "sent" && (
+        <Alert tone="success">
+          <span className="flex items-center gap-2">
+            <FiMail className="h-4 w-4" /> The owner has been emailed a link to set their password at <span className="font-mono">{siteHost}/authentication</span>.
+          </span>
+        </Alert>
+      )}
+      {inviteParam === "failed" && (
+        <Alert tone="warning">
+          <span className="flex items-center gap-2">
+            <FiAlertTriangle className="h-4 w-4" /> The owner&apos;s invite email could not be sent. Check the API&apos;s SMTP settings, then use &quot;Resend owner invite&quot; below.
+          </span>
+        </Alert>
+      )}
+      {creationWarnings
+        .filter((w) => w !== "Owner email could not be sent")
+        .map((w) => (
+          <Alert key={w} tone="warning">
+            {w}
+          </Alert>
+        ))}
       {error && <Alert tone="error" onDismiss={() => setError(null)}>{error}</Alert>}
       {notice && <Alert tone="success" onDismiss={() => setNotice(null)}>{notice}</Alert>}
 
@@ -329,6 +407,52 @@ export default function GymDetailPage() {
               {!hosting.connected && <p className="text-slate-500">Connect Vercel on the API (VERCEL_TOKEN, VERCEL_PROJECT_ID) to add domains to the website project automatically.</p>}
             </div>
           )}
+
+          {/* Where each domain stands on the website host: is DNS pointing
+              here yet, and what to add if not. */}
+          {domainStatus && domainStatus.data.length > 0 && (
+            <div className="mt-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400">DNS &amp; verification</p>
+              <ul className="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-200 text-xs">
+                {domainStatus.data.map((st) => {
+                  const tone = !domainStatus.connected ? "neutral" : st.error ? "bad" : !st.on_project ? "warn" : st.misconfigured ? "warn" : st.verified === false ? "warn" : "good";
+                  const label = !domainStatus.connected
+                    ? "not checked"
+                    : st.error
+                    ? "could not check"
+                    : !st.on_project
+                    ? "not on the website host"
+                    : st.verified === false
+                    ? "awaiting verification"
+                    : st.misconfigured
+                    ? "DNS not pointing here"
+                    : "live";
+                  return (
+                    <li key={st.host} className="px-3 py-2.5">
+                      <p className="flex flex-wrap items-center gap-2">
+                        <span className="font-mono text-slate-900">{st.host}</span>
+                        <Pill tone={tone} dot={false}>
+                          {label}
+                        </Pill>
+                        {st.error && <span className="text-rose-600">{st.error}</span>}
+                      </p>
+                      {domainStatus.connected && label !== "live" && (
+                        <p className="mt-1 text-slate-600">
+                          Add a <span className="rounded bg-white px-1 font-mono ring-1 ring-slate-200">{st.dns.type}</span> record for <span className="rounded bg-white px-1 font-mono ring-1 ring-slate-200">{st.dns.name}</span> pointing to <span className="rounded bg-white px-1 font-mono ring-1 ring-slate-200">{st.dns.value}</span>.
+                        </p>
+                      )}
+                      {(st.verification || []).map((v, i) => (
+                        <p key={i} className="mt-1 text-slate-600">
+                          Verification: <span className="font-mono">{v.type}</span> record <span className="font-mono">{v.domain}</span> = <span className="break-all font-mono">{v.value}</span>
+                        </p>
+                      ))}
+                    </li>
+                  );
+                })}
+              </ul>
+              {!domainStatus.connected && <p className="mt-2 text-xs text-slate-500">Vercel is not connected on the API, so DNS cannot be checked from here.</p>}
+            </div>
+          )}
         </Panel>
 
         {/* Subscription */}
@@ -348,6 +472,11 @@ export default function GymDetailPage() {
                 {gym.subscription.currentPeriodEnd ? ` until ${formatDate(gym.subscription.currentPeriodEnd)}` : ""} · {formatMoney(gym.subscription.amount, gym.subscription.currency)} / {gym.subscription.billingCycle}
                 {(gym.subscription.addons || []).length > 0 && (
                   <> · {formatMoney(gym.subscription.planAmount ?? 0, gym.subscription.currency)} plan + {(gym.subscription.addons || []).map((a) => a.name).join(", ")}</>
+                )}
+                {gym.subscription.stripeSubscriptionId && (
+                  <span className="block">
+                    Paid by card through Stripe{gym.subscription.stripePriceSummary ? ` · ${gym.subscription.stripePriceSummary}` : ""} · <span className="font-mono">{gym.subscription.stripeSubscriptionId}</span>
+                  </span>
                 )}
               </span>
               <Button
@@ -377,7 +506,7 @@ export default function GymDetailPage() {
         >
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Plan">
-              <Select value={sub.planId} onChange={s("planId")}>
+              <Select value={sub.planId} onChange={(e) => choosePlan(e.target.value)}>
                 <option value="">No plan (unlimited)</option>
                 {plans.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -396,7 +525,7 @@ export default function GymDetailPage() {
               </Select>
             </Field>
             <Field label="Billing cycle">
-              <Select value={sub.billingCycle} onChange={s("billingCycle")}>
+              <Select value={sub.billingCycle} onChange={(e) => chooseCycle(e.target.value)}>
                 {BILLING_CYCLES.map((c) => (
                   <option key={c} value={c}>
                     {c}
@@ -486,13 +615,18 @@ export default function GymDetailPage() {
             </span>
           }
           actions={
-            <Button variant="secondary" size="sm" onClick={() => setResetOpen(true)}>
-              Reset owner password
-            </Button>
+            <>
+              <Button variant="secondary" size="sm" disabled={busy || !gym.owner.email} onClick={() => sendInvite(gym.owner.email)}>
+                <FiMail className="h-3.5 w-3.5" /> Resend owner invite
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => setResetOpen(true)}>
+                Reset owner password
+              </Button>
+            </>
           }
           footer={
             <span className="text-xs text-slate-500">
-              The owner signs in at <span className="font-mono">{primaryHost ? `${primaryHost}/authentication` : "<domain>/authentication"}</span> and manages the gym at <span className="font-mono">/admin</span>.
+              The owner signs in at <span className="font-mono">{siteHost ? `${siteHost}/authentication` : "<domain>/authentication"}</span> and manages the gym at <span className="font-mono">/admin</span>. &quot;Resend owner invite&quot; emails {gym.owner.email || "the owner"} a link to set their password.
             </span>
           }
           padded={false}
@@ -529,12 +663,14 @@ export default function GymDetailPage() {
       </Panel>
 
       <Modal open={resetOpen} onClose={() => setResetOpen(false)} title="Reset owner password" size="sm">
-        <p className="text-xs text-slate-500">Sets a new password on this administrator inside the gym, or creates the account if the address is new. Tell them the password yourself; it is not emailed.</p>
+        <p className="text-xs text-slate-500">
+          Emails this administrator a link to set their own password (creating the account inside the gym if the address is new). Type a password only if you need to set one by hand as well; the password itself is never emailed.
+        </p>
         <div className="mt-4 space-y-4">
           <Field label="Email">
             <Input type="email" value={reset.email} onChange={(e) => setReset((r) => ({ ...r, email: e.target.value }))} />
           </Field>
-          <Field label="New password (min 8 characters)">
+          <Field label="New password (optional, min 8 characters)">
             <Input type="password" value={reset.password} onChange={(e) => setReset((r) => ({ ...r, password: e.target.value }))} autoComplete="new-password" />
           </Field>
         </div>
@@ -543,14 +679,14 @@ export default function GymDetailPage() {
             Cancel
           </Button>
           <Button
-            disabled={busy || reset.password.length < 8}
+            disabled={busy || !reset.email || (reset.password.length > 0 && reset.password.length < 8)}
             onClick={async () => {
-              await run("Owner password updated", () => platformFetch(`/gyms/${id}/reset-owner-password`, { method: "POST", body: reset }));
+              await sendInvite(reset.email, reset.password || undefined);
               setResetOpen(false);
               setReset((r) => ({ ...r, password: "" }));
             }}
           >
-            Set password
+            {reset.password ? "Set password & email link" : "Email set-password link"}
           </Button>
         </div>
       </Modal>
@@ -594,5 +730,15 @@ export default function GymDetailPage() {
         </div>
       </Modal>
     </>
+  );
+}
+
+export default function GymDetailPage() {
+  // The page reads ?invite= from the New gym form, and useSearchParams needs
+  // a boundary around it.
+  return (
+    <Suspense fallback={<Spinner />}>
+      <GymDetail />
+    </Suspense>
   );
 }

@@ -167,6 +167,10 @@ export interface Gym {
     currentPeriodEnd: string | null;
     cancelledAt: string | null;
     notes: string;
+    /** Set once the gym has paid the platform by card (see BILLING.md). */
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+    stripePriceSummary?: string;
   };
   locale: { timezone: string; currency: string; country: string };
   notes: string;
@@ -174,7 +178,22 @@ export interface Gym {
   createdAt: string;
   updatedAt: string;
   access_block: { status: number; code: string; message: string } | null;
+  /** Where its website is: primary domain, else platform subdomain, else the API's fallback. */
+  siteUrl?: string;
   stats?: GymStats | null;
+}
+
+/** GET /gyms/:id/domains/status -- one row per registered domain. */
+export interface DomainStatus {
+  host: string;
+  connected: boolean;
+  on_project?: boolean;
+  verified?: boolean;
+  misconfigured?: boolean;
+  skipped?: string;
+  error?: string;
+  verification?: { type: string; domain: string; value: string }[];
+  dns: { type: string; name: string; value: string; note: string };
 }
 
 export interface GymBrief {
@@ -200,6 +219,9 @@ export type DemoRequestStatus = (typeof DEMO_REQUEST_STATUSES)[number];
 export interface DemoRequest {
   id: string;
   name: string;
+  /** Checkout asks for the two halves; a demo request has only `name`. */
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   gymName: string;
@@ -223,6 +245,8 @@ export interface DemoRequest {
     currency: string;
     trialDays: number;
   } | null;
+  /** What was left off the selection and why (an add-on in another currency, say). */
+  warnings?: string[];
   createdAt: string;
   updatedAt: string;
 }

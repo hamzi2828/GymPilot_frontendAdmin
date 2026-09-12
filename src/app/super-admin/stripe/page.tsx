@@ -6,9 +6,19 @@
 // is what proves a key reaches the account you meant.
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { FiCheckCircle, FiCopy, FiExternalLink, FiZap } from "react-icons/fi";
-import { Alert, Button, Field, Input, PageHeader, Panel, Pill, Spinner, Toggle } from "../_shared/ui";
+import { Alert, Button, Field, Input, PageHeader, Panel, Pill, Spinner, Toggle, relativeTime } from "../_shared/ui";
 import { platformFetch, formatDate } from "../_shared/api";
+
+/** One platform_stripe_event row from GET /audit. */
+interface StripeEventRow {
+  _id: string;
+  gymId?: string | null;
+  gymSlug: string;
+  meta: { type?: string; id?: string; livemode?: boolean; result?: string } | null;
+  createdAt: string;
+}
 
 interface StripeSettings {
   stripe: {
@@ -29,17 +39,18 @@ interface StripeSettings {
   updatedAt: string | null;
 }
 
-/** The events worth sending here once the platform starts charging gyms. */
-const EVENTS = [
-  "checkout.session.completed",
-  "invoice.paid",
-  "invoice.payment_failed",
-  "customer.subscription.updated",
-  "customer.subscription.deleted",
+/** The events the webhook acts on, and what each one does to the gym. */
+const EVENTS: { type: string; effect: string }[] = [
+  { type: "checkout.session.completed", effect: "records the Stripe customer and subscription, marks the gym active (or trialing) and sets its period end" },
+  { type: "invoice.paid", effect: "extends the period end and marks the gym active" },
+  { type: "invoice.payment_failed", effect: "marks the gym past due" },
+  { type: "customer.subscription.updated", effect: "syncs status, period end and amount from Stripe" },
+  { type: "customer.subscription.deleted", effect: "marks the gym cancelled" },
 ];
 
 export default function PlatformStripePage() {
   const [data, setData] = useState<StripeSettings | null>(null);
+  const [events, setEvents] = useState<StripeEventRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -68,6 +79,10 @@ export default function PlatformStripePage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load the settings");
     }
+    // The last few things Stripe sent, from the audit log. Best effort.
+    platformFetch<{ data: StripeEventRow[] }>("/audit?action=platform_stripe_event&limit=10")
+      .then((res) => setEvents(res.data))
+      .catch(() => setEvents([]));
   }, []);
 
   useEffect(() => {
@@ -216,15 +231,16 @@ export default function PlatformStripePage() {
             </div>
 
             <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-400">Events to send</p>
-            <ul className="mt-2 space-y-1">
+            <ul className="mt-2 space-y-1.5">
               {EVENTS.map((event) => (
-                <li key={event} className="font-mono text-[11px] text-slate-600">
-                  {event}
+                <li key={event.type} className="text-[11px] text-slate-600">
+                  <span className="font-mono text-slate-800">{event.type}</span>
+                  <span className="block text-slate-500">{event.effect}</span>
                 </li>
               ))}
             </ul>
             <p className="mt-3 text-xs text-slate-500">
-              Anything that arrives is checked against the signing secret and written to the audit log, so you can see it landed.
+              Anything that arrives is checked against the signing secret, applied to the gym it concerns once (repeat deliveries are skipped) and written to the audit log, so you can see it landed and what it did.
             </p>
             <a
               href="https://dashboard.stripe.com/webhooks"
@@ -249,6 +265,45 @@ export default function PlatformStripePage() {
               <p className="text-sm text-slate-500">
                 {s.secretKeySet ? "Not tested yet. Press Test connection to see which account these keys reach." : "No secret key saved yet."}
               </p>
+            )}
+          </Panel>
+
+          <Panel title="Recent events" description="The last ten things Stripe sent to the webhook, newest first." padded={false}>
+            {events === null ? (
+              <p className="px-6 py-5 text-xs text-slate-500">Loading…</p>
+            ) : events.length === 0 ? (
+              <p className="px-6 py-5 text-xs text-slate-500">Nothing has arrived yet. Send a test event from Stripe → Webhooks to check the address.</p>
+            ) : (
+              <ul className="divide-y divide-slate-100">
+                {events.map((row) => (
+                  <li key={row._id} className="px-6 py-3 text-xs">
+                    <p className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono text-slate-800">{row.meta?.type || "event"}</span>
+                      {row.meta?.livemode === false && (
+                        <Pill tone="neutral" dot={false}>
+                          test
+                        </Pill>
+                      )}
+                      <span className="text-slate-400">{relativeTime(row.createdAt)}</span>
+                    </p>
+                    <p className="mt-0.5 text-slate-500">
+                      {row.meta?.result || "received"}
+                      {row.gymSlug && (
+                        <>
+                          {" · "}
+                          {row.gymId ? (
+                            <Link href={`/super-admin/gyms/${row.gymId}`} className="font-mono text-indigo-600 hover:underline">
+                              {row.gymSlug}
+                            </Link>
+                          ) : (
+                            <span className="font-mono">{row.gymSlug}</span>
+                          )}
+                        </>
+                      )}
+                    </p>
+                  </li>
+                ))}
+              </ul>
             )}
           </Panel>
         </div>

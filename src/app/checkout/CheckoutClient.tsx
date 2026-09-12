@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FiArrowLeft, FiArrowRight, FiCheck, FiCheckCircle, FiLock, FiSmartphone, FiPlus } from "react-icons/fi";
-import { formatMoney, publicFetch, type PublicAddon, type PublicPlan } from "@/lib/api";
+import { formatMoney, publicFetch, type PublicAddon, type PublicConfig, type PublicPlan } from "@/lib/api";
 import { stagger } from "@/lib/motion";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import Brand from "@/components/marketing/Brand";
@@ -44,6 +44,9 @@ export default function CheckoutClient() {
 
   const [plans, setPlans] = useState<PublicPlan[] | null>(null);
   const [addons, setAddons] = useState<PublicAddon[]>([]);
+  // The domain gyms get their address under; "" when the platform has none
+  // (a gym then gets its address when it is set up), null while unknown.
+  const [rootDomain, setRootDomain] = useState<string | null>(null);
   const [planSlug, setPlanSlug] = useState(params.get("plan") || "");
   const [cycle, setCycle] = useState<Cycle>(params.get("cycle") === "yearly" ? "yearly" : "monthly");
   const [chosenAddons, setChosenAddons] = useState<string[]>([]);
@@ -66,6 +69,9 @@ export default function CheckoutClient() {
     publicFetch<{ data: PublicAddon[] }>("/addons")
       .then((res) => setAddons(res.data))
       .catch(() => setAddons([]));
+    publicFetch<{ data: PublicConfig }>("/config")
+      .then((res) => setRootDomain(res.data.root_domain || ""))
+      .catch(() => setRootDomain(""));
   }, []);
 
   const plan = useMemo(() => (plans || []).find((p) => p.slug === planSlug) || null, [plans, planSlug]);
@@ -74,11 +80,16 @@ export default function CheckoutClient() {
     () => (plan ? addons.filter((a) => (plan.includedAddons || []).includes(a.slug)) : []),
     [plan, addons]
   );
+  // Sold with this plan, and priced in its currency: a PKR add-on cannot go
+  // on a USD bill, so it is simply not offered.
   const sellable = useMemo(
     () =>
       plan
         ? addons.filter(
-            (a) => !(plan.includedAddons || []).includes(a.slug) && (!a.planSlugs.length || a.planSlugs.includes(plan.slug))
+            (a) =>
+              !(plan.includedAddons || []).includes(a.slug) &&
+              (!a.planSlugs.length || a.planSlugs.includes(plan.slug)) &&
+              a.price.currency === plan.price.currency
           )
         : [],
     [plan, addons]
@@ -229,24 +240,30 @@ export default function CheckoutClient() {
                     </label>
                   ))}
 
-                  <label className="sm:col-span-2">
-                    <span className="text-sm font-semibold text-slate-700">Your web address</span>
-                    <div className="mt-1.5 flex items-center rounded-xl border border-slate-200 bg-white pr-4 focus-within:border-brand-400 focus-within:ring-4 focus-within:ring-brand-100">
-                      <input
-                        value={webAddress}
-                        onChange={(e) => {
-                          setTouchedAddress(true);
-                          setWebAddress(slugify(e.target.value));
-                        }}
-                        placeholder="ironworks"
-                        className="h-12 min-w-0 flex-1 rounded-xl bg-transparent px-4 text-[15px] text-slate-900 outline-none placeholder:text-slate-400"
-                      />
-                      <span className="whitespace-nowrap text-sm text-slate-400">.gympilot.app</span>
-                    </div>
-                    <span className="mt-1.5 block text-xs text-slate-500">
-                      Start here and point your own domain (yourgym.com) at it whenever you are ready.
-                    </span>
-                  </label>
+                  {rootDomain ? (
+                    <label className="sm:col-span-2">
+                      <span className="text-sm font-semibold text-slate-700">Your web address</span>
+                      <div className="mt-1.5 flex items-center rounded-xl border border-slate-200 bg-white pr-4 focus-within:border-brand-400 focus-within:ring-4 focus-within:ring-brand-100">
+                        <input
+                          value={webAddress}
+                          onChange={(e) => {
+                            setTouchedAddress(true);
+                            setWebAddress(slugify(e.target.value));
+                          }}
+                          placeholder="ironworks"
+                          className="h-12 min-w-0 flex-1 rounded-xl bg-transparent px-4 text-[15px] text-slate-900 outline-none placeholder:text-slate-400"
+                        />
+                        <span className="whitespace-nowrap text-sm text-slate-400">.{rootDomain}</span>
+                      </div>
+                      <span className="mt-1.5 block text-xs text-slate-500">
+                        Start here and point your own domain (yourgym.com) at it whenever you are ready.
+                      </span>
+                    </label>
+                  ) : (
+                    <p className="sm:col-span-2 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                      You will get a web address when your gym is set up, and can point your own domain at it later.
+                    </p>
+                  )}
 
                   <label className="sm:col-span-2">
                     <span className="text-sm font-semibold text-slate-700">

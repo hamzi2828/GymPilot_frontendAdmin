@@ -101,14 +101,18 @@ function NewGymForm() {
   // because the plan is stored as a slug and the form wants its id.
   const prefill = useCallback(
     (r: DemoRequest, planList: Plan[]) => {
+      // Checkout stores the two halves; an older record or a demo request
+      // only has the one name, which is split as a best guess.
       const [first, ...rest] = (r.name || "").trim().split(/\s+/);
+      const firstName = r.firstName || first;
+      const lastName = r.firstName ? r.lastName : rest.join(" ");
       const plan = r.plan ? planList.find((p) => p.slug === r.plan!.slug) : undefined;
       setForm((f) => ({
         ...f,
         name: r.gymName || f.name,
         slug: r.preferredSlug || f.slug,
-        ownerFirstName: first || f.ownerFirstName,
-        ownerLastName: rest.join(" ") || f.ownerLastName,
+        ownerFirstName: firstName || f.ownerFirstName,
+        ownerLastName: lastName || f.ownerLastName,
         ownerEmail: r.email || f.ownerEmail,
         ownerPhone: r.phone || f.ownerPhone,
         planId: plan ? plan.id : f.planId,
@@ -159,8 +163,13 @@ function NewGymForm() {
     : "";
   const selectedPlan = plans.find((p) => p.id === form.planId);
   const includedSlugs = selectedPlan?.includedAddons || [];
+  // Only what the plan sells, in the plan's own currency: the API refuses a
+  // PKR add-on on a USD plan.
   const sellableAddons = addons.filter(
-    (a) => !includedSlugs.includes(a.slug) && (!a.planSlugs.length || a.planSlugs.includes(selectedPlan?.slug || ""))
+    (a) =>
+      !includedSlugs.includes(a.slug) &&
+      (!a.planSlugs.length || a.planSlugs.includes(selectedPlan?.slug || "")) &&
+      (!selectedPlan || a.price.currency === selectedPlan.price.currency)
   );
 
   const submit = async (e: React.FormEvent) => {
@@ -168,7 +177,7 @@ function NewGymForm() {
     setBusy(true);
     setError(null);
     try {
-      const res = await platformFetch<{ data: Gym }>("/gyms", {
+      const res = await platformFetch<{ data: Gym; ownerInviteSent?: boolean; warnings?: string[] }>("/gyms", {
         method: "POST",
         body: {
           name: form.name,
@@ -194,7 +203,11 @@ function NewGymForm() {
           notes: form.notes,
         },
       });
-      router.replace(`/super-admin/gyms/${res.data.id}`);
+      // The gym page says whether the owner got their invite, and what else
+      // did not go to plan.
+      const query = new URLSearchParams({ invite: res.ownerInviteSent ? "sent" : "failed" });
+      for (const warning of res.warnings || []) query.append("warning", warning);
+      router.replace(`/super-admin/gyms/${res.data.id}?${query.toString()}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create the gym");
       setBusy(false);
@@ -211,6 +224,7 @@ function NewGymForm() {
           <span className="font-semibold">{request.name}</span> ({request.email})
           {request.plan ? ` — ${request.plan.name}, ${request.plan.billingCycle}${request.plan.addonNames.length ? ` with ${request.plan.addonNames.join(", ")}` : ""}` : ""}. Check
           it over before you create the gym.
+          {(request.warnings || []).length > 0 && <span className="mt-1 block text-xs">{request.warnings!.join(" ")}</span>}
         </Alert>
       )}
 
@@ -269,7 +283,7 @@ function NewGymForm() {
                 <FiUser className="h-4 w-4 text-indigo-600" /> Owner account
               </span>
             }
-            description="Created as an administrator inside the gym. Share the password with them; it is not emailed."
+            description="Created as an administrator inside the gym. The owner is emailed a link to choose their own password; the one typed here is only a fallback you can pass on by hand."
           >
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="First name">

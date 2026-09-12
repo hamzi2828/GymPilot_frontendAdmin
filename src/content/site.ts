@@ -70,7 +70,7 @@ export const PROOF = [
   { value: "1", label: "private online presence per gym", hint: "Your own website, member app and database." },
   { value: "4", label: "messaging channels", hint: "Email, SMS, WhatsApp and push — with automations that run themselves." },
   { value: "5", label: "languages, RTL included", hint: "English, Arabic, Urdu, Spanish and French out of the box." },
-  { value: "0", label: "add-ons to buy", hint: "Billing, booking, POS, payroll, reports — every plan is the full product." },
+  { value: "1", label: "optional add-on", hint: "Billing, booking, POS, payroll, reports — every plan is the full product. The member app is the one thing sold on top." },
 ];
 
 // The feature list moved to content/features.ts: the landing page shows the
@@ -86,7 +86,7 @@ export const HOW_IT_WORKS = {
 export const STEPS = [
   {
     title: "We set up your gym",
-    text: "Tell us your gym's name. Within minutes you have your own website, member app and admin area.",
+    text: "Tell us your gym's name and pick a plan. Within one working day you have your own website, member app and admin area.",
   },
   {
     title: "Connect your web address",
@@ -184,7 +184,7 @@ export const FAQ = [
   },
   {
     q: "Is there a contract?",
-    a: "Plans are monthly or yearly and can be cancelled any time. Every plan starts with a free trial and there are no add-ons to buy.",
+    a: "Plans are monthly or yearly and can be cancelled any time. Every plan starts with a free trial. The member app is sold as an add-on on the plans that do not already include it.",
   },
 ];
 

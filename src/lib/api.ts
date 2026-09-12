@@ -45,6 +45,12 @@ export interface PublicPlan {
   order: number;
 }
 
+/** GET /public/config: how this deployment names things that the site shows. */
+export interface PublicConfig {
+  /** Gyms get `<slug>.<root_domain>`; empty when the platform has no root domain. */
+  root_domain: string;
+}
+
 /** Sold beside a plan. `planSlugs` empty means it goes with any of them. */
 export interface PublicAddon {
   id: string;

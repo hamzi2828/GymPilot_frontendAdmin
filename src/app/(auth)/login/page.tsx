@@ -7,12 +7,11 @@ import { FiZap } from "react-icons/fi";
 import { platformFetch, setPlatformToken } from "@/app/super-admin/_shared/api";
 import AuthShell, { AuthButton, authInput } from "@/app/super-admin/_shared/AuthShell";
 
-// One-tap sign-in for the super admin account, taken from the environment
-// so no credentials sit in the code. Both variables must be set for the
-// shortcut to appear -- leave them unset on a public deployment.
-const QUICK_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL || "";
-const QUICK_PASSWORD = process.env.NEXT_PUBLIC_SUPER_ADMIN_PASSWORD || "";
-const HAS_QUICK = !!(QUICK_EMAIL && QUICK_PASSWORD);
+// One-tap sign-in for the super admin account during local development.
+// Nothing is inlined into the page: arriving with ?quick=1 asks the app's own
+// /api/dev-login route, which only answers under `next dev` and reads the
+// account from non-public environment variables (see .env.example).
+type QuickAccount = { email: string; password: string };
 
 function LoginForm() {
   const router = useRouter();
@@ -23,13 +22,26 @@ function LoginForm() {
   const [challenge, setChallenge] = useState<{ challengeId: string; message: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [quick, setQuick] = useState<QuickAccount | null>(null);
 
-  // Arriving with ?quick=1 pre-fills the account, when one is configured.
+  // Arriving with ?quick=1 pre-fills the account, when the dev route has one.
   useEffect(() => {
-    if (HAS_QUICK && params.get("quick") === "1") {
-      setEmail(QUICK_EMAIL);
-      setPassword(QUICK_PASSWORD);
-    }
+    if (params.get("quick") !== "1") return;
+    let cancelled = false;
+    fetch("/api/dev-login", { cache: "no-store" })
+      .then(async (res) => (res.ok ? ((await res.json()) as QuickAccount) : null))
+      .then((account) => {
+        if (cancelled || !account || !account.email || !account.password) return;
+        setQuick(account);
+        setEmail(account.email);
+        setPassword(account.password);
+      })
+      .catch(() => {
+        /* not in development, or nothing configured: the form is just a form */
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [params]);
 
   const finish = (token: string) => {
@@ -106,12 +118,12 @@ function LoginForm() {
               <span className="text-xs font-semibold text-slate-700">Password</span>
               <input type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={`${authInput} mt-1.5`} />
             </label>
-            {HAS_QUICK && (
+            {quick && (
               <button
                 type="button"
                 onClick={() => {
-                  setEmail(QUICK_EMAIL);
-                  setPassword(QUICK_PASSWORD);
+                  setEmail(quick.email);
+                  setPassword(quick.password);
                   setError(null);
                 }}
                 className="flex w-full items-center gap-3 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/60 px-3.5 py-2.5 text-left transition-colors hover:border-indigo-400 hover:bg-indigo-50"
@@ -120,8 +132,8 @@ function LoginForm() {
                   <FiZap className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-xs font-semibold text-slate-900">Super admin · quick sign in</span>
-                  <span className="block truncate text-[11px] text-slate-500">{QUICK_EMAIL} · tap to fill, then Sign in</span>
+                  <span className="block text-xs font-semibold text-slate-900">Super admin · quick sign in (development)</span>
+                  <span className="block truncate text-[11px] text-slate-500">{quick.email} · tap to fill, then Sign in</span>
                 </span>
               </button>
             )}
