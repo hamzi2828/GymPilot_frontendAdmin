@@ -61,6 +61,21 @@ export interface PublicAddon {
   planSlugs: string[];
 }
 
+/**
+ * The plan the site points at: the middle of three, the second-from-top of
+ * four -- the tier most gyms actually land on, never the cheapest or the
+ * dearest. Pricing marks it "Most popular"; checkout starts on it.
+ */
+export function popularPlanIndex(count: number): number {
+  return count >= 4 ? 2 : count >= 3 ? 1 : 0;
+}
+
+/** What paying yearly saves on twelve monthly payments, in whole percent; 0 when there is no yearly price. */
+export function yearlySaving(price: { monthly: number; yearly: number }): number {
+  if (!(price.yearly > 0) || !(price.monthly > 0)) return 0;
+  return Math.max(0, Math.round((1 - price.yearly / (price.monthly * 12)) * 100));
+}
+
 export function formatMoney(amount: number, currency: string, fractionDigits = 0): string {
   try {
     return new Intl.NumberFormat(undefined, { style: "currency", currency: currency || "USD", maximumFractionDigits: fractionDigits, minimumFractionDigits: 0 }).format(amount || 0);

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FiArrowRight, FiCheck, FiPlus, FiSmartphone } from "react-icons/fi";
 import { PRICING } from "@/content/site";
-import { formatMoney, publicFetch, type PublicAddon, type PublicPlan } from "@/lib/api";
+import { formatMoney, popularPlanIndex, publicFetch, yearlySaving, type PublicAddon, type PublicPlan } from "@/lib/api";
 import { stagger } from "@/lib/motion";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
@@ -123,10 +123,11 @@ export default function Pricing() {
         addon.price.currency === plan.price.currency
     );
 
-  // The one we point at: the middle of three, the second-from-top of four --
-  // the tier most gyms actually land on, never the cheapest or the dearest.
-  const popular = !plans ? 0 : plans.length >= 4 ? 2 : plans.length >= 3 ? 1 : 0;
+  // The one we point at (checkout starts on the same one).
+  const popular = popularPlanIndex(plans ? plans.length : 0);
   const anyYearly = !!plans?.some((p) => p.price.yearly > 0);
+  // The toggle promises only what the prices actually give.
+  const bestSaving = plans ? Math.max(0, ...plans.map((p) => yearlySaving(p.price))) : 0;
 
   return (
     <section id="pricing" className="relative bg-slate-50 py-24 sm:py-28">
@@ -145,7 +146,9 @@ export default function Pricing() {
                 return (
                   <button key={key} type="button" onClick={() => setYearly(key === "yearly")} aria-pressed={active} className={`rounded-full px-4 py-1.5 font-semibold transition-all duration-300 ${active ? "bg-slate-900 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>
                     {label}
-                    {key === "yearly" && <span className={`ml-1.5 text-[11px] ${active ? "text-emerald-300" : "text-emerald-600"}`}>save</span>}
+                    {key === "yearly" && bestSaving > 0 && (
+                      <span className={`ml-1.5 text-[11px] ${active ? "text-emerald-300" : "text-emerald-600"}`}>save up to {bestSaving}%</span>
+                    )}
                   </button>
                 );
               })}
@@ -186,7 +189,10 @@ export default function Pricing() {
               {plans.map((plan, i) => {
                 const isPopular = i === popular;
                 const perMonth = yearly && plan.price.yearly > 0 ? plan.price.yearly / 12 : plan.price.monthly;
-                const saving = plan.price.yearly > 0 && plan.price.monthly > 0 ? Math.round((1 - plan.price.yearly / (plan.price.monthly * 12)) * 100) : 0;
+                const saving = yearlySaving(plan.price);
+                // Yearly only where the plan has a yearly price; a monthly-only
+                // plan goes to checkout monthly whatever the toggle says.
+                const cycle = yearly && plan.price.yearly > 0 ? "yearly" : "monthly";
                 return (
                   <article key={plan.id} className={`a-rise relative flex flex-col rounded-3xl border p-7 transition-transform duration-300 hover:-translate-y-1 ${isPopular ? "border-brand-500 bg-slate-950 text-white shadow-glow" : "border-slate-200 bg-white text-slate-900 shadow-card hover:shadow-lift"}`} style={stagger(i * 2)}>
                     {isPopular && <span className="absolute -top-3 left-7 animate-pulse-soft rounded-full bg-gradient-to-r from-brand-500 to-purple-500 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">Most popular</span>}
@@ -202,7 +208,7 @@ export default function Pricing() {
                     </p>
 
                     <Link
-                      href={`/checkout?plan=${plan.slug}&cycle=${yearly ? "yearly" : "monthly"}`}
+                      href={`/checkout?plan=${plan.slug}&cycle=${cycle}`}
                       className={`btn-shine mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-full text-sm font-semibold transition-transform hover:-translate-y-0.5 ${isPopular ? "btn-shine-dark bg-white text-slate-900" : "bg-slate-900 text-white"}`}
                     >
                       {plan.trialDays > 0 ? "Start free trial" : "Get started"} <FiArrowRight className="h-4 w-4" />

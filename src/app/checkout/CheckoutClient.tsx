@@ -6,11 +6,12 @@
 // details before a gym has seen its own admin would only lose signups. What
 // this collects is what we need to build the gym; the panel turns it into one.
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FiArrowLeft, FiArrowRight, FiCheck, FiCheckCircle, FiLock, FiSmartphone, FiPlus } from "react-icons/fi";
-import { formatMoney, publicFetch, type PublicAddon, type PublicConfig, type PublicPlan } from "@/lib/api";
+import { formatMoney, popularPlanIndex, publicFetch, yearlySaving, type PublicAddon, type PublicConfig, type PublicPlan } from "@/lib/api";
+import { PRICING } from "@/content/site";
 import { stagger } from "@/lib/motion";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import Brand from "@/components/marketing/Brand";
@@ -43,6 +44,9 @@ export default function CheckoutClient() {
   const router = useRouter();
 
   const [plans, setPlans] = useState<PublicPlan[] | null>(null);
+  // Set when the price list could not be loaded, so the page says so and
+  // offers a retry instead of a form whose button never wakes up.
+  const [plansError, setPlansError] = useState<string | null>(null);
   const [addons, setAddons] = useState<PublicAddon[]>([]);
   // The domain gyms get their address under; "" when the platform has none
   // (a gym then gets its address when it is set up), null while unknown.
@@ -59,22 +63,40 @@ export default function CheckoutClient() {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
-  useEffect(() => {
+  const loadPlans = useCallback(() => {
+    setPlans(null);
+    setPlansError(null);
     publicFetch<{ data: PublicPlan[] }>("/plans")
       .then((res) => {
         setPlans(res.data);
-        setPlanSlug((current) => current || res.data[Math.min(2, res.data.length - 1)]?.slug || "");
+        // The plan the pricing page sent them with, while it is still sold;
+        // otherwise the one the pricing page marks most popular.
+        setPlanSlug((current) =>
+          current && res.data.some((p) => p.slug === current) ? current : res.data[popularPlanIndex(res.data.length)]?.slug || ""
+        );
       })
-      .catch(() => setPlans([]));
+      .catch((e) => setPlansError(e instanceof Error ? e.message : "Could not load the plans."));
+  }, []);
+
+  useEffect(() => {
+    loadPlans();
     publicFetch<{ data: PublicAddon[] }>("/addons")
       .then((res) => setAddons(res.data))
       .catch(() => setAddons([]));
     publicFetch<{ data: PublicConfig }>("/config")
       .then((res) => setRootDomain(res.data.root_domain || ""))
       .catch(() => setRootDomain(""));
-  }, []);
+  }, [loadPlans]);
 
   const plan = useMemo(() => (plans || []).find((p) => p.slug === planSlug) || null, [plans, planSlug]);
+  // Yearly is only on offer where the plan has a yearly price: a link that
+  // says ?cycle=yearly for a monthly-only plan, or a switch to one, lands on
+  // monthly rather than on a price of nothing.
+  const hasYearly = !!plan && plan.price.yearly > 0;
+  useEffect(() => {
+    if (plan && !hasYearly) setCycle("monthly");
+  }, [plan, hasYearly]);
+  const saving = plan ? yearlySaving(plan.price) : 0;
 
   const included = useMemo(
     () => (plan ? addons.filter((a) => (plan.includedAddons || []).includes(a.slug)) : []),
@@ -157,8 +179,11 @@ export default function CheckoutClient() {
             That is everything we need
           </h1>
           <p className="a-rise mt-4 text-lg leading-relaxed text-slate-300" style={stagger(2)}>
-            We are setting up {form.gymName}. You will get an email at <span className="font-semibold text-white">{form.email}</span> with your
-            admin address and sign-in, usually within one working day.
+            We have sent a confirmation to <span className="font-semibold text-white">{form.email}</span>. We are setting up {form.gymName} now,
+            and a second email with your web address and a link to set your admin password follows, usually within one working day.
+          </p>
+          <p className="a-rise mt-3 text-sm text-slate-400" style={stagger(2)}>
+            Nothing in your inbox in a few minutes? Check your spam folder.
           </p>
           <div className="a-rise mt-8 rounded-2xl border border-white/10 bg-white/5 p-5 text-left text-sm" style={stagger(3)}>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">What you chose</p>
@@ -209,8 +234,27 @@ export default function CheckoutClient() {
             No card needed. Tell us about your gym and we will have it running — website, admin and all — usually within one working day.
           </p>
 
-          {!plans ? (
+          {plansError ? (
+            <div className="mt-10 rounded-3xl border border-rose-200 bg-white p-8 text-center shadow-card">
+              <p className="text-base font-semibold text-slate-900">We could not load the plans.</p>
+              <p className="mt-1 text-sm text-slate-600">Check your connection and try again. Nothing you typed has been sent.</p>
+              <button
+                type="button"
+                onClick={loadPlans}
+                className="mt-5 inline-flex h-11 items-center gap-2 rounded-full bg-slate-900 px-6 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
+              >
+                Try again
+              </button>
+            </div>
+          ) : !plans ? (
             <div className="mt-10 h-64 animate-pulse rounded-3xl border border-slate-200 bg-white" />
+          ) : plans.length === 0 ? (
+            <div className="mt-10 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
+              <p className="text-base text-slate-600">{PRICING.fallback}</p>
+              <Link href="/#demo" className="btn-shine mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-slate-900 px-6 text-sm font-semibold text-white">
+                Book a demo <FiArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           ) : (
             <div className="mt-10 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
               {/* ---------------------------- details ---------------------------- */}
@@ -310,21 +354,25 @@ export default function CheckoutClient() {
                 <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-card">
                   <h2 className="font-display text-lg font-bold text-slate-900">Your plan</h2>
 
-                  <div className="mt-4 inline-flex w-full items-center rounded-full border border-slate-200 bg-slate-50 p-1 text-sm">
-                    {(["monthly", "yearly"] as Cycle[]).map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setCycle(c)}
-                        className={`flex-1 rounded-full px-3 py-1.5 font-semibold capitalize transition-all ${
-                          cycle === c ? "bg-slate-900 text-white shadow" : "text-slate-600 hover:text-slate-900"
-                        }`}
-                      >
-                        {c}
-                        {c === "yearly" && <span className="ml-1 text-[11px] text-emerald-600">2 months free</span>}
-                      </button>
-                    ))}
-                  </div>
+                  {hasYearly ? (
+                    <div className="mt-4 inline-flex w-full items-center rounded-full border border-slate-200 bg-slate-50 p-1 text-sm">
+                      {(["monthly", "yearly"] as Cycle[]).map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setCycle(c)}
+                          className={`flex-1 rounded-full px-3 py-1.5 font-semibold capitalize transition-all ${
+                            cycle === c ? "bg-slate-900 text-white shadow" : "text-slate-600 hover:text-slate-900"
+                          }`}
+                        >
+                          {c}
+                          {c === "yearly" && saving > 0 && <span className="ml-1 text-[11px] text-emerald-600">save {saving}%</span>}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    plan && <p className="mt-3 text-xs text-slate-500">{plan.name} is billed monthly.</p>
+                  )}
 
                   <div className="mt-4 space-y-2">
                     {(plans || []).map((p) => {
@@ -351,7 +399,11 @@ export default function CheckoutClient() {
                               {p.limits.maxMembers ? `up to ${p.limits.maxMembers.toLocaleString()} members` : "unlimited members"}
                             </span>
                           </span>
-                          <span className="whitespace-nowrap text-sm font-bold text-slate-900">{formatMoney(priceOf(p.price), p.price.currency)}</span>
+                          {/* A monthly-only plan shows its monthly price even on yearly; picking it switches to monthly. */}
+                          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+                            {formatMoney(cycle === "yearly" && p.price.yearly > 0 ? p.price.yearly : p.price.monthly, p.price.currency)}
+                            {cycle === "yearly" && !(p.price.yearly > 0) && <span className="text-xs font-normal text-slate-500"> /mo</span>}
+                          </span>
                         </button>
                       );
                     })}
