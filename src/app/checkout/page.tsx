@@ -4,7 +4,7 @@ import CheckoutClient from "./CheckoutClient";
 
 export const metadata: Metadata = {
   title: "Start your free trial",
-  description: "Pick a plan, add what you want to it, and tell us about your gym. No card needed — every plan starts on a free trial.",
+  description: "Pick a plan, add what you want to it, and tell us about your gym to start your GymPilot free trial.",
   alternates: { canonical: "/checkout" },
   robots: { index: false, follow: true },
 };

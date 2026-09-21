@@ -7,10 +7,13 @@ export const PLATFORM_API = `${API_BASE}/api/platform`;
 export class ApiError extends Error {
   status: number;
   code?: string;
-  constructor(message: string, status: number, code?: string) {
+  /** The whole error body, for the fields a caller acts on (a signup's `suggestion`, say). */
+  body: Record<string, unknown>;
+  constructor(message: string, status: number, code?: string, body: Record<string, unknown> = {}) {
     super(message);
     this.status = status;
     this.code = code;
+    this.body = body;
   }
 }
 
@@ -27,7 +30,7 @@ export async function publicFetch<T>(path: string, init: { method?: "GET" | "POS
   } catch {
     /* no body */
   }
-  if (!res.ok) throw new ApiError(json.message || `Request failed (${res.status})`, res.status, json.code);
+  if (!res.ok) throw new ApiError(json.message || `Request failed (${res.status})`, res.status, json.code, json);
   return json as T;
 }
 
@@ -49,6 +52,35 @@ export interface PublicPlan {
 export interface PublicConfig {
   /** Gyms get `<slug>.<root_domain>`; empty when the platform has no root domain. */
   root_domain: string;
+  /**
+   * Whether checkout can take payment and build the gym itself (POST
+   * /public/signup). When false -- or missing, from an older API -- checkout
+   * sends a request and the panel sets the gym up.
+   */
+  self_serve_signup?: boolean;
+}
+
+/**
+ * Where checkout keeps what was typed while the buyer is on Stripe, so
+ * "back" from the payment page brings the form back filled in. Session
+ * storage: this tab only, gone when it closes, cleared once they have paid.
+ */
+export const CHECKOUT_DRAFT_KEY = "gympilot.checkout.draft";
+
+/** POST /public/signup: the Stripe page to send the buyer to. */
+export interface SignupStarted {
+  id: string;
+  url: string;
+}
+
+/** GET /public/signup/:id/status: how far a paid signup has got. Nothing personal. */
+export interface SignupStatus {
+  status: "awaiting_payment" | "provisioning" | "ready" | "failed";
+  message: string;
+  /** The gym's website, once it exists. */
+  siteUrl?: string | null;
+  /** When the free trial ends and the card is first charged; null when not on a trial. */
+  trialEndsAt?: string | null;
 }
 
 /** Sold beside a plan. `planSlugs` empty means it goes with any of them. */

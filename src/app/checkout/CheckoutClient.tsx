@@ -2,15 +2,29 @@
 
 // Checkout. Pick a plan, add what you want to it, tell us who you are.
 //
-// No card is asked for: every plan starts on a free trial, so taking payment
-// details before a gym has seen its own admin would only lose signups. What
-// this collects is what we need to build the gym; the panel turns it into one.
+// Two ways through, and the API says which (/public/config
+// self_serve_signup). When the platform can take payment itself, the buyer
+// goes on to Stripe, adds a card, and the gym is built the moment they
+// finish -- nobody in the panel involved (see /checkout/success). When it
+// cannot, no card is asked for: what this collects is sent as a request and
+// the panel turns it into a gym, as it always has.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FiArrowLeft, FiArrowRight, FiCheck, FiCheckCircle, FiLock, FiSmartphone, FiPlus } from "react-icons/fi";
-import { formatMoney, popularPlanIndex, publicFetch, yearlySaving, type PublicAddon, type PublicConfig, type PublicPlan } from "@/lib/api";
+import {
+  ApiError,
+  CHECKOUT_DRAFT_KEY,
+  formatMoney,
+  popularPlanIndex,
+  publicFetch,
+  yearlySaving,
+  type PublicAddon,
+  type PublicConfig,
+  type PublicPlan,
+  type SignupStarted,
+} from "@/lib/api";
 import { PRICING } from "@/content/site";
 import { stagger } from "@/lib/motion";
 import SiteFooter from "@/components/marketing/SiteFooter";
@@ -39,6 +53,19 @@ function slugify(value: string) {
     .slice(0, 40);
 }
 
+/** What checkout keeps while the buyer is on Stripe (see CHECKOUT_DRAFT_KEY). */
+interface Draft {
+  form: Record<FieldKey, string>;
+  webAddress: string;
+  message: string;
+  chosenAddons: string[];
+}
+
+/** "5 October": when a trial that starts today ends. */
+function dayAfter(days: number) {
+  return new Date(Date.now() + days * 86400000).toLocaleDateString(undefined, { day: "numeric", month: "long" });
+}
+
 export default function CheckoutClient() {
   const params = useSearchParams();
   const router = useRouter();
@@ -51,6 +78,9 @@ export default function CheckoutClient() {
   // The domain gyms get their address under; "" when the platform has none
   // (a gym then gets its address when it is set up), null while unknown.
   const [rootDomain, setRootDomain] = useState<string | null>(null);
+  // Whether this checkout takes payment and builds the gym itself; null
+  // while the API has not said, false for the request the panel acts on.
+  const [selfServe, setSelfServe] = useState<boolean | null>(null);
   const [planSlug, setPlanSlug] = useState(params.get("plan") || "");
   const [cycle, setCycle] = useState<Cycle>(params.get("cycle") === "yearly" ? "yearly" : "monthly");
   const [chosenAddons, setChosenAddons] = useState<string[]>([]);
@@ -61,6 +91,12 @@ export default function CheckoutClient() {
   const [website, setWebsite] = useState(""); // honeypot
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The web address was taken; `suggestion` is a free one to offer instead.
+  const [addressError, setAddressError] = useState<{ message: string; suggestion: string } | null>(null);
+  // Back from Stripe without paying.
+  const cancelled = params.get("cancelled") === "1";
+  // Add-ons from a draft, applied once the plan's add-ons have loaded (see below).
+  const draftAddons = useRef<string[] | null>(null);
   const [done, setDone] = useState(false);
 
   const loadPlans = useCallback(() => {
@@ -84,9 +120,34 @@ export default function CheckoutClient() {
       .then((res) => setAddons(res.data))
       .catch(() => setAddons([]));
     publicFetch<{ data: PublicConfig }>("/config")
-      .then((res) => setRootDomain(res.data.root_domain || ""))
-      .catch(() => setRootDomain(""));
+      .then((res) => {
+        setRootDomain(res.data.root_domain || "");
+        setSelfServe(res.data.self_serve_signup === true);
+      })
+      .catch(() => {
+        setRootDomain("");
+        setSelfServe(false);
+      });
   }, [loadPlans]);
+
+  // Back from Stripe's page without paying: put back what they had typed.
+  useEffect(() => {
+    if (!cancelled) return;
+    try {
+      const raw = window.sessionStorage.getItem(CHECKOUT_DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as Partial<Draft>;
+      if (draft.form) setForm((f) => ({ ...f, ...draft.form }));
+      if (draft.webAddress) {
+        setWebAddress(draft.webAddress);
+        setTouchedAddress(true);
+      }
+      if (draft.message) setMessage(draft.message);
+      if (Array.isArray(draft.chosenAddons)) draftAddons.current = draft.chosenAddons;
+    } catch {
+      /* nothing kept, or storage is blocked: the form starts empty */
+    }
+  }, [cancelled]);
 
   const plan = useMemo(() => (plans || []).find((p) => p.slug === planSlug) || null, [plans, planSlug]);
   // Yearly is only on offer where the plan has a yearly price: a link that
@@ -122,6 +183,15 @@ export default function CheckoutClient() {
     setChosenAddons((list) => list.filter((slug) => sellable.some((a) => a.slug === slug)));
   }, [sellable]);
 
+  // A draft's add-ons, once there are add-ons to match them against: applied
+  // any earlier and the line above would drop them as not sold.
+  useEffect(() => {
+    if (!draftAddons.current || !sellable.length) return;
+    const wanted = draftAddons.current;
+    draftAddons.current = null;
+    setChosenAddons(wanted.filter((slug) => sellable.some((a) => a.slug === slug)));
+  }, [sellable]);
+
   const priceOf = (p: { monthly: number; yearly: number }) => (cycle === "yearly" ? p.yearly : p.monthly);
   const planPrice = plan ? priceOf(plan.price) : 0;
   const addonLines = sellable.filter((a) => chosenAddons.includes(a.slug));
@@ -138,30 +208,59 @@ export default function CheckoutClient() {
     }
     setBusy(true);
     setError(null);
+    setAddressError(null);
+    const details = {
+      ...form,
+      // The record keeps one name; the form asks for both halves because
+      // that is how the owner's account inside the gym is created.
+      name: `${form.firstName} ${form.lastName}`.trim(),
+      message,
+      website, // honeypot: a person never fills this
+      preferredSlug: webAddress || slugify(form.gymName),
+      planSlug: plan.slug,
+      billingCycle: cycle,
+      addonSlugs: chosenAddons,
+      source: typeof window !== "undefined" ? window.location.href : "",
+    };
+    // Set when the page is on its way to Stripe: the button stays busy.
+    let leaving = false;
     try {
-      await publicFetch("/demo-requests", {
-        method: "POST",
-        body: {
-          kind: "trial",
-          ...form,
-          // The record keeps one name; the form asks for both halves because
-          // that is how the owner's account inside the gym is created.
-          name: `${form.firstName} ${form.lastName}`.trim(),
-          message,
-          website, // honeypot: a person never fills this
-          preferredSlug: webAddress || slugify(form.gymName),
-          planSlug: plan.slug,
-          billingCycle: cycle,
-          addonSlugs: chosenAddons,
-          source: typeof window !== "undefined" ? window.location.href : "",
-        },
-      });
+      if (selfServe) {
+        try {
+          const res = await publicFetch<SignupStarted>("/signup", {
+            method: "POST",
+            // The browser's clock is the best guess at the gym's timezone.
+            body: { ...details, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "" },
+          });
+          if (res.url) {
+            try {
+              const draft: Draft = { form, webAddress, message, chosenAddons };
+              window.sessionStorage.setItem(CHECKOUT_DRAFT_KEY, JSON.stringify(draft));
+            } catch {
+              /* storage blocked: "back" from Stripe just starts the form again */
+            }
+            leaving = true;
+            window.location.assign(res.url);
+            return;
+          }
+        } catch (e) {
+          // Paying online was switched off since this page loaded: send the
+          // details the way it always worked instead of failing.
+          if (!(e instanceof ApiError && e.code === "SELF_SERVE_UNAVAILABLE")) throw e;
+          setSelfServe(false);
+        }
+      }
+      await publicFetch("/demo-requests", { method: "POST", body: { kind: "trial", ...details } });
       setDone(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not send that. Please try again.");
+      if (e instanceof ApiError && e.code === "SLUG_TAKEN") {
+        setAddressError({ message: e.message, suggestion: typeof e.body.suggestion === "string" ? e.body.suggestion : "" });
+      } else {
+        setError(e instanceof Error ? e.message : "Could not send that. Please try again.");
+      }
     } finally {
-      setBusy(false);
+      if (!leaving) setBusy(false);
     }
   };
 
@@ -231,8 +330,18 @@ export default function CheckoutClient() {
             Start your free trial
           </h1>
           <p className="a-rise mt-3 max-w-2xl text-base text-slate-600" style={stagger(2)}>
-            No card needed. Tell us about your gym and we will have it running — website, admin and all — usually within one working day.
+            {selfServe === null
+              ? "Pick a plan and tell us about your gym."
+              : selfServe
+              ? "Pick a plan, tell us about your gym, then add a card on Stripe's secure page. Your gym — website, admin and all — is set up the moment you finish."
+              : "No card needed. Tell us about your gym and we will have it running — website, admin and all — usually within one working day."}
           </p>
+
+          {cancelled && (
+            <p className="a-rise mt-5 max-w-2xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800" style={stagger(2)}>
+              Payment cancelled — nothing was charged. Your details are still here whenever you are ready.
+            </p>
+          )}
 
           {plansError ? (
             <div className="mt-10 rounded-3xl border border-rose-200 bg-white p-8 text-center shadow-card">
@@ -293,19 +402,40 @@ export default function CheckoutClient() {
                           onChange={(e) => {
                             setTouchedAddress(true);
                             setWebAddress(slugify(e.target.value));
+                            setAddressError(null);
                           }}
                           placeholder="ironworks"
+                          aria-invalid={!!addressError}
                           className="h-12 min-w-0 flex-1 rounded-xl bg-transparent px-4 text-[15px] text-slate-900 outline-none placeholder:text-slate-400"
                         />
                         <span className="whitespace-nowrap text-sm text-slate-400">.{rootDomain}</span>
                       </div>
-                      <span className="mt-1.5 block text-xs text-slate-500">
-                        Start here and point your own domain (yourgym.com) at it whenever you are ready.
-                      </span>
+                      {addressError ? (
+                        <span className="mt-1.5 block text-xs text-rose-700">
+                          {addressError.message}
+                          {addressError.suggestion && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setTouchedAddress(true);
+                                setWebAddress(addressError.suggestion);
+                                setAddressError(null);
+                              }}
+                              className="ml-1.5 font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-800"
+                            >
+                              Use {addressError.suggestion}
+                            </button>
+                          )}
+                        </span>
+                      ) : (
+                        <span className="mt-1.5 block text-xs text-slate-500">
+                          Using your own domain? We&apos;ll connect it for you — contact us after sign-up.
+                        </span>
+                      )}
                     </label>
                   ) : (
                     <p className="sm:col-span-2 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                      You will get a web address when your gym is set up, and can point your own domain at it later.
+                      You will get a web address when your gym is set up. Using your own domain? We&apos;ll connect it for you — contact us after sign-up.
                     </p>
                   )}
 
@@ -340,12 +470,30 @@ export default function CheckoutClient() {
                   disabled={busy || !plan}
                   className="btn-shine group mt-7 inline-flex h-13 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 py-4 text-base font-bold text-white shadow-lift transition-transform duration-300 hover:-translate-y-0.5 disabled:opacity-60"
                 >
-                  {busy ? "Sending…" : plan?.trialDays ? `Start my ${plan.trialDays}-day free trial` : "Send my details"}
+                  {busy
+                    ? selfServe
+                      ? "Opening secure payment…"
+                      : "Sending…"
+                    : plan?.trialDays
+                    ? `Start my ${plan.trialDays}-day free trial`
+                    : selfServe
+                    ? "Continue to payment"
+                    : "Send my details"}
                   <FiArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </button>
 
-                <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-slate-500">
-                  <FiLock className="h-3.5 w-3.5" /> No card today. We only use these details to set your gym up.
+                {/* Said before they click, not discovered on Stripe's page: when the card is charged, and how much. */}
+                <p className="mt-4 flex items-start justify-center gap-1.5 text-center text-xs text-slate-500">
+                  <FiLock className="mt-px h-3.5 w-3.5 shrink-0" />
+                  <span>
+                    {!selfServe
+                      ? "No card today. We only use these details to set your gym up."
+                      : plan?.trialDays
+                      ? `Next, add a card on Stripe's secure page. Nothing is charged today: ${formatMoney(total, currency)} is taken on ${dayAfter(
+                          plan.trialDays
+                        )}, then every ${per}, unless you cancel before then.`
+                      : `Next, add a card on Stripe's secure page. You pay ${formatMoney(total, currency)} today, then every ${per} until you cancel.`}
+                  </span>
                 </p>
               </div>
 
@@ -478,6 +626,10 @@ export default function CheckoutClient() {
                     {plan?.trialDays ? (
                       <p className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-center text-xs font-semibold text-emerald-700">
                         Free for {plan.trialDays} days · nothing to pay today
+                      </p>
+                    ) : selfServe ? (
+                      <p className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-center text-xs font-semibold text-slate-600">
+                        Charged today, then every {per}
                       </p>
                     ) : null}
                   </div>
