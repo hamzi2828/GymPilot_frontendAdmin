@@ -41,7 +41,11 @@ interface StripeSettings {
 
 /** The events the webhook acts on, and what each one does to the gym. */
 const EVENTS: { type: string; effect: string }[] = [
-  { type: "checkout.session.completed", effect: "records the Stripe customer and subscription, marks the gym active (or trialing) and sets its period end" },
+  {
+    type: "checkout.session.completed",
+    effect:
+      "records the Stripe customer and subscription, marks the gym active (or trialing) and sets its period end; for an online sign-up from the website, it first creates the gym and emails the owner their set-password link",
+  },
   { type: "invoice.paid", effect: "extends the period end and marks the gym active" },
   { type: "invoice.payment_failed", effect: "marks the gym past due" },
   { type: "customer.subscription.updated", effect: "syncs status, period end and amount from Stripe" },

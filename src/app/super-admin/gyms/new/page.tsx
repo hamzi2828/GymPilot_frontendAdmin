@@ -183,7 +183,7 @@ function NewGymForm() {
         timezone: place ? place.timezone : f.timezone,
         country: place ? place.country : f.country,
         notes: [
-          `${r.kind === "trial" ? "Checkout" : "Demo request"} on ${new Date(r.createdAt).toLocaleDateString()}.`,
+          `${r.kind === "signup" ? "Online signup" : r.kind === "trial" ? "Checkout" : "Demo request"} on ${new Date(r.createdAt).toLocaleDateString()}.`,
           r.country ? `Where: ${r.country}` : "",
           r.gymSize ? `Size: ${r.gymSize}` : "",
           r.message ? `They said: ${r.message}` : "",
@@ -304,7 +304,7 @@ function NewGymForm() {
 
       {request && (
         <Alert tone="info">
-          Filled in from {request.kind === "trial" ? "the checkout" : "the demo request"} sent by{" "}
+          Filled in from {request.kind === "signup" ? "the online signup" : request.kind === "trial" ? "the checkout" : "the demo request"} sent by{" "}
           <span className="font-semibold">{request.name}</span> ({request.email})
           {request.plan ? ` — ${request.plan.name}, ${request.plan.billingCycle}${request.plan.addonNames.length ? ` with ${request.plan.addonNames.join(", ")}` : ""}` : ""}. Check
           it over before you create the gym.

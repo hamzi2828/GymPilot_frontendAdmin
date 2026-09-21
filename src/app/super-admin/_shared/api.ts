@@ -216,6 +216,24 @@ export interface Overview {
 export const DEMO_REQUEST_STATUSES = ["new", "contacted", "converted", "closed"] as const;
 export type DemoRequestStatus = (typeof DEMO_REQUEST_STATUSES)[number];
 
+/** How far an online signup has got -- see platform/models/demoRequestModel.js. */
+export type SignupState = "awaiting_payment" | "provisioning" | "ready" | "failed";
+
+/** What the API says about a paid signup (demoRequestsController publicRow). */
+export interface DemoRequestSignup {
+  state: SignupState;
+  /** Whether they reached Stripe's payment page at all. */
+  paymentStarted: boolean;
+  /** Why the last attempt to set the gym up failed. */
+  error: string;
+  attempts: number;
+  siteUrl: string;
+  trialEndsAt: string | null;
+  inviteSent: boolean;
+  stripeCustomerId: string;
+  stripeSubscriptionId: string;
+}
+
 export interface DemoRequest {
   id: string;
   name: string;
@@ -231,8 +249,11 @@ export interface DemoRequest {
   source: string;
   status: DemoRequestStatus;
   notes: string;
-  /** "trial" came through checkout with a plan chosen; "demo" just asked. */
-  kind: "demo" | "trial";
+  /**
+   * "trial" came through checkout with a plan chosen; "demo" just asked;
+   * "signup" chose a plan and went on to pay for it online.
+   */
+  kind: "demo" | "trial" | "signup";
   preferredSlug: string;
   /** What checkout worked out, priced on the server. Null for a demo ask. */
   plan: {
@@ -250,6 +271,8 @@ export interface DemoRequest {
   /** The gym it was set up as, once "Set this gym up" has created one. */
   gymId?: string | null;
   convertedAt?: string | null;
+  /** How far a paid signup has got; null on a demo or trial request. */
+  signup?: DemoRequestSignup | null;
   createdAt: string;
   updatedAt: string;
 }

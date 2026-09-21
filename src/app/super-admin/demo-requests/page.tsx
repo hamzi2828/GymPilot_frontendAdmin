@@ -3,15 +3,34 @@
 // Demo requests from the marketing site: who asked, what gym, and where the
 // conversation is. Status and notes are the only things edited here; "Set
 // this gym up" turns one into a gym, which marks it converted.
+//
+// Signups that paid online (kind "signup") are listed here too. Those set
+// themselves up when Stripe confirms the payment; the panel only has to act
+// when one is stuck (see SIGNUP_STATE).
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FiExternalLink, FiMail, FiPhone } from "react-icons/fi";
 import { PageHeader, DataTable, Spinner, Alert, Avatar, Pill, Button, Modal, Field, Select, Textarea, relativeTime, cx } from "../_shared/ui";
-import { platformFetch, formatMoney, DEMO_REQUEST_STATUSES, type DemoRequest, type DemoRequestStatus } from "../_shared/api";
+import { platformFetch, formatMoney, DEMO_REQUEST_STATUSES, type DemoRequest, type DemoRequestStatus, type SignupState } from "../_shared/api";
 
 const TONE: Record<DemoRequestStatus, string> = { new: "primary", contacted: "warn", converted: "good", closed: "neutral" };
+
+const SIGNUP_STATE: Record<SignupState, { label: string; tone: string; help: string }> = {
+  awaiting_payment: {
+    label: "not paid",
+    tone: "neutral",
+    help: "Went to pay but has not finished. Nothing to do unless you want to follow up — if they pay, the gym sets itself up.",
+  },
+  provisioning: { label: "setting up", tone: "primary", help: "Paid; the gym is being set up right now." },
+  ready: { label: "live", tone: "good", help: "Paid and set up automatically. The owner was sent their set-password email." },
+  failed: {
+    label: "needs attention",
+    tone: "bad",
+    help: "Paid, but the gym could not be set up. Stripe retries for up to three days and each retry tries again. Fix the reason below, or set the gym up by hand: the next retry then attaches the payment to it.",
+  },
+};
 
 export default function DemoRequestsPage() {
   const router = useRouter();
@@ -58,7 +77,12 @@ export default function DemoRequestsPage() {
   };
 
   const remove = async () => {
-    if (!open || !window.confirm(`Delete the request from ${open.name}? This cannot be undone.`)) return;
+    // A signup that may still be paid for is what its gym is built from.
+    const live = open?.signup && open.signup.state !== "ready" && open.signup.paymentStarted;
+    const question = live
+      ? `Delete the signup from ${open?.name}? If they pay (or have paid) for it, no gym can be made from it automatically any more. This cannot be undone.`
+      : `Delete the request from ${open?.name}? This cannot be undone.`;
+    if (!open || !window.confirm(question)) return;
     setBusy(true);
     try {
       await platformFetch(`/demo-requests/${open.id}`, { method: "DELETE" });
@@ -73,9 +97,19 @@ export default function DemoRequestsPage() {
 
   // Every request can become a gym, whether or not it came with a plan. One
   // that already did is asked about first: a second go makes a second gym.
+  // A signup sets itself up once paid, so doing it by hand is asked about too.
   const setUp = (r: DemoRequest) => {
     const already = !!r.gymId || r.status === "converted";
     if (already && !window.confirm(`${r.gymName || r.name} was already set up as a gym. Set up another gym from this request anyway?`)) return;
+    if (!already && r.signup) {
+      const question =
+        r.signup.state === "provisioning"
+          ? `${r.gymName || r.name} is being set up automatically right now. Set it up by hand anyway? That may make two gyms.`
+          : r.signup.state === "failed"
+          ? `${r.gymName || r.name} paid but could not be set up automatically. Set it up by hand? Stripe's next retry attaches the payment to the gym you make.`
+          : `${r.gymName || r.name} has not paid yet. Set the gym up by hand anyway? If they pay later, the payment is attached to it.`;
+      if (!window.confirm(question)) return;
+    }
     router.push(`/super-admin/gyms/new?from=${r.id}`);
   };
 
@@ -83,7 +117,11 @@ export default function DemoRequestsPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Platform" title="Demo requests" description="Gyms that asked for a walkthrough on the website. Open one to record where the conversation is." />
+      <PageHeader
+        eyebrow="Platform"
+        title="Demo requests"
+        description="Gyms that asked for a walkthrough or signed up on the website. Open one to record where the conversation is; online signups that paid set themselves up."
+      />
       {error && <Alert tone="error" onDismiss={() => setError(null)}>{error}</Alert>}
 
       <div className="mb-4 flex flex-wrap gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-card sm:inline-flex">
@@ -123,6 +161,11 @@ export default function DemoRequestsPage() {
                     checkout
                   </span>
                 )}
+                {r.kind === "signup" && (
+                  <span className="ml-2 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                    online signup
+                  </span>
+                )}
               </p>
               <p className="truncate text-xs text-slate-500">
                 {r.plan
@@ -135,9 +178,16 @@ export default function DemoRequestsPage() {
             <p key="m" className="max-w-md truncate text-xs text-slate-600" title={r.message}>
               {r.message || <span className="text-slate-300">—</span>}
             </p>,
-            <div key="s">
+            <div key="s" className="space-y-1">
               <Pill tone={TONE[r.status] || "neutral"}>{r.status}</Pill>
-              {r.gymId && <p className="mt-1 text-[11px] text-slate-500">gym set up</p>}
+              {r.signup && SIGNUP_STATE[r.signup.state] && (
+                <div>
+                  <Pill tone={SIGNUP_STATE[r.signup.state].tone} dot={false}>
+                    {SIGNUP_STATE[r.signup.state].label}
+                  </Pill>
+                </div>
+              )}
+              {r.gymId && <p className="text-[11px] text-slate-500">gym set up</p>}
             </div>,
           ])}
         />
@@ -156,9 +206,63 @@ export default function DemoRequestsPage() {
                 </a>
               )}
             </div>
+            {open.signup && SIGNUP_STATE[open.signup.state] && (
+              <div className={cx("rounded-xl border p-4", open.signup.state === "failed" ? "border-rose-200 bg-rose-50/60" : "border-emerald-200 bg-emerald-50/50")}>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-600">Online signup</p>
+                  <Pill tone={SIGNUP_STATE[open.signup.state].tone} dot={false}>
+                    {SIGNUP_STATE[open.signup.state].label}
+                  </Pill>
+                </div>
+                <p className="mt-2 text-sm text-slate-700">
+                  {open.signup.state === "awaiting_payment" && !open.signup.paymentStarted
+                    ? "Never reached the payment page. Nothing to do unless you want to follow up."
+                    : SIGNUP_STATE[open.signup.state].help}
+                </p>
+                {open.signup.error && (
+                  <p className="mt-2 rounded-lg bg-white/70 p-2 font-mono text-xs text-rose-800">
+                    {open.signup.error}
+                    {open.signup.attempts > 1 ? ` (attempt ${open.signup.attempts})` : ""}
+                  </p>
+                )}
+                {open.signup.state === "ready" && !open.signup.inviteSent && (
+                  <p className="mt-2 text-sm font-medium text-amber-800">The set-password email did not go out: resend it from the gym page.</p>
+                )}
+                {(open.warnings || []).length > 0 && (
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-600">
+                    {(open.warnings || []).map((w) => (
+                      <li key={w}>{w}</li>
+                    ))}
+                  </ul>
+                )}
+                {(open.signup.siteUrl || open.signup.stripeSubscriptionId) && (
+                  <dl className="mt-3 space-y-1 text-xs">
+                    {open.signup.siteUrl && (
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-slate-500">Website</dt>
+                        <dd>
+                          <a href={open.signup.siteUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-indigo-600 hover:text-indigo-700">
+                            {open.signup.siteUrl.replace(/^https?:\/\//, "")}
+                          </a>
+                        </dd>
+                      </div>
+                    )}
+                    {open.signup.stripeSubscriptionId && (
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-slate-500">Stripe</dt>
+                        <dd className="font-mono text-slate-700">
+                          {open.signup.stripeCustomerId} · {open.signup.stripeSubscriptionId}
+                        </dd>
+                      </div>
+                    )}
+                  </dl>
+                )}
+              </div>
+            )}
+
             {open.plan && (
               <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-700">Chose at checkout</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-700">{open.signup ? "Paid for online" : "Chose at checkout"}</p>
                 <div className="mt-2 space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span className="text-slate-600">Plan</span>
