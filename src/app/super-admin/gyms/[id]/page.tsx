@@ -11,9 +11,12 @@ import { platformFetch, formatDate, formatMoney, SUBSCRIPTION_STATUSES, BILLING_
 
 type Detail = Gym & { plan: Plan | null; stats: GymStats };
 type Admin = { id: string; name: string; email: string; is_active: boolean; last_login: string | null };
+type HostResult = { host: string; added: boolean; verified?: boolean; error?: string; skipped?: string; verification?: { type: string; domain: string; value: string }[]; dns?: { type: string; name: string; value: string; note: string } };
 type Hosting = {
   connected: boolean;
-  added: { host: string; added: boolean; verified?: boolean; error?: string; skipped?: string; verification?: { type: string; domain: string; value: string }[]; dns: { type: string; name: string; value: string; note: string } }[];
+  // A root domain comes back with its www twin, which the website host
+  // needs as a name of its own.
+  added: (HostResult & { dns: { type: string; name: string; value: string; note: string }; www?: HostResult })[];
 };
 type InviteResult = { data: { created: boolean; email: string; passwordSet: boolean; inviteSent: boolean }; warnings?: string[] };
 
@@ -31,6 +34,9 @@ function GymDetail() {
   // Set by the New gym form right after creating this gym: did the owner's
   // invite go, and what else did not go to plan.
   const inviteParam = search.get("invite");
+  // The site the set-password link opens on -- the platform subdomain when
+  // the gym has one, not necessarily its primary domain.
+  const inviteHost = search.get("inviteHost");
   const creationWarnings = search.getAll("warning");
 
   const [gym, setGym] = useState<Detail | null>(null);
@@ -126,7 +132,9 @@ function GymDetail() {
   const choosePlan = (planId: string) =>
     setSub((x) => {
       const plan = plans.find((p) => p.id === planId);
-      return { ...x, planId, amount: planPrice(plan, x.billingCycle), currency: plan ? plan.price.currency : x.currency };
+      // A plan with no yearly price is sold monthly only.
+      const billingCycle = plan && plan.price.yearly <= 0 ? "monthly" : x.billingCycle;
+      return { ...x, planId, billingCycle, amount: planPrice(plan, billingCycle), currency: plan ? plan.price.currency : x.currency };
     });
   const chooseCycle = (billingCycle: string) =>
     setSub((x) => {
@@ -238,7 +246,7 @@ function GymDetail() {
       {inviteParam === "sent" && (
         <Alert tone="success">
           <span className="flex items-center gap-2">
-            <FiMail className="h-4 w-4" /> The owner has been emailed a link to set their password at <span className="font-mono">{siteHost}/authentication</span>.
+            <FiMail className="h-4 w-4" /> The owner has been emailed a link to set their password at <span className="font-mono">{inviteHost || siteHost}/authentication</span>.
           </span>
         </Alert>
       )}
@@ -402,6 +410,27 @@ function GymDetail() {
                       Verification: <span className="font-mono">{v.type}</span> record <span className="font-mono">{v.domain}</span> = <span className="break-all font-mono">{v.value}</span>
                     </p>
                   ))}
+                  {h.www && (
+                    <div className="mt-1.5">
+                      <p className="flex flex-wrap items-center gap-2">
+                        <span className="font-mono">{h.www.host}</span>
+                        <Pill tone={h.www.added ? (h.www.verified === false ? "warn" : "good") : "bad"} dot={false}>
+                          {h.www.added ? (h.www.verified === false ? "awaiting verification" : "added to the website host") : "could not be added"}
+                        </Pill>
+                        {h.www.error && <span className="text-rose-600">{h.www.error}</span>}
+                      </p>
+                      {h.www.dns && (
+                        <p className="mt-1">
+                          DNS: add a <span className="rounded bg-white px-1 font-mono ring-1 ring-slate-200">{h.www.dns.type}</span> record for <span className="rounded bg-white px-1 font-mono ring-1 ring-slate-200">{h.www.dns.name}</span> pointing to <span className="rounded bg-white px-1 font-mono ring-1 ring-slate-200">{h.www.dns.value}</span>.
+                        </p>
+                      )}
+                      {(h.www.verification || []).map((v, i) => (
+                        <p key={i} className="mt-1">
+                          Verification: <span className="font-mono">{v.type}</span> record <span className="font-mono">{v.domain}</span> = <span className="break-all font-mono">{v.value}</span>
+                        </p>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
               {!hosting.connected && <p className="text-slate-500">Connect Vercel on the API (VERCEL_TOKEN, VERCEL_PROJECT_ID) to add domains to the website project automatically.</p>}
@@ -464,7 +493,11 @@ function GymDetail() {
               <FiLayers className="h-4 w-4 text-indigo-600" /> Plan &amp; subscription
             </span>
           }
-          description="Renewals are recorded here. When the period end passes the gym goes past due, and after the grace period it stops being served."
+          description={
+            gym.subscription.stripeSubscriptionId
+              ? "This gym pays by card through Stripe: a new plan, cycle, price or add-on is changed on its Stripe subscription first (prorated), and saved here only once Stripe accepts it."
+              : "Renewals are recorded here. When the period end passes the gym goes past due, and after the grace period it stops being served."
+          }
           footer={
             <>
               <span className="text-xs text-slate-500">
@@ -482,7 +515,9 @@ function GymDetail() {
               <Button
                 disabled={busy}
                 onClick={() =>
-                  run("Subscription saved", () =>
+                  // A card-paying gym's price change goes to Stripe first; if
+                  // Stripe refuses, the error says why and nothing is saved.
+                  run(gym.subscription.stripeSubscriptionId ? "Subscription saved (and Stripe updated where the price changed)" : "Subscription saved", () =>
                     platformFetch(`/gyms/${id}/subscription`, {
                       method: "PUT",
                       body: {
@@ -527,7 +562,8 @@ function GymDetail() {
             <Field label="Billing cycle">
               <Select value={sub.billingCycle} onChange={(e) => chooseCycle(e.target.value)}>
                 {BILLING_CYCLES.map((c) => (
-                  <option key={c} value={c}>
+                  // A plan with no yearly price would be sold for nothing a year.
+                  <option key={c} value={c} disabled={c === "yearly" && !!chosenPlan && chosenPlan.price.yearly <= 0}>
                     {c}
                   </option>
                 ))}

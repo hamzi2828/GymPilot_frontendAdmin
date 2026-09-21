@@ -5,6 +5,7 @@
 // one form, one request.
 
 import { Suspense, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FiDatabase, FiGlobe, FiUser } from "react-icons/fi";
 import { PageHeader, Crumbs, Panel, Button, Field, Input, Select, Textarea, Alert } from "../../_shared/ui";
@@ -38,6 +39,60 @@ const COMMON_TIMEZONES = [
   "America/Sao_Paulo",
 ];
 
+// What a request's free-text "City / country" says about the gym's own money
+// and clock -- what it charges its members in, not what it pays us in.
+// Matched on words, so "Karachi, Pakistan" and "Lahore" both land on PK.
+const PLACE_LOCALES: { match: RegExp; country: string; currency: string; timezone: string }[] = [
+  { match: /\b(pakistan|karachi|lahore|islamabad|rawalpindi|faisalabad|multan|peshawar)\b/i, country: "PK", currency: "PKR", timezone: "Asia/Karachi" },
+  { match: /\b(uk|united kingdom|great britain|britain|england|scotland|wales|london|manchester|birmingham|leeds|glasgow|edinburgh)\b/i, country: "GB", currency: "GBP", timezone: "Europe/London" },
+  { match: /\b(uae|united arab emirates|dubai|abu dhabi|sharjah)\b/i, country: "AE", currency: "AED", timezone: "Asia/Dubai" },
+  { match: /\b(saudi arabia|saudi|ksa|riyadh|jeddah|dammam)\b/i, country: "SA", currency: "SAR", timezone: "Asia/Riyadh" },
+  { match: /\b(qatar|doha)\b/i, country: "QA", currency: "QAR", timezone: "Asia/Qatar" },
+  { match: /\b(india|mumbai|delhi|bangalore|bengaluru)\b/i, country: "IN", currency: "INR", timezone: "Asia/Kolkata" },
+  { match: /\b(bangladesh|dhaka)\b/i, country: "BD", currency: "BDT", timezone: "Asia/Dhaka" },
+  { match: /\b(ireland|dublin)\b/i, country: "IE", currency: "EUR", timezone: "Europe/Dublin" },
+  { match: /\b(germany|berlin|munich)\b/i, country: "DE", currency: "EUR", timezone: "Europe/Berlin" },
+  { match: /\b(france|paris)\b/i, country: "FR", currency: "EUR", timezone: "Europe/Paris" },
+  { match: /\b(spain|madrid|barcelona)\b/i, country: "ES", currency: "EUR", timezone: "Europe/Madrid" },
+  { match: /\b(turkey|istanbul|ankara)\b/i, country: "TR", currency: "TRY", timezone: "Europe/Istanbul" },
+  { match: /\b(nigeria|lagos|abuja)\b/i, country: "NG", currency: "NGN", timezone: "Africa/Lagos" },
+  { match: /\b(kenya|nairobi)\b/i, country: "KE", currency: "KES", timezone: "Africa/Nairobi" },
+  { match: /\b(south africa|johannesburg|cape town|durban)\b/i, country: "ZA", currency: "ZAR", timezone: "Africa/Johannesburg" },
+  { match: /\b(singapore)\b/i, country: "SG", currency: "SGD", timezone: "Asia/Singapore" },
+  { match: /\b(philippines|manila)\b/i, country: "PH", currency: "PHP", timezone: "Asia/Manila" },
+  { match: /\b(australia)\b/i, country: "AU", currency: "AUD", timezone: "Australia/Sydney" },
+  { match: /\b(canada)\b/i, country: "CA", currency: "CAD", timezone: "America/Toronto" },
+  { match: /\b(usa|united states|america)\b/i, country: "US", currency: "USD", timezone: "America/New_York" },
+];
+
+function localeFromPlace(place: string) {
+  return PLACE_LOCALES.find((l) => l.match.test(place || "")) || null;
+}
+
+// Mirrors the server (provisioning.js freeSlugFrom, dbNames.js
+// tenantDatabaseNameFor): a slug is at most 44 characters, and a database
+// name at most 38 -- the most MongoDB Atlas's shared tiers accept -- made to
+// fit by shortening the slug part, never the id that keeps it unique.
+const MAX_SLUG_LENGTH = 44;
+const MAX_DATABASE_NAME_LENGTH = 38;
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, MAX_SLUG_LENGTH)
+    .replace(/-+$/, "");
+}
+
+function databaseNameFor(prefix: string, slug: string, id: string) {
+  const tail = `_${id}`;
+  const room = Math.max(0, MAX_DATABASE_NAME_LENGTH - prefix.length - tail.length);
+  const base = slug.replace(/[^a-z0-9_-]/gi, "_").slice(0, room).replace(/[_-]+$/, "");
+  return `${prefix}${base}${tail}`;
+}
+
 function NewGymForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -53,6 +108,9 @@ function NewGymForm() {
   // The tail of the database name. Fixed for as long as the form is open.
   const [databaseId, setDatabaseId] = useState("");
   const [plans, setPlans] = useState<Plan[]>([]);
+  // Whether the plan list has answered (even with nothing, or an error):
+  // the request is only filled in after it has.
+  const [plansLoaded, setPlansLoaded] = useState(false);
   const [config, setConfig] = useState<PlatformConfig | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +146,8 @@ function NewGymForm() {
   useEffect(() => {
     platformFetch<{ data: Plan[] }>("/plans")
       .then((res) => setPlans(res.data.filter((p) => p.isActive)))
-      .catch(() => setPlans([]));
+      .catch(() => setPlans([]))
+      .finally(() => setPlansLoaded(true));
     platformFetch<{ data: Addon[] }>("/addons")
       .then((res) => setAddons(res.data.filter((a) => a.isActive)))
       .catch(() => setAddons([]));
@@ -107,6 +166,10 @@ function NewGymForm() {
       const firstName = r.firstName || first;
       const lastName = r.firstName ? r.lastName : rest.join(" ");
       const plan = r.plan ? planList.find((p) => p.slug === r.plan!.slug) : undefined;
+      // The gym's own currency and clock come from where it is. The plan's
+      // currency is what it pays us in, which says nothing about what it
+      // charges its members.
+      const place = localeFromPlace(r.country);
       setForm((f) => ({
         ...f,
         name: r.gymName || f.name,
@@ -116,7 +179,9 @@ function NewGymForm() {
         ownerEmail: r.email || f.ownerEmail,
         ownerPhone: r.phone || f.ownerPhone,
         planId: plan ? plan.id : f.planId,
-        currency: plan ? plan.price.currency : f.currency,
+        currency: place ? place.currency : f.currency,
+        timezone: place ? place.timezone : f.timezone,
+        country: place ? place.country : f.country,
         notes: [
           `${r.kind === "trial" ? "Checkout" : "Demo request"} on ${new Date(r.createdAt).toLocaleDateString()}.`,
           r.country ? `Where: ${r.country}` : "",
@@ -128,8 +193,10 @@ function NewGymForm() {
           .join("\n"),
       }));
       if (r.email) setEmailLocked(true);
-      if (r.plan) {
-        setBillingCycle(r.plan.billingCycle);
+      // Only a plan that is still sold: one switched off since is picked by
+      // hand (the notice above the form says so).
+      if (r.plan && plan) {
+        setBillingCycle(r.plan.billingCycle === "yearly" && plan.price.yearly > 0 ? "yearly" : "monthly");
         setAddonSlugs(r.plan.addonSlugs || []);
       }
     },
@@ -137,14 +204,14 @@ function NewGymForm() {
   );
 
   useEffect(() => {
-    if (!fromId || !plans.length || request) return;
+    if (!fromId || !plansLoaded || request) return;
     platformFetch<{ data: DemoRequest }>(`/demo-requests/${fromId}`)
       .then((res) => {
         setRequest(res.data);
         prefill(res.data, plans);
       })
       .catch(() => setRequest(null));
-  }, [fromId, plans, request, prefill]);
+  }, [fromId, plans, plansLoaded, request, prefill]);
 
   // A plain link can still say what to call it.
   useEffect(() => {
@@ -155,13 +222,25 @@ function NewGymForm() {
     }
   }, [params, fromId]);
 
-  const suggestedSlug = form.slug || form.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const suggestedSlug = slugify(form.slug || form.name);
   // Mirrors the server: <prefix><slug>_<id>. The id is settled when the form
   // opens rather than as you type, so the name shown is the name created.
-  const databaseName = suggestedSlug
-    ? `${config?.tenant_database_prefix ?? ""}${suggestedSlug.replace(/[^a-z0-9_-]/gi, "_")}_${databaseId}`
-    : "";
+  // Without the deployment's prefix (the /config call has not answered, or
+  // failed) no name is sent at all and the server picks one itself -- a
+  // name without the prefix is one it refuses.
+  const databaseName =
+    suggestedSlug && databaseId && config?.tenant_database_prefix ? databaseNameFor(config.tenant_database_prefix, suggestedSlug, databaseId) : "";
+  // Nowhere to open the site: no platform root domain and nothing typed in.
+  // The server refuses such a gym; say so before the form is sent.
+  const hasDomain = form.domains.split(/[\s,]+/).some((d) => d.trim());
+  const noWebAddress = !!config && !config.root_domain && !hasDomain && !(config.default_tenant_slug && config.default_tenant_slug === suggestedSlug);
+  // The request's plan, when it is no longer sold: somebody has to pick one.
+  const requestPlanGone = !!(request?.plan && !plans.some((p) => p.slug === request.plan!.slug));
   const selectedPlan = plans.find((p) => p.id === form.planId);
+  const monthlyOnly = !!selectedPlan && selectedPlan.price.yearly <= 0;
+  useEffect(() => {
+    if (monthlyOnly) setBillingCycle("monthly");
+  }, [monthlyOnly]);
   const includedSlugs = selectedPlan?.includedAddons || [];
   // Only what the plan sells, in the plan's own currency: the API refuses a
   // PKR add-on on a USD plan.
@@ -177,9 +256,11 @@ function NewGymForm() {
     setBusy(true);
     setError(null);
     try {
-      const res = await platformFetch<{ data: Gym; ownerInviteSent?: boolean; warnings?: string[] }>("/gyms", {
+      const res = await platformFetch<{ data: Gym; ownerInviteSent?: boolean; inviteSiteUrl?: string; warnings?: string[] }>("/gyms", {
         method: "POST",
         body: {
+          // The request this came from is marked converted and linked to the gym.
+          demoRequestId: request ? request.id : undefined,
           name: form.name,
           // A preference, not a decision: the address they asked for at
           // checkout if there was one, otherwise the name decides, and a
@@ -206,6 +287,9 @@ function NewGymForm() {
       // The gym page says whether the owner got their invite, and what else
       // did not go to plan.
       const query = new URLSearchParams({ invite: res.ownerInviteSent ? "sent" : "failed" });
+      // Where the set-password link opens: the platform subdomain when there
+      // is one, which is not always the domain shown as primary.
+      if (res.inviteSiteUrl) query.set("inviteHost", res.inviteSiteUrl.replace(/^https?:\/\//, ""));
       for (const warning of res.warnings || []) query.append("warning", warning);
       router.replace(`/super-admin/gyms/${res.data.id}?${query.toString()}`);
     } catch (err) {
@@ -225,6 +309,27 @@ function NewGymForm() {
           {request.plan ? ` — ${request.plan.name}, ${request.plan.billingCycle}${request.plan.addonNames.length ? ` with ${request.plan.addonNames.join(", ")}` : ""}` : ""}. Check
           it over before you create the gym.
           {(request.warnings || []).length > 0 && <span className="mt-1 block text-xs">{request.warnings!.join(" ")}</span>}
+        </Alert>
+      )}
+      {request && (request.gymId || request.status === "converted") && (
+        <Alert tone="warning">
+          This request was already set up as a gym
+          {request.gymId && (
+            <>
+              {" "}
+              (
+              <Link href={`/super-admin/gyms/${request.gymId}`} className="font-semibold underline">
+                open it
+              </Link>
+              )
+            </>
+          )}
+          . Creating another makes a second gym, and the request will point at the new one.
+        </Alert>
+      )}
+      {requestPlanGone && (
+        <Alert tone="warning">
+          They chose {request!.plan!.name}, which is no longer on sale. Pick a plan for them below.
         </Alert>
       )}
 
@@ -266,13 +371,33 @@ function NewGymForm() {
                     </>
                   }
                 >
-                  <Input value={databaseName} disabled readOnly className="font-mono" />
+                  <Input value={databaseName} placeholder="Named by the server when the gym is created" disabled readOnly className="font-mono" />
                 </Field>
               </div>
               <div className="md:col-span-2">
-                <Field label="Domains (one per line or comma separated)" hint="The first is the primary. Point each domain at the website deployment; the gym is served there as soon as it is saved here.">
+                <Field
+                  label="Domains (one per line or comma separated)"
+                  hint={
+                    <>
+                      The first is the primary. Each is added to the website host, with its www address; the owner still has to point its DNS there.
+                      {config?.root_domain && suggestedSlug ? (
+                        <>
+                          {" "}
+                          The gym also gets <span className="font-mono">{suggestedSlug}.{config.root_domain}</span>, which works straight away — the
+                          owner&apos;s invite uses it.
+                        </>
+                      ) : null}
+                    </>
+                  }
+                >
                   <Textarea value={form.domains} onChange={on("domains")} placeholder={"ironworks.com\nwww.ironworks.com"} className="font-mono" />
                 </Field>
+                {noWebAddress && (
+                  <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                    This platform has no root domain (PLATFORM_ROOT_DOMAIN on the API), so a gym without a domain has no web address and cannot be
+                    created. Add one — for local testing, <span className="font-mono">{suggestedSlug || "ironworks"}.localhost:3000</span> works.
+                  </p>
+                )}
               </div>
             </div>
           </Panel>
@@ -361,7 +486,10 @@ function NewGymForm() {
                   <Field label="Billing cycle">
                     <Select value={billingCycle} onChange={(e) => setBillingCycle(e.target.value as "monthly" | "yearly")}>
                       <option value="monthly">Monthly</option>
-                      <option value="yearly">Yearly</option>
+                      {/* A plan with no yearly price would be sold for nothing a year. */}
+                      <option value="yearly" disabled={!selectedPlan || selectedPlan.price.yearly <= 0}>
+                        Yearly
+                      </option>
                     </Select>
                   </Field>
 
@@ -398,7 +526,7 @@ function NewGymForm() {
                 </datalist>
               </Field>
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Currency">
+                <Field label="Currency" hint="What it charges its members in.">
                   <Input value={form.currency} onChange={(e) => set("currency")(e.target.value.toUpperCase())} placeholder="USD" maxLength={3} />
                 </Field>
                 <Field label="Country">

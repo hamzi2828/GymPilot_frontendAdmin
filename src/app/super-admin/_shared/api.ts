@@ -247,6 +247,9 @@ export interface DemoRequest {
   } | null;
   /** What was left off the selection and why (an add-on in another currency, say). */
   warnings?: string[];
+  /** The gym it was set up as, once "Set this gym up" has created one. */
+  gymId?: string | null;
+  convertedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
