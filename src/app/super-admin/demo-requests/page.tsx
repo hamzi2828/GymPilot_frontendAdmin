@@ -1,16 +1,20 @@
 "use client";
 
 // Demo requests from the marketing site: who asked, what gym, and where the
-// conversation is. Status and notes are the only things edited here.
+// conversation is. Status and notes are the only things edited here; "Set
+// this gym up" turns one into a gym, which marks it converted.
 
 import { useCallback, useEffect, useState } from "react";
-import { FiMail, FiPhone } from "react-icons/fi";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FiExternalLink, FiMail, FiPhone } from "react-icons/fi";
 import { PageHeader, DataTable, Spinner, Alert, Avatar, Pill, Button, Modal, Field, Select, Textarea, relativeTime, cx } from "../_shared/ui";
 import { platformFetch, formatMoney, DEMO_REQUEST_STATUSES, type DemoRequest, type DemoRequestStatus } from "../_shared/api";
 
 const TONE: Record<DemoRequestStatus, string> = { new: "primary", contacted: "warn", converted: "good", closed: "neutral" };
 
 export default function DemoRequestsPage() {
+  const router = useRouter();
   const [rows, setRows] = useState<DemoRequest[] | null>(null);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [filter, setFilter] = useState<"" | DemoRequestStatus>("new");
@@ -65,6 +69,14 @@ export default function DemoRequestsPage() {
     } finally {
       setBusy(false);
     }
+  };
+
+  // Every request can become a gym, whether or not it came with a plan. One
+  // that already did is asked about first: a second go makes a second gym.
+  const setUp = (r: DemoRequest) => {
+    const already = !!r.gymId || r.status === "converted";
+    if (already && !window.confirm(`${r.gymName || r.name} was already set up as a gym. Set up another gym from this request anyway?`)) return;
+    router.push(`/super-admin/gyms/new?from=${r.id}`);
   };
 
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
@@ -123,9 +135,10 @@ export default function DemoRequestsPage() {
             <p key="m" className="max-w-md truncate text-xs text-slate-600" title={r.message}>
               {r.message || <span className="text-slate-300">—</span>}
             </p>,
-            <Pill key="s" tone={TONE[r.status] || "neutral"}>
-              {r.status}
-            </Pill>,
+            <div key="s">
+              <Pill tone={TONE[r.status] || "neutral"}>{r.status}</Pill>
+              {r.gymId && <p className="mt-1 text-[11px] text-slate-500">gym set up</p>}
+            </div>,
           ])}
         />
       )}
@@ -174,11 +187,26 @@ export default function DemoRequestsPage() {
                     </div>
                   )}
                 </div>
-                <Button href={`/super-admin/gyms/new?from=${open.id}`} size="sm" className="mt-3">
-                  Set this gym up
-                </Button>
               </div>
             )}
+
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              {open.gymId ? (
+                <p className="text-sm text-slate-700">
+                  Set up as a gym{open.convertedAt ? ` on ${new Date(open.convertedAt).toLocaleDateString()}` : ""}.{" "}
+                  <Link href={`/super-admin/gyms/${open.gymId}`} className="inline-flex items-center gap-1 font-semibold text-indigo-600 hover:text-indigo-700">
+                    Open the gym <FiExternalLink className="h-3.5 w-3.5" />
+                  </Link>
+                </p>
+              ) : (
+                <p className="text-xs text-slate-500">
+                  {open.plan ? "Everything they chose is filled in for you." : "No plan was chosen: pick one on the next page."}
+                </p>
+              )}
+              <Button size="sm" variant={open.gymId ? "secondary" : "primary"} onClick={() => setUp(open)}>
+                {open.gymId ? "Set up another gym" : "Set this gym up"}
+              </Button>
+            </div>
 
             <dl className="grid grid-cols-2 gap-3 text-sm">
               <div>
