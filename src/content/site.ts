@@ -130,8 +130,10 @@ export const PRICING = {
   fallback: "Plans are being set up. Book a demo and we will send you a quote the same day.",
 };
 
-// Replace these with real customer quotes before launch. Attributed to roles
-// on purpose: no invented names.
+// Customer quotes. Only entries with `sample: false` are shown (see
+// components/marketing/Testimonials.tsx); the samples below are placeholders
+// for the layout and stay hidden until real quotes replace them. Attributed
+// to roles on purpose: no invented names.
 export const TESTIMONIALS: { quote: string; who: string; where: string; sample: boolean }[] = [
   {
     quote: "We stopped chasing renewals. Cards renew on their own, bank transfers land with a receipt, and the desk sees who has lapsed before they walk in.",
