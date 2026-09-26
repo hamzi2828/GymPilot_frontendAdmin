@@ -98,6 +98,10 @@ export default function CheckoutClient() {
   // Add-ons from a draft, applied once the plan's add-ons have loaded (see below).
   const draftAddons = useRef<string[] | null>(null);
   const [done, setDone] = useState(false);
+  // Whether a confirmation email can actually reach them. The API answers
+  // this: a platform with no sender configured sends nothing, and the
+  // receipt below must not point at an inbox that will stay empty.
+  const [emailed, setEmailed] = useState(true);
 
   const loadPlans = useCallback(() => {
     setPlans(null);
@@ -250,7 +254,8 @@ export default function CheckoutClient() {
           setSelfServe(false);
         }
       }
-      await publicFetch("/demo-requests", { method: "POST", body: { kind: "trial", ...details } });
+      const sent = await publicFetch<{ emailed?: boolean }>("/demo-requests", { method: "POST", body: { kind: "trial", ...details } });
+      setEmailed(sent?.emailed !== false);
       setDone(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (e) {
@@ -278,12 +283,25 @@ export default function CheckoutClient() {
             That is everything we need
           </h1>
           <p className="a-rise mt-4 text-lg leading-relaxed text-slate-300" style={stagger(2)}>
-            We have sent a confirmation to <span className="font-semibold text-white">{form.email}</span>. We are setting up {form.gymName} now,
-            and a second email with your web address and a link to set your admin password follows, usually within one working day.
+            {emailed ? (
+              <>
+                We have sent a confirmation to <span className="font-semibold text-white">{form.email}</span>. We are setting up {form.gymName} now,
+                and a second email with your web address and a link to set your admin password follows, usually within one working day.
+              </>
+            ) : (
+              <>
+                We have your details and we are setting up {form.gymName} now. We will come back to you on{" "}
+                <span className="font-semibold text-white">{form.email}</span>
+                {form.phone ? <> or {form.phone}</> : null} with your web address and a link to set your admin password, usually within one working
+                day.
+              </>
+            )}
           </p>
-          <p className="a-rise mt-3 text-sm text-slate-400" style={stagger(2)}>
-            Nothing in your inbox in a few minutes? Check your spam folder.
-          </p>
+          {emailed ? (
+            <p className="a-rise mt-3 text-sm text-slate-400" style={stagger(2)}>
+              Nothing in your inbox in a few minutes? Check your spam folder.
+            </p>
+          ) : null}
           <div className="a-rise mt-8 rounded-2xl border border-white/10 bg-white/5 p-5 text-left text-sm" style={stagger(3)}>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">What you chose</p>
             <div className="mt-3 flex items-baseline justify-between gap-3">
