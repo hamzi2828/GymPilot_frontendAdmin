@@ -102,7 +102,7 @@ export default function Features() {
                 {FEATURES_DESK.text}
               </p>
             </div>
-            <ul className="relative mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <ul className="relative mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {FEATURES_DESK.items.map((item, i) => {
                 const Icon = FEATURE_ICONS[item.key];
                 return (

@@ -3,12 +3,13 @@
 // client component on every page) does not carry every picture with it.
 
 import type { ComponentType } from "react";
-import { FiActivity, FiBarChart2, FiBookOpen, FiCalendar, FiClipboard, FiCreditCard, FiDatabase, FiDollarSign, FiEdit3, FiFileText, FiGlobe, FiHardDrive, FiKey, FiMessageCircle, FiPercent, FiPrinter, FiRefreshCw, FiShield, FiShoppingBag, FiSliders, FiSmartphone, FiTag, FiTarget, FiTool, FiUploadCloud, FiUser, FiUserCheck, FiUserPlus, FiUsers, FiVolume2, FiZap } from "react-icons/fi";
+import { FiActivity, FiBarChart2, FiBookOpen, FiCalendar, FiClipboard, FiCreditCard, FiDatabase, FiDollarSign, FiEdit3, FiFileText, FiGlobe, FiHardDrive, FiKey, FiMessageCircle, FiPercent, FiPrinter, FiRefreshCw, FiSearch, FiShield, FiShoppingBag, FiSliders, FiSmartphone, FiTag, FiTarget, FiTool, FiUploadCloud, FiUser, FiUserCheck, FiUserPlus, FiUsers, FiVolume2, FiZap } from "react-icons/fi";
 import type { FeatureKey } from "@/content/features";
 
 export const FEATURE_ICONS: Record<FeatureKey, ComponentType<{ className?: string }>> = {
   members: FiUserCheck,
   desksale: FiClipboard,
+  feedesk: FiSearch,
   dues: FiDollarSign,
   renewals: FiRefreshCw,
   logins: FiKey,
@@ -43,6 +44,7 @@ export const FEATURE_ICONS: Record<FeatureKey, ComponentType<{ className?: strin
 export const FEATURE_TINTS: Record<FeatureKey, string> = {
   members: "bg-teal-50 text-teal-600 ring-teal-100",
   desksale: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+  feedesk: "bg-indigo-50 text-indigo-700 ring-indigo-100",
   dues: "bg-amber-50 text-amber-700 ring-amber-100",
   renewals: "bg-violet-50 text-violet-600 ring-violet-100",
   logins: "bg-slate-100 text-slate-700 ring-slate-200",

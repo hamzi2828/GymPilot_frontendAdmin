@@ -68,13 +68,13 @@ export const WHAT_YOU_GET: {
     {
       kicker: "For you and your staff",
       title: "The management system",
-      text: "Everything behind the desk in one place: memberships and fees, check-in, the timetable, the till, staff, payroll and the books.",
+      text: "Everything behind the desk in one place: sign-ups and fees, check-in, the timetable, the till, staff, payroll and the books.",
       points: [
-        { text: "Fees, part payments and dues", feature: "dues" },
+        { text: "Sign-up and fee collection, each on one screen", feature: "feedesk" },
+        { text: "Fee expiry lists and dues", feature: "renewals" },
         { text: "Check-in that says “Fee expired” out loud", feature: "alerts" },
         { text: "A till with thermal receipts", feature: "receipts" },
         { text: "Daily sales and profit & loss", feature: "dailysales" },
-        { text: "Encrypted backups every night", feature: "backups" },
       ],
     },
   ],
@@ -150,7 +150,7 @@ export const PRICING = {
   included: [
     { text: "Own domain & website", feature: "website" },
     { text: "Stripe & bank transfer billing", feature: "billing" },
-    { text: "Fee collection, part payments & dues", feature: "dues" },
+    { text: "Fee collection, expiry lists & dues", feature: "feedesk" },
     { text: "Check-in with spoken fee alerts", feature: "alerts" },
     { text: "Class & PT booking", feature: "booking" },
     { text: "Messaging: email, SMS, WhatsApp, push", feature: "messaging" },

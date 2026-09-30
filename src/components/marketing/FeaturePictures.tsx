@@ -2,7 +2,7 @@
 // than screenshotted so nothing goes stale and everything stays crisp. Each
 // one animates in (v-* classes) when its card scrolls into view.
 
-import { FiBell, FiCheck, FiDatabase, FiEdit3, FiKey, FiLock, FiPercent, FiPrinter, FiShield, FiSliders, FiSmartphone, FiTag, FiTool, FiTrendingUp, FiUploadCloud, FiUser, FiUserPlus, FiVolume2 } from "react-icons/fi";
+import { FiBell, FiCheck, FiDatabase, FiEdit3, FiKey, FiLock, FiPercent, FiPrinter, FiSearch, FiShield, FiSliders, FiSmartphone, FiTag, FiTool, FiTrendingUp, FiUploadCloud, FiUser, FiUserPlus, FiVolume2 } from "react-icons/fi";
 import type { FeatureKey } from "@/content/features";
 import { stagger } from "@/lib/motion";
 
@@ -794,6 +794,7 @@ function DuesPicture() {
 }
 
 function RenewalsPicture() {
+  const tabs = ["Expiring", "Expired / unpaid", "Dues"];
   const due = [
     ["Hina Rauf", "Ends today", "bg-rose-50 text-rose-700"],
     ["Bilal Shah", "2 days left", "bg-amber-50 text-amber-700"],
@@ -801,22 +802,78 @@ function RenewalsPicture() {
   ];
   return (
     <Frame>
-      <p className="v-rise text-[10px] font-semibold uppercase tracking-wider text-slate-400" style={stagger(0)}>
-        Fees due · next 7 days
-      </p>
-      <ul className="mt-2 space-y-1.5">
+      <div className="flex flex-wrap gap-1 text-[10px] font-semibold">
+        {tabs.map((t, i) => (
+          <span key={t} className={`v-pop rounded-full px-2 py-0.5 ${i === 0 ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200"}`} style={stagger(i)}>
+            {t}
+          </span>
+        ))}
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-1 text-[10px] text-slate-500">
+        <span className="mr-0.5">Next</span>
+        {[1, 3, 7, 15, 30].map((n, i) => (
+          <span key={n} className={`v-pop rounded-md px-1.5 py-0.5 font-semibold ${n === 7 ? "bg-violet-100 text-violet-700" : "bg-white ring-1 ring-slate-200"}`} style={stagger(3 + i, 0)}>
+            {n}
+          </span>
+        ))}
+        <span>days</span>
+      </div>
+      <ul className="mt-2.5 space-y-1.5">
         {due.map(([n, d, c], i) => (
-          <li key={n} className="v-rise flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-[11px] ring-1 ring-slate-200" style={stagger(1 + i)}>
+          <li key={n} className="v-rise flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-[11px] ring-1 ring-slate-200" style={stagger(4 + i)}>
             <span className="flex-1 font-semibold text-slate-800">{n}</span>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${c}`}>{d}</span>
-            <span className="v-pop rounded-md bg-slate-900 px-2 py-0.5 text-[10px] font-semibold text-white" style={stagger(4 + i)}>
-              Renew
-            </span>
+            <span className="rounded-md bg-slate-900 px-2 py-0.5 text-[10px] font-semibold text-white">Collect</span>
           </li>
         ))}
       </ul>
-      <p className="v-rise mt-3 flex items-center gap-1.5 font-mono text-[10px] text-slate-500" style={stagger(8)}>
-        <FiEdit3 className="h-3 w-3 shrink-0 text-violet-500" /> Ayesha · end date 30 Sep → 7 Oct
+      <div className="v-rise mt-2.5 flex gap-1.5 text-[10px] font-semibold text-slate-600" style={stagger(8)}>
+        <span className="rounded-md bg-white px-2 py-0.5 ring-1 ring-slate-200">Export CSV</span>
+        <span className="inline-flex items-center gap-1 rounded-md bg-white px-2 py-0.5 ring-1 ring-slate-200">
+          <FiPrinter className="h-3 w-3" /> Print
+        </span>
+      </div>
+    </Frame>
+  );
+}
+
+function FeeDeskPicture() {
+  return (
+    <Frame>
+      <div className="v-rise flex items-center gap-2 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200" style={stagger(0)}>
+        <FiSearch className="h-3.5 w-3.5 text-slate-400" />
+        <span className="flex-1 font-mono text-[11px] text-slate-800">184</span>
+        <span className="rounded border border-slate-200 px-1 font-mono text-[9px] text-slate-400">/</span>
+      </div>
+      <div className="v-rise mt-2 rounded-lg bg-white p-3 ring-1 ring-slate-200" style={stagger(1)}>
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-orange-500 text-[10px] font-bold text-white">OA</span>
+          <div className="min-w-0 flex-1 text-[11px]">
+            <p className="font-semibold text-slate-900">
+              Omar Aziz <span className="font-mono text-[10px] font-normal text-slate-400">GP-0184</span>
+            </p>
+            <p className="truncate text-slate-500">Monthly · Rs 5,000</p>
+          </div>
+          <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700">3 days overdue</span>
+        </div>
+        <div className="mt-2.5 flex flex-wrap gap-1 text-[10px] font-semibold">
+          {[
+            ["Collect & renew", "R"],
+            ["Collect dues", "D"],
+            ["New", "N"],
+          ].map(([label, k], i) => (
+            <span key={label} className={`v-pop inline-flex items-center gap-1 rounded-md px-2 py-1 ${i === 0 ? "bg-slate-900 text-white" : "bg-slate-50 text-slate-700 ring-1 ring-slate-200"}`} style={stagger(3 + i)}>
+              {label}
+              <span className={`rounded px-1 font-mono text-[9px] ${i === 0 ? "bg-white/15" : "bg-white ring-1 ring-slate-200"}`}>{k}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+      <p className="v-rise mt-2.5 flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-1.5 text-[11px] ring-1 ring-emerald-100" style={stagger(7)}>
+        <span className="font-semibold text-emerald-800">Rs 5,000 collected · Cash</span>
+        <span className="inline-flex items-center gap-1 font-semibold text-emerald-700">
+          <FiPrinter className="h-3 w-3" /> Receipt
+        </span>
       </p>
     </Frame>
   );
@@ -1151,6 +1208,7 @@ function BackupsPicture() {
 export const FEATURE_PICTURES: Record<FeatureKey, React.ComponentType> = {
   members: MembersPicture,
   desksale: DeskSalePicture,
+  feedesk: FeeDeskPicture,
   dues: DuesPicture,
   renewals: RenewalsPicture,
   logins: LoginsPicture,
