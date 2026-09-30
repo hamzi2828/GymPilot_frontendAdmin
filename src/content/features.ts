@@ -94,7 +94,7 @@ export const FEATURE_GROUPS: { key: GroupKey; label: string; title: string; text
 export const FEATURES_INTRO = {
   eyebrow: "What's inside",
   title: "Everything a gym needs, in one app",
-  text: "The six gyms buy us for. The rest are one click away, and every plan gets all of them.",
+  text: "The six gyms buy us for. The rest are one click away, each with a page of its own — and every plan has them all, bar the member app add-on.",
   cta: "See all features",
 };
 
@@ -211,7 +211,7 @@ export const FEATURES: Feature[] = [
     highlight: true,
     name: "Check-in",
     title: "Know who is in the gym",
-    text: "Fingerprint, QR code or member ID at the desk — and a lapsed fee is flagged the moment they arrive.",
+    text: "Fingerprint, QR code or member ID at the desk — and a lapsed fee is called out the moment they arrive.",
     body: [
       "Three ways in, all writing to the same register. At the counter, the GymPilot desk app for Windows reads fingerprints on a DigitalPersona USB reader. Any tablet or PC with a browser becomes a kiosk that scans a member's QR code with its camera, takes a typed member ID, or lets staff pick a name. And members carry their own QR code on their phone.",
       "A member whose fee has run out is still checked in — so you know the visit happened — but the desk sees it in red and hears it, and can have a word there and then. Staff clock in on the same reader, against their rota.",
@@ -611,8 +611,6 @@ export const FEATURES: Feature[] = [
   },
 ];
 
-export const HIGHLIGHTS = FEATURES.filter((f) => f.highlight);
-
 const BY_KEY = new Map(FEATURES.map((f) => [f.key, f]));
 const BY_SLUG = new Map(FEATURES.map((f) => [f.slug, f]));
 
@@ -625,6 +623,28 @@ export function featureByKey(key: FeatureKey): Feature {
 export function featureBySlug(slug: string): Feature | undefined {
   return BY_SLUG.get(slug);
 }
+
+/**
+ * The six on the landing page, in the order its grid lays them out (a wide
+ * card and a narrow one per row, alternating -- see Features.tsx). Only
+ * features marked `highlight` can appear.
+ */
+const HIGHLIGHT_ORDER: FeatureKey[] = ["billing", "booking", "frontdesk", "messaging", "website", "reports"];
+export const HIGHLIGHTS = HIGHLIGHT_ORDER.map(featureByKey).filter((f) => f.highlight);
+
+/** The desk tools on the landing page, under the six highlights. */
+export const FEATURES_DESK: { eyebrow: string; title: string; text: string; items: { key: FeatureKey; title: string; text: string }[] } = {
+  eyebrow: "At the front desk",
+  title: "Made for a busy front desk",
+  text: "The jobs that fill a receptionist's day, each done in a few clicks — and each with a page of its own.",
+  items: [
+    { key: "dues", title: "Fees, part payments and dues", text: "Take part of a fee today, record the rest when it comes in, and see who still owes." },
+    { key: "alerts", title: "“Fee expired” said out loud", text: "A different sound for each kind of check-in, then your own words, spoken." },
+    { key: "receipts", title: "Thermal receipts", text: "Till receipts on 80 mm or 58 mm rolls, with your logo and tax number." },
+    { key: "dailysales", title: "Daily sales and profit & loss", text: "Each day's takings by heading and payment method, and a line-by-line P&L." },
+    { key: "backups", title: "Encrypted backups, every night", text: "The last seven kept, a download any time, and a restore that takes a safety copy first." },
+  ],
+};
 
 /** Where a feature's own page lives. */
 export function featureHref(key: FeatureKey): string {

@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { FaHandPointLeft, FaHandPointRight } from "react-icons/fa";
 import { FiArrowRight, FiCheck } from "react-icons/fi";
-import { FEATURES_INTRO, HIGHLIGHTS } from "@/content/features";
+import { FEATURES_DESK, FEATURES_INTRO, HIGHLIGHTS, featureHref } from "@/content/features";
 import { stagger } from "@/lib/motion";
 import { FEATURE_PICTURES } from "./FeaturePictures";
 import { FEATURE_ICONS, FEATURE_TINTS } from "./featureIcons";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 
-// The six that sell the product. Everything else is on /features, one click
-// away — a landing page that lists twelve of anything stops being read.
+// The six that sell the product, then the five desk tools gyms ask about
+// first. Everything else is on /features, one click away — a landing page
+// that lists thirty of anything stops being read. Every card leads to its
+// feature's own page.
 //
 // Three rows of six columns: a wide card (text beside the picture) and a
 // narrow one (picture over text), alternating so neither side is always big.
@@ -40,7 +42,11 @@ export default function Features() {
                   <Icon className="h-[18px] w-[18px]" />
                 </span>
                 <h3 className="v-rise mt-4 font-display text-lg font-semibold tracking-tight text-slate-900" style={stagger(1)}>
-                  {f.title}
+                  {/* Stretched over the whole card, so a tap anywhere lands
+                      on the feature's page; its name is still the link text. */}
+                  <Link href={featureHref(f.key)} className="outline-none before:absolute before:inset-0 before:rounded-2xl before:content-['']">
+                    {f.title}
+                  </Link>
                 </h3>
                 <p className="v-rise mt-2 text-sm leading-relaxed text-slate-600" style={stagger(2)}>
                   {f.text}
@@ -54,11 +60,14 @@ export default function Features() {
                     </li>
                   ))}
                 </ul>
+                <span className="v-rise mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600" style={stagger(6)} aria-hidden="true">
+                  Read more <FiArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none" />
+                </span>
               </div>
             );
             return (
               <Reveal key={f.key} delay={(i % 3) * 80} className={layout.span} as="article">
-                <div className="group h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lift">
+                <div className="group relative h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-card transition-all duration-300 focus-within:ring-2 focus-within:ring-brand-500 focus-within:ring-offset-2 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lift">
                   {layout.wide ? (
                     <div className="grid h-full gap-6 lg:grid-cols-[1fr_1.1fr]">
                       {text}
@@ -76,7 +85,49 @@ export default function Features() {
           })}
         </div>
 
-        {/* The six above are a sixth of the product, so this is the most
+        {/* The desk tools: what a gym's front desk does all day. */}
+        <Reveal className="mt-16">
+          <div className="relative overflow-hidden rounded-3xl bg-slate-950 p-6 text-white sm:p-8 lg:p-10">
+            <div className="bg-grid-dark absolute inset-0 [mask-image:radial-gradient(ellipse_at_top_right,black_20%,transparent_70%)]" aria-hidden="true" />
+            <div className="relative flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
+              <div>
+                <p className="v-rise text-xs font-semibold uppercase tracking-[0.18em] text-brand-300" style={stagger(0)}>
+                  {FEATURES_DESK.eyebrow}
+                </p>
+                <h3 className="v-rise mt-2 font-display text-2xl font-bold tracking-[-0.02em] sm:text-3xl" style={stagger(1)}>
+                  {FEATURES_DESK.title}
+                </h3>
+              </div>
+              <p className="v-rise max-w-md text-sm leading-relaxed text-slate-300 sm:text-base" style={stagger(2)}>
+                {FEATURES_DESK.text}
+              </p>
+            </div>
+            <ul className="relative mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {FEATURES_DESK.items.map((item, i) => {
+                const Icon = FEATURE_ICONS[item.key];
+                return (
+                  <li key={item.key} className="v-rise" style={stagger(3 + i)}>
+                    <Link
+                      href={featureHref(item.key)}
+                      className="group flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                    >
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-brand-200 ring-1 ring-inset ring-white/10 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110 motion-reduce:transition-none">
+                        <Icon className="h-[18px] w-[18px]" />
+                      </span>
+                      <span className="mt-4 font-display text-base font-semibold leading-snug">{item.title}</span>
+                      <span className="mt-1.5 text-sm leading-relaxed text-slate-300">{item.text}</span>
+                      <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-brand-300">
+                        Read more <FiArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none" />
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </Reveal>
+
+        {/* Everything above is a small part of the product, so this is the most
             important link on the page: a lit halo, a shine that sweeps by
             itself and an arrow that keeps nudging. Nobody scrolls past it
             wondering whether there is more. */}
@@ -105,7 +156,7 @@ export default function Features() {
 
             <FaHandPointLeft aria-hidden="true" className="a-point-l h-7 w-7 shrink-0 text-brand-500 drop-shadow-sm sm:h-10 sm:w-10" />
           </div>
-          <p className="mt-4 text-sm font-medium text-slate-500">Every one of them is in every plan.</p>
+          <p className="mt-4 text-sm font-medium text-slate-500">Every one of them is in every plan, bar the member app add-on.</p>
         </Reveal>
       </div>
     </section>

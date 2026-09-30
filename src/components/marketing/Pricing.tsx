@@ -9,6 +9,7 @@ import { FiArrowRight, FiCheck, FiPlus, FiSmartphone } from "react-icons/fi";
 import { PRICING } from "@/content/site";
 import { formatMoney, popularPlanIndex, publicFetch, yearlySaving, type PublicAddon, type PublicPlan } from "@/lib/api";
 import { stagger } from "@/lib/motion";
+import LinkedText, { linkedKey } from "./LinkedText";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 
@@ -264,11 +265,16 @@ export default function Pricing() {
             </p>
             <ul className="mt-5 grid gap-x-6 gap-y-2.5 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3">
               {PRICING.included.map((f, i) => (
-                <li key={f} className="v-rise flex items-center gap-2" style={stagger(1 + i)}>
-                  <FiCheck className="h-4 w-4 shrink-0 text-emerald-500" /> {f}
+                <li key={linkedKey(f)} className="v-rise flex items-center gap-2" style={stagger(1 + i)}>
+                  <FiCheck className="h-4 w-4 shrink-0 text-emerald-500" /> <LinkedText item={f} />
                 </li>
               ))}
             </ul>
+            <p className="v-rise mt-6 text-center" style={stagger(14)}>
+              <Link href="/features" className="group inline-flex items-center gap-1.5 rounded text-sm font-semibold text-brand-600 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
+                See every feature <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </p>
           </div>
         </Reveal>
       </div>

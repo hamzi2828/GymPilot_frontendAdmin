@@ -1,6 +1,12 @@
 // Everything the marketing site says, in one place. Edit copy here; the
 // components only lay it out. Nothing in this file is fetched -- prices come
-// live from the API (see components/marketing/Pricing.tsx).
+// live from the API (see components/marketing/Pricing.tsx). The features
+// themselves are in content/features.ts; a `feature` here links to its page.
+
+import type { FeatureKey } from "./features";
+
+/** A line of copy that can lead to a feature's own page. */
+export type Linked = string | { text: string; feature: FeatureKey };
 
 export const SITE = {
   name: "GymPilot",
@@ -36,7 +42,13 @@ export const HERO = {
   trust: ["Your own website included", "Member app on any plan", "Everything set up for you"],
 };
 
-export const WHAT_YOU_GET = {
+export const WHAT_YOU_GET: {
+  eyebrow: string;
+  title: string;
+  text: string;
+  parts: { kicker: string; title: string; text: string; points: Linked[] }[];
+  banner: { strong: string; rest: string; cta: string };
+} = {
   eyebrow: "What you get",
   title: "Three things every gym needs. One setup.",
   text: "Most gyms buy a website from one company, an app from another and a spreadsheet for the rest. GymPilot is all of it, made to work together, under your own name.",
@@ -56,8 +68,14 @@ export const WHAT_YOU_GET = {
     {
       kicker: "For you and your staff",
       title: "The management system",
-      text: "Everything behind the desk in one place: memberships, payments, timetable, front desk, shop, staff, payroll and reports.",
-      points: ["Memberships and automatic billing", "Timetable, waitlists and PT", "Front desk, shop and lockers", "Staff, payslips and reports"],
+      text: "Everything behind the desk in one place: memberships and fees, check-in, the timetable, the till, staff, payroll and the books.",
+      points: [
+        { text: "Fees, part payments and dues", feature: "dues" },
+        { text: "Check-in that says “Fee expired” out loud", feature: "alerts" },
+        { text: "A till with thermal receipts", feature: "receipts" },
+        { text: "Daily sales and profit & loss", feature: "dailysales" },
+        { text: "Encrypted backups every night", feature: "backups" },
+      ],
     },
   ],
   banner: {
@@ -112,14 +130,14 @@ export const SHOWCASES = [
   {
     eyebrow: "Billing",
     title: "Money that arrives without chasing",
-    text: "Stripe recurring billing through the gym's own account, renewal reminders, failed-payment recovery, bank transfer with receipt review, and invoices that go out by themselves. When a membership lapses the member is told, the front desk sees it, and access stops.",
-    points: ["Cards, wallets and bank transfer", "Freezes, upgrades and pro-rata", "Coupons and session packs", "Sales, expenses and assets in one ledger"],
+    text: "Stripe recurring billing through the gym's own account, renewal reminders, failed-payment recovery, bank transfer with receipt review, and invoices that go out by themselves. At the desk, part payments are recorded and the balance is tracked. When a membership lapses the member is told, and the desk sees it — and hears it — the next time they check in.",
+    points: ["Cards online, bank transfer, desk payments", "Freezes, upgrades and pro-rata", "Part payments and dues", "Sales, expenses and assets in one ledger"],
     visual: "billing",
   },
   {
     eyebrow: "Members",
     title: "An app they keep on their phone",
-    text: "Members book classes and PT, see their attendance, download receipts, manage notifications and sign the waiver — from an installable app that works offline. Push, WhatsApp and SMS bring them back when they drift.",
+    text: "Members book classes and PT, see their attendance, download receipts, manage notifications and sign the waiver — from an app they install straight from the browser. Push, WhatsApp and SMS bring them back when they drift.",
     points: ["Class & PT booking with credits", "Health questionnaire and signed agreement", "Receipts, invoices and locker", "Absent-member nudges and win-back campaigns"],
     visual: "members",
   },
@@ -129,7 +147,20 @@ export const PRICING = {
   eyebrow: "Pricing",
   title: "One price. The whole product.",
   text: "Every plan includes billing, booking, PT, front desk, shop, messaging, staff, reports and the website. Plans differ by size; the member app is added to any of them. Prices come straight from your GymPilot account.",
-  included: ["Own domain & website", "Stripe & bank transfer billing", "Class & PT booking", "Messaging: email, SMS, WhatsApp, push", "POS, stock & lockers", "Staff roles, leave & payslips", "Reports & CSV exports", "5 languages", "Daily encrypted backups & private database"],
+  included: [
+    { text: "Own domain & website", feature: "website" },
+    { text: "Stripe & bank transfer billing", feature: "billing" },
+    { text: "Fee collection, part payments & dues", feature: "dues" },
+    { text: "Check-in with spoken fee alerts", feature: "alerts" },
+    { text: "Class & PT booking", feature: "booking" },
+    { text: "Messaging: email, SMS, WhatsApp, push", feature: "messaging" },
+    { text: "POS with 80 / 58 mm thermal receipts", feature: "receipts" },
+    { text: "Staff, trainer pay & payslips", feature: "trainerpay" },
+    { text: "Daily sales & profit and loss", feature: "dailysales" },
+    { text: "Reports in Excel & CSV", feature: "reports" },
+    { text: "5 languages", feature: "setup" },
+    { text: "Daily encrypted backups & private database", feature: "backups" },
+  ] as Linked[],
   fallback: "Plans are being set up. Book a demo and we will send you a quote the same day.",
 };
 
@@ -169,19 +200,23 @@ export const FAQ = [
   },
   {
     q: "How do payments work?",
-    a: "Card and wallet payments run through your own Stripe account, so the money goes straight to you. Bank transfer with receipt upload and cash at the desk are supported too, with invoices for everything.",
+    a: "Card payments online run through your own Stripe account, so the money goes straight to you. Members can also pay by bank transfer and upload the receipt. At the desk you record cash, card-terminal, bank transfer, JazzCash, Easypaisa and other mobile-wallet payments — part payments too, with the balance tracked — and memberships get an invoice either way.",
   },
   {
     q: "Can I bring my existing members across?",
-    a: "Yes. Import members, memberships and expiry dates from a CSV. Existing plans keep their renewal dates.",
+    a: "Yes. Import members, memberships and expiry dates from a CSV exported from your old software, and check the preview before anything is saved. Members without an email address come across too, and existing plans keep their renewal dates.",
   },
   {
     q: "Do members need to download an app?",
-    a: "No app store. The member portal installs as an app from the browser on iPhone, Android and desktop, works offline and receives push notifications.",
+    a: "No app store. The member portal installs as an app from the browser on iPhone, Android and desktop, and receives push notifications.",
   },
   {
     q: "What about the front desk hardware?",
-    a: "Any tablet becomes a QR check-in kiosk. For fingerprint access there is a Windows desktop app that talks to the same account.",
+    a: "Any tablet or PC with a browser becomes a check-in kiosk: it scans members' QR codes with its camera or takes a typed member ID. For fingerprints there is a Windows desk app that works with DigitalPersona USB readers. Both play a different sound for each kind of check-in and can say “Fee expired, please renew” out loud.",
+  },
+  {
+    q: "Is my data backed up?",
+    a: "Yes. Every night each gym gets an encrypted backup, and the last seven are kept. Owners can download the whole gym at any time, and restore from a backup after seeing what is in it — GymPilot takes a safety copy first.",
   },
   {
     q: "Which languages are supported?",
@@ -210,7 +245,7 @@ export const FOOTER = {
         { label: "All features", href: "/features" },
         { label: "Book a demo", href: "#demo" },
         { label: "Pricing", href: "#pricing" },
-        { label: "Member app", href: "#product" },
+        { label: "Member app", href: "/features/member-app" },
       ],
     },
     {

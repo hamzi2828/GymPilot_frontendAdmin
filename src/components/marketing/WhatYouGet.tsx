@@ -1,6 +1,7 @@
 import { FiArrowRight, FiCheck, FiGlobe, FiSettings, FiSmartphone } from "react-icons/fi";
 import { WHAT_YOU_GET } from "@/content/site";
 import { stagger } from "@/lib/motion";
+import LinkedText, { linkedKey } from "./LinkedText";
 import Reveal from "./Reveal";
 
 const ICONS = [FiGlobe, FiSmartphone, FiSettings];
@@ -45,8 +46,8 @@ export default function WhatYouGet() {
                   </p>
                   <ul className="mt-5 space-y-2 text-sm text-slate-700">
                     {part.points.map((p, j) => (
-                      <li key={p} className="v-rise flex items-start gap-2" style={stagger(4 + j)}>
-                        <FiCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" /> {p}
+                      <li key={linkedKey(p)} className="v-rise flex items-start gap-2" style={stagger(4 + j)}>
+                        <FiCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" /> <span><LinkedText item={p} /></span>
                       </li>
                     ))}
                   </ul>
