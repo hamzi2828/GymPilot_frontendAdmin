@@ -2,7 +2,7 @@
 // than screenshotted so nothing goes stale and everything stays crisp. Each
 // one animates in (v-* classes) when its card scrolls into view.
 
-import { FiActivity, FiBarChart2, FiBell, FiBookOpen, FiCalendar, FiCheck, FiClipboard, FiCreditCard, FiDatabase, FiDollarSign, FiEdit3, FiFileText, FiGlobe, FiHardDrive, FiKey, FiLock, FiMessageCircle, FiPercent, FiPrinter, FiRefreshCw, FiShield, FiShoppingBag, FiSliders, FiSmartphone, FiTag, FiTarget, FiTool, FiTrendingUp, FiUploadCloud, FiUser, FiUserCheck, FiUserPlus, FiUsers, FiVolume2, FiZap } from "react-icons/fi";
+import { FiBell, FiCheck, FiDatabase, FiEdit3, FiKey, FiLock, FiPercent, FiPrinter, FiShield, FiSliders, FiSmartphone, FiTag, FiTool, FiTrendingUp, FiUploadCloud, FiUser, FiUserPlus, FiVolume2 } from "react-icons/fi";
 import type { FeatureKey } from "@/content/features";
 import { stagger } from "@/lib/motion";
 
@@ -1180,73 +1180,4 @@ export const FEATURE_PICTURES: Record<FeatureKey, React.ComponentType> = {
   security: SecurityPicture,
   data: DataPicture,
   backups: BackupsPicture,
-};
-
-/** The icon and its tint for each feature, shared by every place it appears. */
-export const FEATURE_ICONS: Record<FeatureKey, React.ComponentType<{ className?: string }>> = {
-  members: FiUserCheck,
-  desksale: FiClipboard,
-  dues: FiDollarSign,
-  renewals: FiRefreshCw,
-  logins: FiKey,
-  import: FiUploadCloud,
-  frontdesk: FiZap,
-  alerts: FiVolume2,
-  attendance: FiActivity,
-  billing: FiCreditCard,
-  offers: FiTag,
-  reports: FiBarChart2,
-  dailysales: FiFileText,
-  books: FiBookOpen,
-  assets: FiTool,
-  pos: FiShoppingBag,
-  receipts: FiPrinter,
-  booking: FiCalendar,
-  pt: FiTarget,
-  staff: FiUsers,
-  trainerpay: FiPercent,
-  website: FiGlobe,
-  content: FiEdit3,
-  app: FiSmartphone,
-  selfservice: FiUser,
-  messaging: FiMessageCircle,
-  leads: FiUserPlus,
-  setup: FiSliders,
-  security: FiShield,
-  data: FiDatabase,
-  backups: FiHardDrive,
-};
-
-export const FEATURE_TINTS: Record<FeatureKey, string> = {
-  members: "bg-teal-50 text-teal-600 ring-teal-100",
-  desksale: "bg-emerald-50 text-emerald-700 ring-emerald-100",
-  dues: "bg-amber-50 text-amber-700 ring-amber-100",
-  renewals: "bg-violet-50 text-violet-600 ring-violet-100",
-  logins: "bg-slate-100 text-slate-700 ring-slate-200",
-  import: "bg-cyan-50 text-cyan-700 ring-cyan-100",
-  frontdesk: "bg-sky-50 text-sky-600 ring-sky-100",
-  alerts: "bg-rose-50 text-rose-600 ring-rose-100",
-  attendance: "bg-green-50 text-green-700 ring-green-100",
-  billing: "bg-emerald-50 text-emerald-600 ring-emerald-100",
-  offers: "bg-orange-50 text-orange-600 ring-orange-100",
-  reports: "bg-cyan-50 text-cyan-600 ring-cyan-100",
-  dailysales: "bg-blue-50 text-blue-600 ring-blue-100",
-  books: "bg-lime-50 text-lime-700 ring-lime-100",
-  assets: "bg-stone-100 text-stone-700 ring-stone-200",
-  pos: "bg-rose-50 text-rose-600 ring-rose-100",
-  receipts: "bg-zinc-100 text-zinc-800 ring-zinc-200",
-  booking: "bg-brand-50 text-brand-600 ring-brand-100",
-  pt: "bg-amber-50 text-amber-600 ring-amber-100",
-  staff: "bg-violet-50 text-violet-600 ring-violet-100",
-  trainerpay: "bg-orange-50 text-orange-600 ring-orange-100",
-  website: "bg-indigo-50 text-indigo-600 ring-indigo-100",
-  content: "bg-pink-50 text-pink-600 ring-pink-100",
-  app: "bg-blue-50 text-blue-600 ring-blue-100",
-  selfservice: "bg-yellow-50 text-yellow-700 ring-yellow-100",
-  messaging: "bg-fuchsia-50 text-fuchsia-600 ring-fuchsia-100",
-  leads: "bg-orange-50 text-orange-600 ring-orange-100",
-  setup: "bg-purple-50 text-purple-600 ring-purple-100",
-  security: "bg-slate-900 text-emerald-300 ring-slate-700",
-  data: "bg-slate-100 text-slate-700 ring-slate-200",
-  backups: "bg-slate-900 text-sky-300 ring-slate-700",
 };

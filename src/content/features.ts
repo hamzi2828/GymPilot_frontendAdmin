@@ -647,7 +647,7 @@ export function relatedTo(feature: Feature): Feature[] {
 
 /** Numbers on the features page. The first is counted, never typed. */
 export const FEATURE_STATS: { value: number; label: string }[] = [
-  { value: FEATURES.length, label: "features, all included" },
+  { value: FEATURES.filter((f) => !f.addon).length, label: "features in every plan" },
   { value: 5, label: "languages, 2 right-to-left" },
   { value: 8, label: "colour schemes" },
   { value: FEATURES.filter((f) => f.addon).length, label: "optional add-on: the member app" },

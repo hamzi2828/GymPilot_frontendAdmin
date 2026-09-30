@@ -215,6 +215,10 @@ details > summary::-webkit-details-marker {
 .btn-sweep::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 38%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent); transform: translateX(-160%) skewX(-20deg); pointer-events: none; animation: m-sweep 3.6s ease-in-out infinite; }
 .animate-marquee:hover { animation-play-state: paused; }
 
+/* The header's menus drop in rather than blink on. */
+@keyframes m-menu { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.a-menu { animation: m-menu 0.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
 /* A light sweep across a button on hover. */
 .btn-shine { position: relative; overflow: hidden; isolation: isolate; }
 .btn-shine::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 45%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent); transform: translateX(-150%) skewX(-20deg); pointer-events: none; }
@@ -232,7 +236,7 @@ details[open] > summary ~ * { animation: m-rise 0.45s cubic-bezier(0.22, 1, 0.36
   .reveal.is-visible .v-float,
   .edge-glow::before,
   .a-drift, .a-drift-2, .a-spin-slow, .a-float, .a-float-2, .a-scan, .a-blink, .a-halo,
-  .a-point-r, .a-point-l, .a-ping-ring, .btn-sweep::after, .btn-shine:hover::after,
+  .a-point-r, .a-point-l, .a-ping-ring, .btn-sweep::after, .btn-shine:hover::after, .a-menu,
   details[open] > summary ~ * { animation: none !important; }
   .reveal.is-visible .v-draw { stroke-dasharray: none; }
 }

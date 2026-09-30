@@ -3,7 +3,8 @@ import { FaHandPointLeft, FaHandPointRight } from "react-icons/fa";
 import { FiArrowRight, FiCheck } from "react-icons/fi";
 import { FEATURES_INTRO, HIGHLIGHTS } from "@/content/features";
 import { stagger } from "@/lib/motion";
-import { FEATURE_ICONS, FEATURE_PICTURES, FEATURE_TINTS } from "./FeaturePictures";
+import { FEATURE_PICTURES } from "./FeaturePictures";
+import { FEATURE_ICONS, FEATURE_TINTS } from "./featureIcons";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 

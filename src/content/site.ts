@@ -15,9 +15,12 @@ export const SITE = {
   heroPills: ["Memberships & billing", "Class booking", "Personal training", "Your own domain"],
 };
 
-export const NAV = [
+// The header's menu. A "#…" target is a section of the landing page (the
+// header and footer prefix it with "/" everywhere else). Features opens the
+// features menu; `spy` is the landing-page section that lights it up.
+export const NAV: { label: string; href: string; menu?: "features"; spy?: string }[] = [
   { label: "Product", href: "#product" },
-  { label: "Features", href: "#features" },
+  { label: "Features", href: "/features", menu: "features", spy: "#features" },
   { label: "How it works", href: "#how-it-works" },
   { label: "Pricing", href: "#pricing" },
   { label: "FAQ", href: "#faq" },
