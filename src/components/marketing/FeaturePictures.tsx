@@ -2,7 +2,8 @@
 // than screenshotted so nothing goes stale and everything stays crisp. Each
 // one animates in (v-* classes) when its card scrolls into view.
 
-import { FiBarChart2, FiBell, FiBookOpen, FiCalendar, FiCheck, FiCreditCard, FiDatabase, FiEdit3, FiGlobe, FiLock, FiMessageCircle, FiShield, FiShoppingBag, FiSliders, FiSmartphone, FiTag, FiTarget, FiTrendingUp, FiUser, FiUserCheck, FiUserPlus, FiUsers, FiZap } from "react-icons/fi";
+import { FiActivity, FiBarChart2, FiBell, FiBookOpen, FiCalendar, FiCheck, FiClipboard, FiCreditCard, FiDatabase, FiDollarSign, FiEdit3, FiFileText, FiGlobe, FiHardDrive, FiKey, FiLock, FiMessageCircle, FiPercent, FiPrinter, FiRefreshCw, FiShield, FiShoppingBag, FiSliders, FiSmartphone, FiTag, FiTarget, FiTool, FiTrendingUp, FiUploadCloud, FiUser, FiUserCheck, FiUserPlus, FiUsers, FiVolume2, FiZap } from "react-icons/fi";
+import type { FeatureKey } from "@/content/features";
 import { stagger } from "@/lib/motion";
 
 function Frame({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -139,7 +140,7 @@ function FrontDeskPicture() {
             Visit 14 this month
           </p>
           <p className="v-rise mt-2 flex items-center gap-1.5 text-rose-600" style={stagger(3)}>
-            <FiZap className="h-3.5 w-3.5" /> Omar A. · membership ended · not let in
+            <FiVolume2 className="h-3.5 w-3.5" /> Omar A. · fee expired · “please renew”
           </p>
         </div>
       </div>
@@ -189,29 +190,47 @@ function MessagingPicture() {
 
 function PosPicture() {
   const lines = [
-    ["Protein shake", "$6.00"],
+    ["Protein shake × 2", "$12.00"],
     ["Whey 1kg", "$42.00"],
-    ["Locker · Sep", "$10.00"],
+    ["Locker · Oct", "$10.00"],
   ];
   return (
     <Frame>
-      <div className="v-rise mx-auto max-w-[220px] rounded-lg bg-white px-3 py-3 font-mono text-[11px] text-slate-700 shadow-card ring-1 ring-slate-200" style={stagger(0)}>
-        <p className="text-center text-[10px] font-semibold tracking-widest text-slate-400">RECEIPT 00418</p>
+      <div className="v-rise rounded-lg bg-white p-3 text-[11px] text-slate-700 shadow-card ring-1 ring-slate-200" style={stagger(0)}>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Basket</p>
         <div className="mt-2 space-y-1">
           {lines.map(([a, b], i) => (
-            <p key={a} className="v-rise flex justify-between" style={stagger(2 + i)}>
+            <p key={a} className="v-rise flex justify-between" style={stagger(1 + i)}>
+              <span>{a}</span>
+              <span className="font-medium text-slate-900">{b}</span>
+            </p>
+          ))}
+        </div>
+        <div className="mt-2 space-y-1 border-t border-dashed border-slate-200 pt-2 text-slate-500">
+          {[
+            ["Discount", "−$4.00"],
+            ["Tax included (5%)", "$2.86"],
+          ].map(([a, b], i) => (
+            <p key={a} className="v-rise flex justify-between" style={stagger(4 + i)}>
               <span>{a}</span>
               <span>{b}</span>
             </p>
           ))}
+          <p className="v-rise flex justify-between font-display text-sm font-bold text-slate-900" style={stagger(6)}>
+            <span>Total</span>
+            <span>$60.00</span>
+          </p>
         </div>
-        <p className="v-rise mt-2 flex justify-between border-t border-dashed border-slate-200 pt-2 font-semibold text-slate-900" style={stagger(6)}>
-          <span>Total</span>
-          <span>$58.00</span>
-        </p>
-        <p className="v-pop mt-1 text-center text-[10px] text-emerald-600" style={stagger(8)}>
-          Paid by card · stock updated
-        </p>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-1.5 text-[11px]">
+        <div className="v-pop rounded-lg bg-white px-3 py-1.5 ring-1 ring-slate-200" style={stagger(7)}>
+          <p className="text-slate-500">Cash given $100</p>
+          <p className="font-semibold text-slate-900">Change $40.00</p>
+        </div>
+        <div className="v-pop rounded-lg bg-emerald-50 px-3 py-1.5 ring-1 ring-emerald-100" style={stagger(8)}>
+          <p className="text-emerald-700">Made on this sale</p>
+          <p className="font-semibold text-emerald-800">$17.10</p>
+        </div>
       </div>
     </Frame>
   );
@@ -556,37 +575,35 @@ function ContentPicture() {
 }
 
 function BooksPicture() {
-  const months = [38, 52, 44, 61, 57, 70];
+  const lines: [string, string, string][] = [
+    ["Membership fees", "$24,600", "in"],
+    ["Admission fees", "$1,350", "in"],
+    ["Trainer fees", "$3,900", "in"],
+    ["Shop sales", "$4,210", "in"],
+    ["Refunds", "−$240", "in"],
+    ["Trainer commission", "−$2,150", "out"],
+    ["Expenses", "−$6,480", "out"],
+    ["Equipment bought", "−$2,900", "out"],
+    ["Salaries", "−$9,600", "out"],
+  ];
   return (
     <Frame>
-      <div className="grid grid-cols-3 gap-1.5 text-center">
-        {[
-          ["In", "$38,420", "text-emerald-600"],
-          ["Out", "$11,905", "text-rose-600"],
-          ["Own", "$76,300", "text-slate-900"],
-        ].map(([l, v, c], i) => (
-          <div key={l} className="v-pop rounded-lg bg-white py-2 ring-1 ring-slate-200" style={stagger(i)}>
-            <p className={`font-display text-sm font-bold ${c}`}>{v}</p>
-            <p className="text-[10px] text-slate-500">{l}</p>
-          </div>
+      <div className="v-rise flex items-center justify-between" style={stagger(0)}>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Profit and loss · September</p>
+        <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-600 ring-1 ring-slate-200">This month</span>
+      </div>
+      <div className="mt-2 space-y-0.5 text-[11px]">
+        {lines.map(([l, v, kind], i) => (
+          <p key={l} className={`v-rise flex justify-between rounded px-2 py-0.5 ${kind === "in" ? "text-slate-700" : "text-slate-500"}`} style={stagger(1 + i, 0)}>
+            <span>{l}</span>
+            <span className={`font-medium ${v.startsWith("−") ? "text-rose-600" : "text-slate-900"}`}>{v}</span>
+          </p>
         ))}
       </div>
-      <div className="mt-3 flex h-16 items-end gap-1.5">
-        {months.map((h, i) => (
-          <span key={i} className="v-fill-y flex-1 rounded-t bg-gradient-to-t from-brand-500 to-fuchsia-400" style={{ ...stagger(3 + i), height: `${h}%` }} />
-        ))}
-      </div>
-      <div className="mt-3 space-y-1 text-[11px]">
-        {[
-          ["Rent · September", "−$2,400"],
-          ["Treadmill · serviced", "next Mar"],
-        ].map(([a, b], i) => (
-          <div key={a} className="v-rise flex justify-between rounded-lg bg-white px-3 py-1.5 ring-1 ring-slate-100" style={stagger(9 + i)}>
-            <span className="text-slate-600">{a}</span>
-            <span className="font-semibold text-slate-800">{b}</span>
-          </div>
-        ))}
-      </div>
+      <p className="v-pop mt-2 flex items-center justify-between rounded-lg bg-slate-950 px-3 py-2 text-white" style={stagger(11)}>
+        <span className="text-[11px] font-semibold">Net profit</span>
+        <span className="font-display text-base font-bold text-emerald-300">$12,690</span>
+      </p>
     </Frame>
   );
 }
@@ -698,70 +715,538 @@ function SelfServicePicture() {
   );
 }
 
+function DeskSalePicture() {
+  const rows = [
+    ["Package", "Monthly · Rs 5,000"],
+    ["Starts", "In 3 days"],
+    ["Discount", "−Rs 500 · student"],
+    ["Admission fee", "Rs 1,000"],
+    ["Trainer", "Coach Marcus · Rs 3,000"],
+  ];
+  return (
+    <Frame>
+      <div className="v-rise flex items-center gap-2.5" style={stagger(0)}>
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-[11px] font-bold text-white">AK</span>
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-slate-900">Ali Khan · new member</p>
+          <p className="font-mono text-[10px] text-slate-500">GP-0213</p>
+        </div>
+      </div>
+      <div className="mt-3 space-y-1 text-[11px]">
+        {rows.map(([l, v], i) => (
+          <div key={l} className="v-rise flex items-center justify-between rounded-md bg-white px-2.5 py-1 ring-1 ring-slate-100" style={stagger(1 + i)}>
+            <span className="text-slate-500">{l}</span>
+            <span className="font-semibold text-slate-800">{v}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-2.5 flex flex-wrap gap-1 text-[10px] font-semibold">
+        {["Cash", "Card", "Bank", "JazzCash", "Easypaisa"].map((m, i) => (
+          <span key={m} className={`v-pop rounded-full px-2 py-0.5 ${m === "JazzCash" ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200"}`} style={stagger(6 + i)}>
+            {m}
+          </span>
+        ))}
+      </div>
+      <p className="v-rise mt-2.5 flex justify-between border-t border-slate-200 pt-2 text-[11px]" style={stagger(9)}>
+        <span className="text-slate-500">
+          Total <span className="font-semibold text-slate-900">Rs 8,500</span> · paid Rs 5,000
+        </span>
+        <span className="font-semibold text-amber-600">Rs 3,500 due</span>
+      </p>
+    </Frame>
+  );
+}
+
+function DuesPicture() {
+  const owing = [
+    ["Ali Khan", "GP-0213", "Rs 3,500"],
+    ["Hina Rauf", "GP-0098", "Rs 1,200"],
+    ["Bilal Shah", "GP-0187", "Rs 800"],
+  ];
+  return (
+    <Frame>
+      <p className="v-rise flex items-center gap-2 text-[11px] font-semibold text-slate-700" style={stagger(0)}>
+        <span className="inline-flex h-4 w-4 items-center justify-center rounded bg-slate-900 text-white">
+          <FiCheck className="h-3 w-3" />
+        </span>
+        Has dues · 3 members
+      </p>
+      <ul className="mt-2 space-y-1.5">
+        {owing.map(([n, id, due], i) => (
+          <li key={n} className="v-rise flex items-center justify-between rounded-lg bg-white px-3 py-1.5 text-[11px] ring-1 ring-slate-200" style={stagger(1 + i)}>
+            <span className="font-semibold text-slate-800">
+              {n} <span className="font-mono text-[10px] font-normal text-slate-400">{id}</span>
+            </span>
+            <span className="font-semibold text-amber-600">{due}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="v-pop mt-3 rounded-lg bg-slate-950 p-3 text-[11px] text-white" style={stagger(5)}>
+        <p className="font-semibold">Record payment · Ali Khan</p>
+        <p className="mt-1 text-slate-300">Rs 2,000 · Cash</p>
+        <p className="mt-1.5 flex justify-between border-t border-white/10 pt-1.5">
+          <span className="text-slate-400">Balance left</span>
+          <span className="font-semibold text-amber-300">Rs 1,500</span>
+        </p>
+      </div>
+    </Frame>
+  );
+}
+
+function RenewalsPicture() {
+  const due = [
+    ["Hina Rauf", "Ends today", "bg-rose-50 text-rose-700"],
+    ["Bilal Shah", "2 days left", "bg-amber-50 text-amber-700"],
+    ["Sara Malik", "5 days left", "bg-amber-50 text-amber-700"],
+  ];
+  return (
+    <Frame>
+      <p className="v-rise text-[10px] font-semibold uppercase tracking-wider text-slate-400" style={stagger(0)}>
+        Fees due · next 7 days
+      </p>
+      <ul className="mt-2 space-y-1.5">
+        {due.map(([n, d, c], i) => (
+          <li key={n} className="v-rise flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-[11px] ring-1 ring-slate-200" style={stagger(1 + i)}>
+            <span className="flex-1 font-semibold text-slate-800">{n}</span>
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${c}`}>{d}</span>
+            <span className="v-pop rounded-md bg-slate-900 px-2 py-0.5 text-[10px] font-semibold text-white" style={stagger(4 + i)}>
+              Renew
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="v-rise mt-3 flex items-center gap-1.5 font-mono text-[10px] text-slate-500" style={stagger(8)}>
+        <FiEdit3 className="h-3 w-3 shrink-0 text-violet-500" /> Ayesha · end date 30 Sep → 7 Oct
+      </p>
+    </Frame>
+  );
+}
+
+function LoginsPicture() {
+  return (
+    <Frame>
+      <div className="v-rise rounded-lg bg-white p-3 ring-1 ring-slate-200" style={stagger(0)}>
+        <p className="text-[11px] font-semibold text-slate-900">Set password · Ali Khan</p>
+        <div className="mt-2 space-y-1 text-[11px]">
+          {[
+            ["Email", "—"],
+            ["Phone", "0300 555 0142"],
+            ["Username", "alikhan"],
+          ].map(([l, v], i) => (
+            <p key={l} className="v-rise flex justify-between" style={stagger(1 + i)}>
+              <span className="text-slate-500">{l}</span>
+              <span className="font-semibold text-slate-800">{v}</span>
+            </p>
+          ))}
+        </div>
+      </div>
+      <div className="v-pop mt-3 flex items-center gap-2 rounded-lg bg-slate-950 px-3 py-2.5 text-white" style={stagger(5)}>
+        <FiKey className="h-4 w-4 shrink-0 text-amber-300" />
+        <span className="flex-1 font-mono text-xs tracking-wider">hR7wKp4tMz9qXe</span>
+        <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-semibold">Copy</span>
+      </div>
+      <p className="v-rise mt-2 text-[11px] text-slate-500" style={stagger(7)}>
+        Shown once. Their old sessions are signed out.
+      </p>
+    </Frame>
+  );
+}
+
+function ImportPicture() {
+  return (
+    <Frame>
+      <div className="v-rise flex items-center gap-2.5 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200" style={stagger(0)}>
+        <FiUploadCloud className="h-4 w-4 text-cyan-600" />
+        <span className="flex-1 font-mono text-[11px] text-slate-700">members-export.csv</span>
+        <span className="rounded-full bg-cyan-50 px-2 py-0.5 text-[10px] font-semibold text-cyan-700">Preview</span>
+      </div>
+      <div className="mt-3 grid grid-cols-3 gap-1.5 text-center">
+        {[
+          ["312", "members"],
+          ["298", "memberships"],
+          ["41", "no email"],
+        ].map(([v, l], i) => (
+          <div key={l} className="v-pop rounded-lg bg-white py-1.5 ring-1 ring-slate-200" style={stagger(1 + i)}>
+            <p className="font-display text-sm font-bold text-slate-900">{v}</p>
+            <p className="text-[10px] text-slate-500">{l}</p>
+          </div>
+        ))}
+      </div>
+      <p className="v-rise mt-3 text-[10px] text-slate-500" style={stagger(5)}>
+        Recognised: name · phone · member ID · package · start · expiry
+      </p>
+      <p className="v-rise mt-1.5 rounded-md bg-amber-50 px-2.5 py-1.5 text-[10px] text-amber-800 ring-1 ring-amber-100" style={stagger(6)}>
+        Line 18 — no package called “Gold”
+      </p>
+    </Frame>
+  );
+}
+
+function AlertsPicture() {
+  const bars = [30, 70, 45, 90, 55, 80, 35, 65, 40];
+  const rows = [
+    ["Sara M.", "Checked in", "bg-emerald-500", "text-emerald-700"],
+    ["Ali K.", "Balance due Rs 1,500", "bg-amber-400", "text-amber-700"],
+    ["Omar A.", "Membership expired", "bg-rose-500", "text-rose-700"],
+  ];
+  return (
+    <Frame className="flex h-full flex-col justify-center">
+      <div className="v-pop flex items-center gap-3 rounded-xl bg-slate-950 px-3 py-3 text-white shadow-lift" style={stagger(0)}>
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-rose-500/20 text-rose-300">
+          <FiVolume2 className="h-4 w-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold">“Fee expired, please renew”</p>
+          <div className="mt-1.5 flex h-4 items-end gap-[3px]" aria-hidden="true">
+            {bars.map((h, i) => (
+              <span key={i} className="v-fill-y w-1 rounded-full bg-rose-300/80" style={{ ...stagger(1 + i, 0), height: `${h}%` }} />
+            ))}
+          </div>
+        </div>
+      </div>
+      <ul className="mt-3 space-y-1.5 text-[11px]">
+        {rows.map(([n, s, dot, c], i) => (
+          <li key={n} className="v-rise flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 ring-1 ring-slate-200" style={stagger(4 + i)}>
+            <span className={`h-2 w-2 rounded-full ${dot}`} />
+            <span className="font-semibold text-slate-800">{n}</span>
+            <span className={`ml-auto font-medium ${c}`}>{s}</span>
+          </li>
+        ))}
+      </ul>
+    </Frame>
+  );
+}
+
+function AttendancePicture() {
+  const counts = [
+    ["In now", "42", "text-slate-900"],
+    ["Paid", "118", "text-emerald-600"],
+    ["Unpaid", "6", "text-rose-600"],
+    ["Owing", "4", "text-amber-600"],
+  ];
+  const rows = [
+    ["#131", "07:42", "Sara M.", "Paid", "bg-emerald-50 text-emerald-700"],
+    ["#132", "07:45", "Omar A.", "Unpaid", "bg-rose-50 text-rose-700"],
+    ["#133", "07:51", "Ali K.", "Balance due", "bg-amber-50 text-amber-700"],
+  ];
+  return (
+    <Frame>
+      <div className="grid grid-cols-4 gap-1.5 text-center">
+        {counts.map(([l, v, c], i) => (
+          <div key={l} className="v-pop rounded-lg bg-white py-1.5 ring-1 ring-slate-200" style={stagger(i)}>
+            <p className={`font-display text-sm font-bold ${c}`}>{v}</p>
+            <p className="text-[9.5px] text-slate-500">{l}</p>
+          </div>
+        ))}
+      </div>
+      <ul className="mt-3 space-y-1.5 text-[11px]">
+        {rows.map(([n, t, name, s, c], i) => (
+          <li key={n} className="v-rise flex items-center gap-2 rounded-lg bg-white px-2.5 py-1.5 ring-1 ring-slate-200" style={stagger(4 + i)}>
+            <span className="font-mono text-[10px] text-slate-400">{n}</span>
+            <span className="font-mono text-[10px] text-slate-500">{t}</span>
+            <span className="flex-1 truncate font-semibold text-slate-800">{name}</span>
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${c}`}>{s}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="v-rise mt-2.5 flex items-center gap-1.5 text-[10px] text-slate-500" style={stagger(8)}>
+        <span className="a-blink h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" /> Live · refreshes every 15 seconds
+      </p>
+    </Frame>
+  );
+}
+
+function DailySalesPicture() {
+  const heads = [
+    ["New sign-ups", "20,000"],
+    ["Renewals", "45,000"],
+    ["Admission", "3,000"],
+    ["Trainer fees", "6,000"],
+    ["Dues collected", "7,500"],
+    ["Shop", "4,250"],
+  ];
+  const methods = [
+    ["Cash", 41250, "bg-emerald-500"],
+    ["Card", 18000, "bg-brand-500"],
+    ["JazzCash", 16500, "bg-rose-500"],
+    ["Easypaisa", 10000, "bg-lime-500"],
+  ] as const;
+  const total = 85750;
+  return (
+    <Frame>
+      <p className="v-rise text-[10px] font-semibold uppercase tracking-wider text-slate-400" style={stagger(0)}>
+        Daily sales · Tue 30 Sep · Rs
+      </p>
+      <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px]">
+        {heads.map(([l, v], i) => (
+          <p key={l} className="v-rise flex justify-between" style={stagger(1 + i, 0)}>
+            <span className="text-slate-500">{l}</span>
+            <span className="font-medium text-slate-900">{v}</span>
+          </p>
+        ))}
+      </div>
+      <p className="v-rise mt-2 flex justify-between border-t border-slate-200 pt-1.5 text-xs font-bold text-slate-900" style={stagger(7)}>
+        <span>Day total</span>
+        <span>Rs 85,750</span>
+      </p>
+      <div className="mt-2.5 flex h-2 overflow-hidden rounded-full" aria-hidden="true">
+        {methods.map(([l, v, c], i) => (
+          <span key={l} className={`v-fill h-full origin-left ${c}`} style={{ ...stagger(8 + i), width: `${(v / total) * 100}%` }} />
+        ))}
+      </div>
+      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-slate-600">
+        {methods.map(([l, v, c]) => (
+          <span key={l} className="inline-flex items-center gap-1">
+            <span className={`h-1.5 w-1.5 rounded-full ${c}`} /> {l} {v.toLocaleString("en-US")}
+          </span>
+        ))}
+      </div>
+    </Frame>
+  );
+}
+
+function AssetsPicture() {
+  const assets = [
+    ["Treadmill T5", "Service due in 4 days", "text-amber-600"],
+    ["Cable crossover", "Service overdue", "text-rose-600"],
+    ["Air conditioner", "Warranty ends 21 Oct", "text-sky-600"],
+  ];
+  return (
+    <Frame>
+      <div className="v-rise flex items-center justify-between" style={stagger(0)}>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Asset register</p>
+        <span className="relative inline-flex h-7 w-7 items-center justify-center rounded-full bg-white ring-1 ring-slate-200">
+          <FiBell className="h-3.5 w-3.5 text-slate-600" />
+          <span className="v-pop absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white" style={stagger(5)}>
+            3
+          </span>
+        </span>
+      </div>
+      <ul className="mt-2 space-y-1.5">
+        {assets.map(([n, s, c], i) => (
+          <li key={n} className="v-rise flex items-center gap-2.5 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200" style={stagger(1 + i)}>
+            <FiTool className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+            <div className="min-w-0 flex-1 text-[11px]">
+              <p className="font-semibold text-slate-800">{n}</p>
+              <p className={`font-medium ${c}`}>{s}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="v-rise mt-2.5 text-[10px] text-slate-500" style={stagger(6)}>
+        Bought 12 Mar 2025 · $3,400 · invoice INV-2291
+      </p>
+    </Frame>
+  );
+}
+
+function ReceiptsPicture() {
+  return (
+    <Frame className="flex h-full items-center justify-center gap-4">
+      <div className="v-rise w-[168px] bg-white px-3 pb-4 pt-3 font-mono text-[10px] text-slate-700 shadow-card ring-1 ring-slate-200 [clip-path:polygon(0_0,100%_0,100%_calc(100%-6px),92%_100%,84%_calc(100%-6px),76%_100%,68%_calc(100%-6px),60%_100%,52%_calc(100%-6px),44%_100%,36%_calc(100%-6px),28%_100%,20%_calc(100%-6px),12%_100%,4%_calc(100%-6px),0_100%)]" style={stagger(0)}>
+        <p className="text-center font-sans text-xs font-extrabold tracking-wider text-slate-900">IRON WORKS</p>
+        <p className="text-center text-[9px] text-slate-500">12 Foundry Lane · 0300 555 0100</p>
+        <p className="text-center text-[9px] text-slate-500">Tax no. 4471-22</p>
+        <div className="mt-2 space-y-0.5 border-t border-dashed border-slate-300 pt-1.5">
+          {[
+            ["Shake ×2", "12.00"],
+            ["Whey 1kg", "42.00"],
+            ["Locker Oct", "10.00"],
+          ].map(([a, b], i) => (
+            <p key={a} className="v-rise flex justify-between" style={stagger(1 + i)}>
+              <span>{a}</span>
+              <span>{b}</span>
+            </p>
+          ))}
+        </div>
+        <p className="v-rise mt-1.5 flex justify-between border-t border-dashed border-slate-300 pt-1.5 font-bold text-slate-900" style={stagger(5)}>
+          <span>TOTAL</span>
+          <span>60.00</span>
+        </p>
+        <p className="v-fade mt-2 text-center text-[9px] text-slate-500" style={stagger(7)}>
+          Thank you — see you tomorrow!
+        </p>
+      </div>
+      <div className="flex flex-col gap-1.5 text-[10px] font-semibold">
+        {["80 mm", "58 mm"].map((w, i) => (
+          <span key={w} className={`v-pop rounded-full px-2.5 py-1 ${i === 0 ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200"}`} style={stagger(8 + i)}>
+            {w}
+          </span>
+        ))}
+        <span className="v-pop inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-slate-600 ring-1 ring-slate-200" style={stagger(10)}>
+          <FiPrinter className="h-3 w-3" /> Print
+        </span>
+      </div>
+    </Frame>
+  );
+}
+
+function TrainerPayPicture() {
+  const trainers = [
+    ["MJ", "Coach Marcus", "Salary $1,200 + 20% a session", "Payslip", "from-amber-400 to-orange-500"],
+    ["LN", "Coach Lina", "Commission only · $15 a session", "Pay by hand", "from-sky-400 to-indigo-500"],
+  ];
+  return (
+    <Frame>
+      <ul className="space-y-2">
+        {trainers.map(([ini, n, terms, paid, g], i) => (
+          <li key={n} className="v-rise flex items-center gap-2.5 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200" style={stagger(i * 2)}>
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${g} text-[10px] font-bold text-white`}>{ini}</span>
+            <div className="min-w-0 flex-1 text-[11px]">
+              <p className="font-semibold text-slate-900">{n}</p>
+              <p className="truncate text-slate-500">{terms}</p>
+            </div>
+            <span className="v-pop rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600" style={stagger(i * 2 + 1)}>
+              {paid}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div className="v-rise mt-3 flex items-center justify-between rounded-lg bg-orange-50 px-3 py-2 text-[11px] ring-1 ring-orange-100" style={stagger(5)}>
+        <span className="flex items-center gap-1.5 text-orange-800">
+          <FiPercent className="h-3.5 w-3.5" /> 17 sessions this month
+        </span>
+        <span className="font-semibold text-orange-900">$340 commission</span>
+      </div>
+    </Frame>
+  );
+}
+
+function BackupsPicture() {
+  const stored = [
+    ["Tonight 02:00", "Daily"],
+    ["Yesterday 02:00", "Daily"],
+    ["Mon 16:20", "Back up now"],
+  ];
+  return (
+    <Frame>
+      <ul className="space-y-1.5">
+        {stored.map(([when, kind], i) => (
+          <li key={when} className="v-rise flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-[11px] ring-1 ring-slate-200" style={stagger(i)}>
+            <FiLock className="h-3 w-3 shrink-0 text-emerald-600" />
+            <span className="font-semibold text-slate-800">{when}</span>
+            <span className="text-slate-400">{kind}</span>
+            <span className="ml-auto text-[10px] font-semibold text-brand-600">Download</span>
+          </li>
+        ))}
+      </ul>
+      <p className="v-rise mt-2 text-[10px] text-slate-500" style={stagger(3)}>
+        Encrypted · the newest 7 kept
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-1 text-[10px] font-semibold">
+        {["Preview", "Confirm", "Safety copy", "Restore"].map((s, i) => (
+          <span key={s} className="flex items-center gap-1">
+            <span className={`v-pop rounded-full px-2 py-0.5 ${i === 2 ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200"}`} style={stagger(4 + i)}>
+              {s}
+            </span>
+            {i < 3 && <span className="text-slate-300">→</span>}
+          </span>
+        ))}
+      </div>
+    </Frame>
+  );
+}
+
 /** Keyed by the feature key in content/features.ts. */
-export const FEATURE_PICTURES: Record<string, React.ComponentType> = {
+export const FEATURE_PICTURES: Record<FeatureKey, React.ComponentType> = {
+  members: MembersPicture,
+  desksale: DeskSalePicture,
+  dues: DuesPicture,
+  renewals: RenewalsPicture,
+  logins: LoginsPicture,
+  import: ImportPicture,
+  frontdesk: FrontDeskPicture,
+  alerts: AlertsPicture,
+  attendance: AttendancePicture,
   billing: BillingPicture,
   offers: OffersPicture,
+  reports: ReportsPicture,
+  dailysales: DailySalesPicture,
+  books: BooksPicture,
+  assets: AssetsPicture,
+  pos: PosPicture,
+  receipts: ReceiptsPicture,
   booking: BookingPicture,
   pt: PtPicture,
-  frontdesk: FrontDeskPicture,
-  messaging: MessagingPicture,
-  pos: PosPicture,
   staff: StaffPicture,
-  members: MembersPicture,
-  leads: LeadsPicture,
-  reports: ReportsPicture,
-  books: BooksPicture,
-  security: SecurityPicture,
-  setup: SetupPicture,
+  trainerpay: TrainerPayPicture,
   website: WebsitePicture,
+  content: ContentPicture,
   app: AppPicture,
   selfservice: SelfServicePicture,
-  content: ContentPicture,
+  messaging: MessagingPicture,
+  leads: LeadsPicture,
+  setup: SetupPicture,
+  security: SecurityPicture,
   data: DataPicture,
+  backups: BackupsPicture,
 };
 
-/** The icon and its tint for each feature, shared by both places it appears. */
-export const FEATURE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+/** The icon and its tint for each feature, shared by every place it appears. */
+export const FEATURE_ICONS: Record<FeatureKey, React.ComponentType<{ className?: string }>> = {
+  members: FiUserCheck,
+  desksale: FiClipboard,
+  dues: FiDollarSign,
+  renewals: FiRefreshCw,
+  logins: FiKey,
+  import: FiUploadCloud,
+  frontdesk: FiZap,
+  alerts: FiVolume2,
+  attendance: FiActivity,
   billing: FiCreditCard,
   offers: FiTag,
+  reports: FiBarChart2,
+  dailysales: FiFileText,
+  books: FiBookOpen,
+  assets: FiTool,
+  pos: FiShoppingBag,
+  receipts: FiPrinter,
   booking: FiCalendar,
   pt: FiTarget,
-  frontdesk: FiZap,
-  messaging: FiMessageCircle,
-  pos: FiShoppingBag,
   staff: FiUsers,
-  members: FiUserCheck,
-  leads: FiUserPlus,
-  reports: FiBarChart2,
-  books: FiBookOpen,
-  security: FiShield,
-  setup: FiSliders,
+  trainerpay: FiPercent,
   website: FiGlobe,
+  content: FiEdit3,
   app: FiSmartphone,
   selfservice: FiUser,
-  content: FiEdit3,
+  messaging: FiMessageCircle,
+  leads: FiUserPlus,
+  setup: FiSliders,
+  security: FiShield,
   data: FiDatabase,
+  backups: FiHardDrive,
 };
 
-export const FEATURE_TINTS: Record<string, string> = {
+export const FEATURE_TINTS: Record<FeatureKey, string> = {
+  members: "bg-teal-50 text-teal-600 ring-teal-100",
+  desksale: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+  dues: "bg-amber-50 text-amber-700 ring-amber-100",
+  renewals: "bg-violet-50 text-violet-600 ring-violet-100",
+  logins: "bg-slate-100 text-slate-700 ring-slate-200",
+  import: "bg-cyan-50 text-cyan-700 ring-cyan-100",
+  frontdesk: "bg-sky-50 text-sky-600 ring-sky-100",
+  alerts: "bg-rose-50 text-rose-600 ring-rose-100",
+  attendance: "bg-green-50 text-green-700 ring-green-100",
   billing: "bg-emerald-50 text-emerald-600 ring-emerald-100",
   offers: "bg-orange-50 text-orange-600 ring-orange-100",
+  reports: "bg-cyan-50 text-cyan-600 ring-cyan-100",
+  dailysales: "bg-blue-50 text-blue-600 ring-blue-100",
+  books: "bg-lime-50 text-lime-700 ring-lime-100",
+  assets: "bg-stone-100 text-stone-700 ring-stone-200",
+  pos: "bg-rose-50 text-rose-600 ring-rose-100",
+  receipts: "bg-zinc-100 text-zinc-800 ring-zinc-200",
   booking: "bg-brand-50 text-brand-600 ring-brand-100",
   pt: "bg-amber-50 text-amber-600 ring-amber-100",
-  frontdesk: "bg-sky-50 text-sky-600 ring-sky-100",
-  messaging: "bg-fuchsia-50 text-fuchsia-600 ring-fuchsia-100",
-  pos: "bg-rose-50 text-rose-600 ring-rose-100",
   staff: "bg-violet-50 text-violet-600 ring-violet-100",
-  members: "bg-teal-50 text-teal-600 ring-teal-100",
-  leads: "bg-orange-50 text-orange-600 ring-orange-100",
-  reports: "bg-cyan-50 text-cyan-600 ring-cyan-100",
-  books: "bg-lime-50 text-lime-700 ring-lime-100",
-  security: "bg-slate-900 text-emerald-300 ring-slate-700",
-  setup: "bg-purple-50 text-purple-600 ring-purple-100",
+  trainerpay: "bg-orange-50 text-orange-600 ring-orange-100",
   website: "bg-indigo-50 text-indigo-600 ring-indigo-100",
+  content: "bg-pink-50 text-pink-600 ring-pink-100",
   app: "bg-blue-50 text-blue-600 ring-blue-100",
   selfservice: "bg-yellow-50 text-yellow-700 ring-yellow-100",
-  content: "bg-pink-50 text-pink-600 ring-pink-100",
+  messaging: "bg-fuchsia-50 text-fuchsia-600 ring-fuchsia-100",
+  leads: "bg-orange-50 text-orange-600 ring-orange-100",
+  setup: "bg-purple-50 text-purple-600 ring-purple-100",
+  security: "bg-slate-900 text-emerald-300 ring-slate-700",
   data: "bg-slate-100 text-slate-700 ring-slate-200",
+  backups: "bg-slate-900 text-sky-300 ring-slate-700",
 };

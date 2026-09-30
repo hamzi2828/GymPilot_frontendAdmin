@@ -15,12 +15,11 @@ import Glow from "@/components/marketing/Glow";
 
 export const metadata: Metadata = {
   title: "Features",
-  description:
-    "All 18 features in GymPilot, in plain English: memberships and billing, discount codes, class booking, personal training, front desk, shop, staff, messaging, your own website and member app, reports, the books, security and a private database per gym.",
+  description: `All ${FEATURES.length} features in GymPilot, in plain English: desk sign-up, part payments and dues, check-in with spoken fee alerts, online payments, daily sales and profit and loss, the shop with thermal receipts, class booking, personal training, staff and trainer pay, messaging, your own website and member app, and nightly encrypted backups.`,
   alternates: { canonical: "/features" },
 };
 
-// The running number down the page (01 … 18), independent of the groups.
+// The running number down the page (01, 02 …), independent of the groups.
 const NUMBER_OF = new Map(FEATURES.map((f, i) => [f.key, i + 1]));
 
 export default function FeaturesPage() {

@@ -3,7 +3,7 @@ import { stagger } from "@/lib/motion";
 import { FEATURE_ICONS, FEATURE_TINTS } from "./FeaturePictures";
 import Reveal from "./Reveal";
 
-// All eighteen on one screen, before the long read starts. A buyer who wants
+// All of them on one screen, before the long read starts. A buyer who wants
 // one thing (do you do lockers?) can find it in a second and jump straight to
 // it; everyone else gets a sense of the size of the thing.
 export default function FeatureIndex() {

@@ -4,7 +4,7 @@ import { stagger } from "@/lib/motion";
 import { FEATURE_ICONS, FEATURE_PICTURES, FEATURE_TINTS } from "./FeaturePictures";
 import Reveal from "./Reveal";
 
-// One feature, told properly: what it is, one line of plain detail, what you
+// One feature, told properly: what it is, its first paragraph, what you
 // get, and the screens it actually lives on. Sides alternate down the page so
 // the eye keeps moving, and each side slides in from its own edge.
 export default function FeatureFull({ feature, index, number }: { feature: Feature; index: number; number: number }) {
@@ -31,7 +31,7 @@ export default function FeatureFull({ feature, index, number }: { feature: Featu
             {feature.text}
           </p>
           <p className="v-rise mt-2 text-[15px] leading-relaxed text-slate-600" style={stagger(3)}>
-            {feature.detail}
+            {feature.body[0]}
           </p>
 
           <ul className="mt-5 grid gap-2 sm:grid-cols-2">
