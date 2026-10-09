@@ -59,6 +59,7 @@ function GymDetail() {
   const [addonSlugs, setAddonSlugs] = useState<string[]>([]);
   const [resetOpen, setResetOpen] = useState(false);
   const [reset, setReset] = useState({ email: "", password: "" });
+  const [suspendOpen, setSuspendOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [confirmSlug, setConfirmSlug] = useState("");
   const [dropDatabase, setDropDatabase] = useState(false);
@@ -209,6 +210,28 @@ function GymDetail() {
   if (error && !gym) return <Alert tone="error">{error}</Alert>;
   if (!gym) return <Spinner />;
 
+  const paysByCard = !!gym.subscription.stripeSubscriptionId;
+  // Suspending and reactivating. The API pauses the gym's card subscription
+  // in Stripe with it; when Stripe refuses, the switch still happens and the
+  // warning says what is left to do by hand.
+  const setGymStatus = async (status: "active" | "suspended") => {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const res = await platformFetch<{ warnings?: string[] }>(`/gyms/${id}/status`, { method: "PATCH", body: { status } });
+      await load();
+      if (res.warnings?.length) setError(res.warnings.join(" "));
+      else if (status === "suspended") setNotice(paysByCard ? "Gym suspended. Its card is not charged while it is suspended." : "Gym suspended.");
+      else setNotice(paysByCard ? "Gym reactivated. Its card is charged again from its next billing date." : "Gym reactivated.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Request failed");
+    } finally {
+      setBusy(false);
+      setSuspendOpen(false);
+    }
+  };
+
   const stats = gym.stats || {};
   const cardSubscriptions = stats.card_subscriptions || 0;
   const membersStillPaying = cardSubscriptions > 0 || membersRefused;
@@ -244,11 +267,11 @@ function GymDetail() {
               </Button>
             )}
             {gym.status === "suspended" ? (
-              <Button disabled={busy} onClick={() => run("Gym reactivated", () => platformFetch(`/gyms/${id}/status`, { method: "PATCH", body: { status: "active" } }))}>
+              <Button disabled={busy} onClick={() => setGymStatus("active")}>
                 Reactivate
               </Button>
             ) : (
-              <Button variant="danger" disabled={busy} onClick={() => run("Gym suspended", () => platformFetch(`/gyms/${id}/status`, { method: "PATCH", body: { status: "suspended" } }))}>
+              <Button variant="danger" disabled={busy} onClick={() => setSuspendOpen(true)}>
                 Suspend
               </Button>
             )}
@@ -747,12 +770,31 @@ function GymDetail() {
         </div>
       </Modal>
 
+      <Modal open={suspendOpen} onClose={() => setSuspendOpen(false)} title={`Suspend ${gym.name}?`} size="sm">
+        <p className="text-sm text-slate-700">
+          Its website, admin and member app go offline straight away, for the owner, staff and members alike. Nothing is deleted, and you can switch it back on at any time.
+        </p>
+        <p className="mt-2 text-sm text-slate-700">
+          {paysByCard
+            ? "Its card subscription is paused in Stripe, so the owner is not charged while the gym is suspended. Reactivating starts the charges again from its next billing date."
+            : "This gym does not pay by card, so nothing changes in Stripe. Its paid-until date does not move: time spent suspended still counts."}
+        </p>
+        <div className="mt-6 flex justify-end gap-2">
+          <Button variant="secondary" onClick={() => setSuspendOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" disabled={busy} onClick={() => setGymStatus("suspended")}>
+            Suspend gym
+          </Button>
+        </div>
+      </Modal>
+
       <Modal open={deleteOpen} onClose={closeDelete} title={`Delete ${gym.name}`} size="sm">
         <p className="text-sm text-slate-700">
           This takes {gym.name} off GymPilot. Its website, admin and member app stop working straight away.
         </p>
         <p className="mt-2 text-sm text-slate-700">
-          {gym.subscription.stripeSubscriptionId
+          {paysByCard
             ? "Its card subscription is cancelled in Stripe first, so the owner is not charged again. Nothing is refunded automatically."
             : "This gym does not pay by card, so there is no card subscription to cancel."}
         </p>
