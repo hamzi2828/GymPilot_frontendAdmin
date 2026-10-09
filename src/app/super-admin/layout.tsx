@@ -85,7 +85,10 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
     );
   }
 
-  const signOut = () => {
+  // Ends the session on the server as well, so a copy of the token stops
+  // working. If the API cannot be reached, this browser is signed out anyway.
+  const signOut = async () => {
+    await platformFetch("/auth/logout", { method: "POST" }).catch(() => {});
     clearPlatformToken();
     router.replace("/login");
   };

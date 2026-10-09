@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { FiShield, FiKey } from "react-icons/fi";
 import { PageHeader, Panel, Button, Field, Input, Alert, Avatar, Pill, formatLastLogin } from "../_shared/ui";
-import { platformFetch, type PlatformAdmin } from "../_shared/api";
+import { platformFetch, setPlatformToken, type PlatformAdmin } from "../_shared/api";
 
 export default function SuperAdminAccountPage() {
   const [admin, setAdmin] = useState<PlatformAdmin | null>(null);
@@ -78,7 +78,7 @@ export default function SuperAdminAccountPage() {
               <FiKey className="h-4 w-4 text-indigo-600" /> Change password
             </span>
           }
-          description="At least 10 characters. Changing it does not sign out other sessions."
+          description="At least 10 characters. Changing it signs you out everywhere else you are signed in."
         >
           <div className="space-y-4">
             <Field label="Current password">
@@ -92,10 +92,12 @@ export default function SuperAdminAccountPage() {
                 disabled={busy === "pw" || next.length < 10 || !current}
                 onClick={() =>
                   run("pw", async () => {
-                    await platformFetch("/auth/password", { method: "PUT", body: { currentPassword: current, newPassword: next } });
+                    // The old token ended with the old password; the answer carries this session's new one.
+                    const r = await platformFetch<{ token?: string }>("/auth/password", { method: "PUT", body: { currentPassword: current, newPassword: next } });
+                    if (r.token) setPlatformToken(r.token);
                     setCurrent("");
                     setNext("");
-                    return "Password updated.";
+                    return "Password updated. You have been signed out everywhere else.";
                   })
                 }
               >
