@@ -67,11 +67,18 @@ function GymDetail() {
   // deleted; the admin may say they have cancelled it by hand.
   const [stripeRefused, setStripeRefused] = useState(false);
   const [cancelledByHand, setCancelledByHand] = useState(false);
+  // Members who pay the gym by card keep being charged after it is gone;
+  // the admin has to say they know. `membersRefused`: the API found some
+  // this page had not counted yet.
+  const [membersRefused, setMembersRefused] = useState(false);
+  const [membersAcknowledged, setMembersAcknowledged] = useState(false);
   const closeDelete = useCallback(() => {
     setDeleteOpen(false);
     setDeleteError(null);
     setStripeRefused(false);
     setCancelledByHand(false);
+    setMembersRefused(false);
+    setMembersAcknowledged(false);
   }, []);
 
   const hydrate = useCallback((g: Detail) => {
@@ -203,6 +210,8 @@ function GymDetail() {
   if (!gym) return <Spinner />;
 
   const stats = gym.stats || {};
+  const cardSubscriptions = stats.card_subscriptions || 0;
+  const membersStillPaying = cardSubscriptions > 0 || membersRefused;
   // Primary domain, else the platform subdomain, else the API's fallback --
   // computed by the API so it matches the links in the gym's emails.
   const siteUrl = gym.siteUrl || (gym.domains[0]?.host ? `https://${gym.domains[0].host}` : "");
@@ -747,6 +756,13 @@ function GymDetail() {
             ? "Its card subscription is cancelled in Stripe first, so the owner is not charged again. Nothing is refunded automatically."
             : "This gym does not pay by card, so there is no card subscription to cancel."}
         </p>
+        {cardSubscriptions > 0 && (
+          <div className="mt-4">
+            <Alert tone="warning">
+              {cardSubscriptions === 1 ? "1 member pays" : `${cardSubscriptions} members pay`} this gym by card on a subscription. Deleting the gym does not stop those charges. Ask the owner to cancel them first, in the gym&apos;s admin or its Stripe dashboard.
+            </Alert>
+          </div>
+        )}
         {deleteError && (
           <div className="mt-4">
             <Alert tone="error">{deleteError}</Alert>
@@ -759,9 +775,15 @@ function GymDetail() {
           <label className="flex items-start gap-2 text-sm text-rose-700">
             <input type="checkbox" checked={dropDatabase} onChange={(e) => setDropDatabase(e.target.checked)} className="mt-0.5 h-4 w-4 accent-rose-600" />
             <span>
-              Also drop the database <span className="font-mono text-xs">{gym.database.name}</span> (irreversible)
+              Also drop the database <span className="font-mono text-xs">{gym.database.name}</span> and delete the gym&apos;s uploaded files: ID scans, documents, payment proofs (irreversible)
             </span>
           </label>
+          {membersStillPaying && (
+            <label className="flex items-start gap-2 text-sm text-slate-700">
+              <input type="checkbox" checked={membersAcknowledged} onChange={(e) => setMembersAcknowledged(e.target.checked)} className="mt-0.5 h-4 w-4 accent-rose-600" />
+              <span>I understand members&apos; card subscriptions with this gym are not cancelled by deleting it</span>
+            </label>
+          )}
           {/* Offered only once Stripe has refused to cancel the subscription. */}
           {stripeRefused && (
             <label className="flex items-start gap-2 text-sm text-slate-700">
@@ -778,17 +800,18 @@ function GymDetail() {
           </Button>
           <Button
             variant="danger"
-            disabled={busy || confirmSlug !== gym.slug || (stripeRefused && !cancelledByHand)}
+            disabled={busy || confirmSlug !== gym.slug || (stripeRefused && !cancelledByHand) || (membersStillPaying && !membersAcknowledged)}
             onClick={async () => {
               setBusy(true);
               setDeleteError(null);
               try {
-                await platformFetch(`/gyms/${id}`, { method: "DELETE", body: { confirmSlug, dropDatabase, subscriptionCancelled: stripeRefused && cancelledByHand } });
+                await platformFetch(`/gyms/${id}`, { method: "DELETE", body: { confirmSlug, dropDatabase, subscriptionCancelled: stripeRefused && cancelledByHand, memberSubscriptionsAcknowledged: membersStillPaying && membersAcknowledged } });
                 router.replace("/super-admin/gyms");
               } catch (e) {
                 // Nothing was deleted. The reason stays in front of the admin,
                 // with the way on when it is Stripe that said no.
                 if (e instanceof PlatformApiError && e.code === "SUBSCRIPTION_NOT_CANCELLED") setStripeRefused(true);
+                if (e instanceof PlatformApiError && e.code === "MEMBER_SUBSCRIPTIONS_ACTIVE") setMembersRefused(true);
                 setDeleteError(e instanceof Error ? e.message : "Could not delete the gym");
                 setBusy(false);
               }

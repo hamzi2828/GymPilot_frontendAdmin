@@ -138,6 +138,8 @@ export interface GymStats {
   trainers?: number;
   classes?: number;
   active_memberships?: number;
+  /** Members on a card subscription in the gym's own Stripe account that will charge again. */
+  card_subscriptions?: number;
   pending_orders?: number;
   revenue_this_month?: { currency: string; total: number; orders: number }[];
   last_visit_at?: string | null;
