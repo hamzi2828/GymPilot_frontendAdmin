@@ -7,7 +7,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FiAlertTriangle, FiCalendar, FiCreditCard, FiExternalLink, FiGlobe, FiLayers, FiMail, FiShield, FiUsers } from "react-icons/fi";
 import { PageHeader, Crumbs, Panel, StatCard, KeyValue, Button, Field, Input, Select, Textarea, Modal, Spinner, Alert, Pill, StatusPill, Avatar } from "../../_shared/ui";
-import { platformFetch, formatDate, formatMoney, SUBSCRIPTION_STATUSES, BILLING_CYCLES, type Addon, type DomainStatus, type Gym, type GymStats, type Plan } from "../../_shared/api";
+import { platformFetch, PlatformApiError, formatDate, formatMoney, SUBSCRIPTION_STATUSES, BILLING_CYCLES, type Addon, type DomainStatus, type Gym, type GymStats, type Plan } from "../../_shared/api";
 
 type Detail = Gym & { plan: Plan | null; stats: GymStats };
 type Admin = { id: string; name: string; email: string; is_active: boolean; last_login: string | null };
@@ -62,6 +62,17 @@ function GymDetail() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [confirmSlug, setConfirmSlug] = useState("");
   const [dropDatabase, setDropDatabase] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  // Stripe would not cancel the gym's card subscription, so nothing was
+  // deleted; the admin may say they have cancelled it by hand.
+  const [stripeRefused, setStripeRefused] = useState(false);
+  const [cancelledByHand, setCancelledByHand] = useState(false);
+  const closeDelete = useCallback(() => {
+    setDeleteOpen(false);
+    setDeleteError(null);
+    setStripeRefused(false);
+    setCancelledByHand(false);
+  }, []);
 
   const hydrate = useCallback((g: Detail) => {
     setGym(g);
@@ -727,12 +738,22 @@ function GymDetail() {
         </div>
       </Modal>
 
-      <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)} title={`Delete ${gym.name}`} size="sm">
+      <Modal open={deleteOpen} onClose={closeDelete} title={`Delete ${gym.name}`} size="sm">
         <p className="text-sm text-slate-700">
-          Type <span className="font-mono font-semibold">{gym.slug}</span> to confirm.
+          This takes {gym.name} off GymPilot. Its website, admin and member app stop working straight away.
         </p>
+        <p className="mt-2 text-sm text-slate-700">
+          {gym.subscription.stripeSubscriptionId
+            ? "Its card subscription is cancelled in Stripe first, so the owner is not charged again. Nothing is refunded automatically."
+            : "This gym does not pay by card, so there is no card subscription to cancel."}
+        </p>
+        {deleteError && (
+          <div className="mt-4">
+            <Alert tone="error">{deleteError}</Alert>
+          </div>
+        )}
         <div className="mt-4 space-y-4">
-          <Field label="Slug">
+          <Field label={`Type ${gym.slug} to confirm`}>
             <Input value={confirmSlug} onChange={(e) => setConfirmSlug(e.target.value)} className="font-mono" />
           </Field>
           <label className="flex items-start gap-2 text-sm text-rose-700">
@@ -741,23 +762,35 @@ function GymDetail() {
               Also drop the database <span className="font-mono text-xs">{gym.database.name}</span> (irreversible)
             </span>
           </label>
+          {/* Offered only once Stripe has refused to cancel the subscription. */}
+          {stripeRefused && (
+            <label className="flex items-start gap-2 text-sm text-slate-700">
+              <input type="checkbox" checked={cancelledByHand} onChange={(e) => setCancelledByHand(e.target.checked)} className="mt-0.5 h-4 w-4 accent-rose-600" />
+              <span>
+                I have cancelled <span className="font-mono text-xs">{gym.subscription.stripeSubscriptionId}</span> in Stripe myself
+              </span>
+            </label>
+          )}
         </div>
         <div className="mt-6 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setDeleteOpen(false)}>
+          <Button variant="secondary" onClick={closeDelete}>
             Cancel
           </Button>
           <Button
             variant="danger"
-            disabled={busy || confirmSlug !== gym.slug}
+            disabled={busy || confirmSlug !== gym.slug || (stripeRefused && !cancelledByHand)}
             onClick={async () => {
               setBusy(true);
+              setDeleteError(null);
               try {
-                await platformFetch(`/gyms/${id}`, { method: "DELETE", body: { confirmSlug, dropDatabase } });
+                await platformFetch(`/gyms/${id}`, { method: "DELETE", body: { confirmSlug, dropDatabase, subscriptionCancelled: stripeRefused && cancelledByHand } });
                 router.replace("/super-admin/gyms");
               } catch (e) {
-                setError(e instanceof Error ? e.message : "Could not delete the gym");
+                // Nothing was deleted. The reason stays in front of the admin,
+                // with the way on when it is Stripe that said no.
+                if (e instanceof PlatformApiError && e.code === "SUBSCRIPTION_NOT_CANCELLED") setStripeRefused(true);
+                setDeleteError(e instanceof Error ? e.message : "Could not delete the gym");
                 setBusy(false);
-                setDeleteOpen(false);
               }
             }}
           >
