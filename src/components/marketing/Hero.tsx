@@ -1,3 +1,4 @@
+import { FaWhatsapp } from "react-icons/fa";
 import { FiArrowRight, FiCheck, FiPlay } from "react-icons/fi";
 import { HERO, SITE } from "@/content/site";
 import { stagger } from "@/lib/motion";
@@ -43,6 +44,15 @@ export default function Hero() {
               <FiPlay className="h-4 w-4 text-brand-300" /> {HERO.secondary.label}
             </a>
           </div>
+
+          {SITE.whatsappUrl && (
+            <p className="a-rise mt-4 text-sm text-slate-400" style={stagger(5)}>
+              Prefer to chat?{" "}
+              <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold text-emerald-300 underline-offset-4 hover:underline">
+                <FaWhatsapp className="h-4 w-4" aria-hidden="true" /> Message us on WhatsApp
+              </a>
+            </p>
+          )}
 
           <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-400">
             {HERO.trust.map((t, i) => (

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { FiMail, FiPhone } from "react-icons/fi";
 import Brand from "./Brand";
+import ContactLinks from "./ContactLinks";
 import { FOOTER, LEGAL, SITE } from "@/content/site";
 
 export default function SiteFooter() {
@@ -11,20 +11,9 @@ export default function SiteFooter() {
           <div>
             <Brand />
             <p className="mt-4 max-w-sm text-sm leading-relaxed">{FOOTER.blurb}</p>
-            {(SITE.contactEmail || SITE.contactPhone) && (
-              <div className="mt-5 flex flex-col gap-1.5 text-sm">
-                {SITE.contactEmail && (
-                  <a href={`mailto:${SITE.contactEmail}`} className="inline-flex items-center gap-2 hover:text-white">
-                    <FiMail className="h-4 w-4" /> {SITE.contactEmail}
-                  </a>
-                )}
-                {SITE.contactPhone && (
-                  <a href={`tel:${SITE.contactPhone}`} className="inline-flex items-center gap-2 hover:text-white">
-                    <FiPhone className="h-4 w-4" /> {SITE.contactPhone}
-                  </a>
-                )}
-              </div>
-            )}
+            {/* WhatsApp, email and phone when set. The contact form, which is
+                always there, is in the "For gyms" column. */}
+            <ContactLinks form={false} className="mt-5" />
           </div>
           {FOOTER.columns.map((col) => (
             <div key={col.title}>

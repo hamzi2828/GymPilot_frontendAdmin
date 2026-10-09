@@ -8,6 +8,10 @@ import type { FeatureKey } from "./features";
 /** A line of copy that can lead to a feature's own page. */
 export type Linked = string | { text: string; feature: FeatureKey };
 
+// The WhatsApp number people message us on, digits only, country code first
+// (923001234567): the form wa.me links need.
+const WHATSAPP = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "").replace(/[^\d]/g, "").replace(/^0+/, "");
+
 export const SITE = {
   name: "GymPilot",
   tagline: "Run your whole gym from one place",
@@ -16,7 +20,9 @@ export const SITE = {
   url: (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001").replace(/\/+$/, ""),
   contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
   contactPhone: process.env.NEXT_PUBLIC_CONTACT_PHONE || "",
-  whatsapp: (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "").replace(/[^\d]/g, ""),
+  whatsapp: WHATSAPP,
+  /** Opens a WhatsApp chat with us, the first message started. Empty when no number is set. */
+  whatsappUrl: WHATSAPP ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Hi GymPilot, I would like to know more for my gym.")}` : "",
   demoGymUrl: process.env.NEXT_PUBLIC_DEMO_GYM_URL || "",
   heroPills: ["Memberships & billing", "Class booking", "Personal training", "Your own domain"],
 };
@@ -257,6 +263,16 @@ export const DEMO_FORM = {
   sizes: ["Under 100 members", "100 – 500 members", "500 – 2,000 members", "2,000+ members"],
 };
 
+// The contact page (/contact): the same form, asked as a question. It is the
+// way to reach us that always works, whatever else is or is not set.
+export const CONTACT = {
+  eyebrow: "Contact us",
+  title: "Talk to us",
+  text: "Ask a question, book a demo or get help with a sign-up. Fill in the form and we reply by email or phone.",
+  whatsapp: "Message us on WhatsApp",
+  existing: "Already a customer? Sign in at your gym's own web address, not here. It is in your welcome email.",
+};
+
 export const FOOTER = {
   blurb: "Gym management software with a private database, your own domain and every feature included.",
   columns: [
@@ -266,6 +282,7 @@ export const FOOTER = {
       links: [
         { label: "All features", href: "/features" },
         { label: "Book a demo", href: "#demo" },
+        { label: "Contact us", href: "/contact" },
         { label: "Pricing", href: "#pricing" },
         { label: "Member app", href: "/features/member-app" },
       ],

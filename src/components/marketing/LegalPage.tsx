@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { FiArrowRight, FiMail } from "react-icons/fi";
+import { FiMail } from "react-icons/fi";
 import { LEGAL_DOCS, type LegalDoc } from "@/content/legal";
 import { LEGAL, SITE } from "@/content/site";
 import { stagger } from "@/lib/motion";
 import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 import Glow from "./Glow";
+import ContactLinks from "./ContactLinks";
 
 /** Title, description and canonical for a legal page, from its document. */
 export function legalMetadata(doc: LegalDoc): Metadata {
@@ -110,16 +111,13 @@ export default function LegalPage({ doc }: { doc: LegalDoc }) {
               <div className="mt-3 space-y-3 text-base leading-relaxed text-slate-700">
                 <p>Questions about this page? Ask us. We answer in plain words.</p>
                 {seller.length > 0 && <p>{seller.join(", ")}</p>}
-                <div className="flex flex-col gap-2 text-sm font-semibold sm:flex-row sm:flex-wrap sm:gap-x-6">
-                  {LEGAL.email && (
-                    <a href={`mailto:${LEGAL.email}`} className="inline-flex items-center gap-2 text-brand-700 hover:text-brand-800">
-                      <FiMail className="h-4 w-4" /> {LEGAL.email}
-                    </a>
-                  )}
-                  <Link href="/#demo" className="group inline-flex items-center gap-1.5 text-brand-700 hover:text-brand-800">
-                    Send us a message <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                </div>
+                {/* A legal address of its own is shown when it differs from the everyday one. */}
+                {LEGAL.email && LEGAL.email !== SITE.contactEmail && (
+                  <a href={`mailto:${LEGAL.email}`} className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900">
+                    <FiMail className="h-4 w-4" /> {LEGAL.email}
+                  </a>
+                )}
+                <ContactLinks tone="light" />
               </div>
             </section>
 

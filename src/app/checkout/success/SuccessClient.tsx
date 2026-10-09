@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FiAlertTriangle, FiArrowRight, FiCheckCircle, FiExternalLink, FiMail } from "react-icons/fi";
+import ContactLinks from "@/components/marketing/ContactLinks";
 import { ApiError, CHECKOUT_DRAFT_KEY, publicFetch, type SignupStatus } from "@/lib/api";
 import { SITE } from "@/content/site";
 import { stagger } from "@/lib/motion";
@@ -127,10 +128,13 @@ export default function SuccessClient() {
         </p>
 
         {working && slow && (
-          <p className="mt-3 text-sm text-slate-400">
-            This is taking longer than usual. You can close this page — there is no need to pay again, and the email with your sign-in link
-            arrives the moment your gym is ready.
-          </p>
+          <>
+            <p className="mt-3 text-sm text-slate-400">
+              This is taking longer than usual. You can close this page — there is no need to pay again, and the email with your sign-in link
+              arrives the moment your gym is ready.
+            </p>
+            <ContactLinks layout="row" className="mt-5" />
+          </>
         )}
 
         {ready && (
@@ -168,15 +172,9 @@ export default function SuccessClient() {
 
         {trouble && (
           <div className="mt-8 flex flex-col items-center gap-3">
-            {SITE.contactEmail && (
-              <p className="text-sm text-slate-400">
-                Questions? Email{" "}
-                <a href={`mailto:${SITE.contactEmail}`} className="font-semibold text-white underline underline-offset-2">
-                  {SITE.contactEmail}
-                </a>
-                .
-              </p>
-            )}
+            {/* Something went wrong after they paid: never leave them with nobody to ask. */}
+            <p className="text-sm text-slate-400">Tell us and we will sort it out.</p>
+            <ContactLinks layout="row" />
             <Link href="/" className="inline-flex h-12 items-center gap-2 rounded-full px-5 text-sm font-semibold text-slate-300 hover:text-white">
               Back to {SITE.name} <FiArrowRight className="h-4 w-4" />
             </Link>

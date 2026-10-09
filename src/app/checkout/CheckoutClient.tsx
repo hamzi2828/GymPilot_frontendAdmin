@@ -30,6 +30,7 @@ import { stagger } from "@/lib/motion";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import Brand from "@/components/marketing/Brand";
 import Glow from "@/components/marketing/Glow";
+import ContactLinks from "@/components/marketing/ContactLinks";
 
 type Cycle = "monthly" | "yearly";
 
@@ -320,6 +321,8 @@ export default function CheckoutClient() {
           >
             Back to the website <FiArrowRight className="h-4 w-4" />
           </Link>
+          <p className="mt-10 text-sm text-slate-400">Questions in the meantime?</p>
+          <ContactLinks layout="row" className="mt-3" />
         </div>
       </main>
     );
@@ -372,6 +375,8 @@ export default function CheckoutClient() {
               >
                 Try again
               </button>
+              <p className="mt-6 text-sm text-slate-500">Still not loading? Reach us another way.</p>
+              <ContactLinks tone="light" layout="row" className="mt-3" />
             </div>
           ) : !plans ? (
             <div className="mt-10 h-64 animate-pulse rounded-3xl border border-slate-200 bg-white" />
@@ -530,6 +535,11 @@ export default function CheckoutClient() {
                       : `Next, add a card on Stripe's secure page. You pay ${formatMoney(total, currency)} today, then every ${per} until you cancel.`}
                   </span>
                 </p>
+
+                <div className="mt-6 border-t border-slate-100 pt-5 text-center">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Stuck, or have a question?</p>
+                  <ContactLinks tone="light" layout="row" className="mt-3" />
+                </div>
               </div>
 
               {/* ----------------------------- summary --------------------------- */}
