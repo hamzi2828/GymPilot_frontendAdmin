@@ -8,6 +8,29 @@ import type { FeatureKey } from "./features";
 /** A line of copy that can lead to a feature's own page. */
 export type Linked = string | { text: string; feature: FeatureKey };
 
+// Where this site lives, for canonical links, Open Graph, the sitemap and
+// robots.txt. NEXT_PUBLIC_SITE_URL says so; on Vercel without it, the
+// project's production domain does, then the deployment's own address. Only
+// `next dev` falls back to localhost: a production build with no address
+// stops with the reason, rather than publish a sitemap that points every
+// search engine at http://localhost:3001.
+function siteUrl(): string {
+  const vercel =
+    process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+    process.env.NEXT_PUBLIC_VERCEL_URL ||
+    process.env.VERCEL_URL;
+  const url = process.env.NEXT_PUBLIC_SITE_URL || (vercel ? `https://${vercel}` : "");
+  if (url) return url.replace(/\/+$/, "");
+  if (process.env.NODE_ENV !== "production") return "http://localhost:3001";
+  // In the browser the address is not in doubt, and nothing there reads it
+  // for search engines.
+  if (typeof window !== "undefined") return window.location.origin;
+  throw new Error(
+    "NEXT_PUBLIC_SITE_URL is not set. Set it to the address this site is served at (for example https://www.example.com) before building for production: canonical links, Open Graph, the sitemap and robots.txt are built from it."
+  );
+}
+
 // The WhatsApp number people message us on, digits only, country code first
 // (923001234567): the form wa.me links need.
 const WHATSAPP = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "").replace(/[^\d]/g, "").replace(/^0+/, "");
@@ -15,9 +38,9 @@ const WHATSAPP = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "").replace(/[^\d]/
 export const SITE = {
   name: "GymPilot",
   tagline: "Run your whole gym from one place",
-  description:
-    "Memberships, billing, class booking, personal training, front desk, shop, messaging and your own website — with a private database for every gym. GymPilot is the gym management platform you can sell on your own domain.",
-  url: (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001").replace(/\/+$/, ""),
+  // For search results and link previews: one sentence, under 160 characters.
+  description: "Gym management software: collect fees, see who owes, check members in, run classes and reports, with your own gym website. Free trial on every plan.",
+  url: siteUrl(),
   contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
   contactPhone: process.env.NEXT_PUBLIC_CONTACT_PHONE || "",
   whatsapp: WHATSAPP,

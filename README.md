@@ -5,6 +5,10 @@ The public face of GymPilot as a product, and the panel that runs it:
 | Path | What |
 |---|---|
 | `/` | Marketing landing page: product, features, how it works, live pricing, FAQ, demo request form. |
+| `/features`, `/features/<slug>` | Every feature, and a page for each. |
+| `/checkout` | Pick a plan and sign up (`/checkout/success` after paying). |
+| `/contact` | The contact form, with WhatsApp, email and phone when they are set. |
+| `/terms`, `/privacy`, `/refund-policy` | The legal pages. Drafts in `src/content/legal.ts`: have them reviewed, and set the `NEXT_PUBLIC_LEGAL_*` variables. |
 | `/login` | Platform sign-in (also `/forgot`, `/reset`). |
 | `/super-admin` | Platform (super admin) panel: gyms, plans, demo requests, audit log, account. |
 
