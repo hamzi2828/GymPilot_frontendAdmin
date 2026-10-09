@@ -88,22 +88,22 @@ export const FEATURE_GROUPS: { key: GroupKey; label: string; title: string; text
   { key: "shop", label: "Shop & receipts", title: "The shop and the till", text: "Drinks, supplements, kit and lockers sold over the counter, with a receipt from your own receipt printer." },
   { key: "classes", label: "Classes & PT", title: "Classes and personal training", text: "Your timetable, your trainers' diaries, and members booking themselves in." },
   { key: "team", label: "Staff & trainers", title: "Your staff and trainers", text: "Rotas, leave and payslips for the team — and trainers paid a salary, a commission or both." },
-  { key: "reach", label: "Website, app & messages", title: "Reaching your members", text: "Your website, your app, and the messages that bring people back." },
+  { key: "reach", label: "Website, portal & messages", title: "Reaching your members", text: "Your website, the member portal, and the messages that bring people back." },
   { key: "control", label: "Data & security", title: "Set up, locked down, backed up", text: "Your settings, who sees what, and data that is only ever yours — with a fresh copy every night." },
 ];
 
 export const FEATURES_INTRO = {
   eyebrow: "What's inside",
   title: "Everything a gym needs, in one app",
-  text: "The six gyms buy us for. The rest are one click away, each with a page of its own — and every plan has them all, bar the member app add-on.",
+  text: "The six gyms buy us for. The rest are one click away, each with a page of its own — and every plan has them all, bar the native member app, which is an add-on.",
   cta: "See all features",
 };
 
 export const FEATURES_PAGE = {
   eyebrow: "Every feature",
   title: "What you get with GymPilot",
-  lead: "Every feature, in plain English. All of them are in every plan — plans differ only by how many members, staff and classes you have. The member app is the one thing you can add on top.",
-  note: "Nothing on this page is an upgrade or an extra monthly fee — except the member app, which goes on any plan for a price of its own.",
+  lead: "Every feature, in plain English. All of them are in every plan — plans differ only by how many members, staff and classes you have. The native member app is the one add-on.",
+  note: "Nothing on this page is an upgrade or an extra monthly fee — except the native member app. It is an add-on on Starter and Growth, comes with Pro, and is not offered on Basic. Members on every plan use the member portal in their browser.",
 };
 
 export const FEATURES: Feature[] = [
@@ -509,13 +509,15 @@ export const FEATURES: Feature[] = [
     group: "reach",
     addon: true,
     name: "Member app",
-    title: "A phone app for your members",
-    text: "They sign in with a username you issue, and your gym is in their pocket.",
+    title: "A native phone app for your members",
+    text: "An add-on: a native app in your colours, signed in with a username you issue. It is not in the app stores yet.",
     body: [
       "One app, every gym — and it becomes yours the moment a member signs in: your logo, your colours, your classes. Members book, check in with their QR code, pause or cancel, and see every visit and payment.",
-      "Only people on your books can get in, because you issue the login. It goes on any plan for a price of its own.",
+      "Only people on your books can get in, because you issue the login.",
+      "It is an add-on. Starter and Growth can add it for a price of its own, Pro includes it, and Basic does not offer it. The app is not in the App Store or Google Play yet, so ask us where it stands before you add it.",
+      "You do not need it to start. On every plan, members use the member portal in their browser and add it to their home screen.",
     ],
-    points: ["Your logo and colours", "Book classes and check in", "Pause or cancel a membership", "Every visit and payment", "No sign-up: you issue the login"],
+    points: ["Add-on on Starter and Growth, included in Pro", "Your logo and colours", "Book classes and check in", "Every visit and payment", "No sign-up: you issue the login"],
     screens: ["Member app → Home, Classes, Membership, Profile", "Member app → Check in (QR)", "Admin → Users (issues the username)"],
     related: ["selfservice", "booking", "frontdesk"],
   },
@@ -525,12 +527,13 @@ export const FEATURES: Feature[] = [
     group: "reach",
     name: "Member self-service",
     title: "Members look after themselves",
-    text: "Bookings, invoices, details and their check-in code — all on their own account page.",
+    text: "Bookings, invoices, details and their check-in code — all in the member portal, in every plan.",
     body: [
       "Every question a member would ask at the desk is answered on their own page: their classes and PT sessions, every payment and invoice, their visits, and their check-in QR code.",
+      "It works in any browser, with nothing to download. Members can add it to their phone's home screen, so it opens like an app. This is in every plan.",
       "They change their own details, switch on two-step sign-in and download a copy of their data. That is a quieter front desk.",
     ],
-    points: ["Their classes and PT sessions", "Every payment and invoice", "Change their own details", "Two-step sign-in and privacy", "Check-in QR in the browser too"],
+    points: ["In every plan, in the browser", "Adds to the phone's home screen", "Their classes and PT sessions", "Every payment and invoice", "Check-in QR in the browser too"],
     screens: ["Website → My account → Profile", "Website → My account → My classes, Personal training", "Website → My account → History, Recent visits", "Website → My account → Check-in QR"],
     related: ["app", "billing", "frontdesk"],
   },
@@ -603,7 +606,7 @@ export const FEATURES: Feature[] = [
     group: "control",
     name: "Private database",
     title: "Your private online presence",
-    text: "Your gym gets its own website, its own app and its own private database.",
+    text: "Your gym gets its own website, its own member portal and its own private database.",
     body: [
       "Every gym on GymPilot has a database of its own, never mixed with another gym's. That is unusual, and it is why we can promise nobody else's data is ever a query away from yours.",
       "Export everything any time, and it is still yours if you leave.",
@@ -690,5 +693,5 @@ export const FEATURE_STATS: { value: number; label: string }[] = [
   { value: FEATURES.filter((f) => !f.addon).length, label: "features in every plan" },
   { value: 5, label: "languages, 2 right-to-left" },
   { value: 8, label: "colour schemes" },
-  { value: FEATURES.filter((f) => f.addon).length, label: "optional add-on: the member app" },
+  { value: FEATURES.filter((f) => f.addon).length, label: "optional add-on: the native member app" },
 ];

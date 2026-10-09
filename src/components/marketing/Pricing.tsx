@@ -256,6 +256,12 @@ export default function Pricing() {
               })}
             </div>
           )}
+
+          {/* The add-on is on the cards with a price, so the cards' own page
+              says where it stands today. */}
+          {plans && plans.length > 0 && addons.some((a) => a.slug.includes("app")) && (
+            <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-relaxed text-slate-500">{PRICING.appNote}</p>
+          )}
         </div>
 
         <Reveal className="mx-auto mt-14 max-w-5xl">

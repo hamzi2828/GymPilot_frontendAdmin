@@ -126,7 +126,7 @@ function FeaturesMenu({ current }: { current: boolean }) {
           </div>
 
           <div className="mt-8 flex items-center justify-between gap-6 border-t border-white/10 pt-5">
-            <p className="text-sm text-slate-400">Everything here is in every plan, except the member app: that is the one add-on.</p>
+            <p className="text-sm text-slate-400">Everything here is in every plan, except the native member app: that is the one add-on.</p>
             <Link href="/features" onClick={() => setOpen(false)} className={`group inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-transform hover:-translate-y-0.5 motion-reduce:transition-none ${FOCUS}`}>
               All {FEATURES.length} features <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
             </Link>

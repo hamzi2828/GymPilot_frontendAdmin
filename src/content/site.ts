@@ -53,13 +53,13 @@ export const NAV: { label: string; href: string; menu?: "features"; spy?: string
 ];
 
 export const HERO = {
-  eyebrow: "Website + member app + management system",
+  eyebrow: "Website + member portal + management system",
   title: ["Not just gym software.", "Your gym's", "complete setup."],
   lead:
-    "GymPilot gives your gym its own website on its own web address, an app your members keep on their phone, and the system that runs everything behind the desk — memberships, payments, classes, staff and messages. One setup, live in a day, built to take your gym to the next level.",
+    "GymPilot gives your gym its own website on its own web address, a member portal your members add to their phone's home screen, and the system that runs everything behind the desk — memberships, payments, classes, staff and messages. One setup, live in a day, built to take your gym to the next level.",
   primary: { label: "Book a demo", href: "#demo" },
   secondary: { label: "See what's included", href: "#included" },
-  trust: ["Your own website included", "Member app on any plan", "Everything set up for you"],
+  trust: ["Your own website included", "Member portal in every plan", "Everything set up for you"],
 };
 
 export const WHAT_YOU_GET: {
@@ -81,8 +81,8 @@ export const WHAT_YOU_GET: {
     },
     {
       kicker: "For your members",
-      title: "A member app",
-      text: "Members book classes and PT, pay, check in at the door and get reminders — from an app they install on their phone in one tap.",
+      title: "A member portal",
+      text: "Members book classes and PT, pay, check in at the door and get reminders — from a portal that opens in their browser and sits on their home screen like an app. No app store.",
       points: ["Book classes and PT", "Pay and see receipts", "Check in with a QR code", "Reminders by WhatsApp, SMS, email and push"],
     },
     {
@@ -108,10 +108,10 @@ export const WHAT_YOU_GET: {
 export const AUDIENCES = ["Boutique studios", "24/7 gyms", "CrossFit boxes", "Martial arts & boxing", "Yoga & pilates", "Personal training teams", "Ladies-only gyms", "Multi-trainer clubs"];
 
 export const PROOF = [
-  { value: "1", label: "private online presence per gym", hint: "Your own website, member app and database." },
+  { value: "1", label: "private online presence per gym", hint: "Your own website, member portal and database." },
   { value: "4", label: "messaging channels", hint: "Email, SMS, WhatsApp and push — with automations that run themselves." },
   { value: "5", label: "languages, RTL included", hint: "English, Arabic, Urdu, Spanish and French out of the box." },
-  { value: "1", label: "optional add-on", hint: "Billing, booking, POS, payroll, reports — every plan is the full product. The member app is the one thing sold on top." },
+  { value: "1", label: "optional add-on", hint: "Billing, booking, POS, payroll, reports — every plan is the full product. The native member app is the one thing sold on top." },
 ];
 
 // The feature list moved to content/features.ts: the landing page shows the
@@ -127,7 +127,7 @@ export const HOW_IT_WORKS = {
 export const STEPS = [
   {
     title: "We set up your gym",
-    text: "Tell us your gym's name and pick a plan. Within one working day you have your own website, member app and admin area.",
+    text: "Tell us your gym's name and pick a plan. Within one working day you have your own website, member portal and admin area.",
   },
   {
     title: "Connect your web address",
@@ -156,8 +156,8 @@ export const SHOWCASES = [
   },
   {
     eyebrow: "Members",
-    title: "An app they keep on their phone",
-    text: "Members book classes and PT, see their attendance, download receipts, manage notifications and sign the waiver — from an app they install straight from the browser. Push, WhatsApp and SMS bring them back when they drift.",
+    title: "A portal they keep on their phone",
+    text: "Members book classes and PT, see their attendance, download receipts, manage notifications and sign the waiver — from a portal they add to their home screen straight from the browser. Push, WhatsApp and SMS bring them back when they drift.",
     points: ["Class & PT booking with credits", "Health questionnaire and signed agreement", "Receipts, invoices and locker", "Absent-member nudges and win-back campaigns"],
     visual: "members",
   },
@@ -166,7 +166,7 @@ export const SHOWCASES = [
 export const PRICING = {
   eyebrow: "Pricing",
   title: "One price. The whole product.",
-  text: "Every plan includes billing, booking, PT, front desk, shop, messaging, staff, reports and the website. Plans differ by size; the member app is added to any of them. Prices come straight from your GymPilot account.",
+  text: "Every plan includes billing, booking, PT, front desk, shop, messaging, staff, reports and the website. Plans differ by size. The member portal in the browser is in every plan. The native member app is an add-on on Starter and Growth, and comes with Pro. Prices come straight from your GymPilot account.",
   included: [
     { text: "Own domain & website", feature: "website" },
     { text: "Stripe & bank transfer billing", feature: "billing" },
@@ -181,6 +181,8 @@ export const PRICING = {
     { text: "5 languages", feature: "setup" },
     { text: "Daily encrypted backups & private database", feature: "backups" },
   ] as Linked[],
+  // Under the plans, wherever the native app is sold or given away.
+  appNote: "The native member app is not in the App Store or Google Play yet. Ask us where it stands before you add it. Every plan includes the member portal in the browser.",
   fallback: "Plans are being set up. Book a demo and we will send you a quote the same day.",
 };
 
@@ -228,7 +230,7 @@ export const FAQ = [
   },
   {
     q: "Do members need to download an app?",
-    a: "No app store. The member portal installs as an app from the browser on iPhone, Android and desktop, and receives push notifications.",
+    a: "No. Every plan includes the member portal. It opens in the browser on iPhone, Android and desktop, members add it to their home screen like an app, and it receives push notifications. A native member app is a separate add-on on Starter and Growth, and comes with Pro. It is not in the App Store or Google Play yet.",
   },
   {
     q: "What about the front desk hardware?",
@@ -244,7 +246,7 @@ export const FAQ = [
   },
   {
     q: "Is there a contract?",
-    a: "Plans are monthly or yearly and can be cancelled any time. Every plan starts with a free trial. The member app is sold as an add-on on the plans that do not already include it.",
+    a: "Plans are monthly or yearly and can be cancelled any time. Every plan starts with a free trial. The native member app is an add-on on Starter and Growth, and comes with Pro.",
   },
 ];
 

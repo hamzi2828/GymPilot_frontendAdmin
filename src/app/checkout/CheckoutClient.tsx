@@ -637,6 +637,9 @@ export default function CheckoutClient() {
                           );
                         })}
                       </div>
+                      {[...included, ...sellable].some((a) => a.slug.includes("app")) && (
+                        <p className="mt-2 text-xs leading-relaxed text-slate-500">{PRICING.appNote}</p>
+                      )}
                     </>
                   )}
 
