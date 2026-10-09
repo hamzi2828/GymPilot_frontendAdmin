@@ -7,6 +7,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FiAlertTriangle, FiCalendar, FiCreditCard, FiExternalLink, FiGlobe, FiLayers, FiMail, FiShield, FiUsers } from "react-icons/fi";
 import { PageHeader, Crumbs, Panel, StatCard, KeyValue, Button, Field, Input, Select, Textarea, Modal, Spinner, Alert, Pill, StatusPill, Avatar } from "../../_shared/ui";
+import { PaymentsPanel } from "./Payments";
 import { platformFetch, PlatformApiError, formatDate, formatMoney, SUBSCRIPTION_STATUSES, BILLING_CYCLES, type Addon, type DomainStatus, type Gym, type GymStats, type Plan } from "../../_shared/api";
 
 type Detail = Gym & { plan: Plan | null; stats: GymStats };
@@ -539,7 +540,7 @@ function GymDetail() {
           description={
             gym.subscription.stripeSubscriptionId
               ? "This gym pays by card through Stripe: a new plan, cycle, price or add-on is changed on its Stripe subscription first (prorated), and saved here only once Stripe accepts it."
-              : "Renewals are recorded here. When the period end passes the gym goes past due, and after the grace period it stops being served."
+              : "This gym is billed by hand. Each time it pays, use Record payment below: that moves the period end on for you. When the period end passes the gym goes past due, and after the grace period it stops being served."
           }
           footer={
             <>
@@ -685,6 +686,18 @@ function GymDetail() {
             </div>
           </div>
         </Panel>
+
+        {/* Payments taken outside Stripe, and the form that records one. */}
+        <PaymentsPanel
+          gymId={id}
+          gymName={gym.name}
+          reloadKey={gym.updatedAt}
+          onRecorded={async (message, warnings) => {
+            await load();
+            setNotice(message);
+            setError(warnings.length ? warnings.join(" ") : null);
+          }}
+        />
 
         {/* Administrators */}
         <Panel

@@ -185,6 +185,35 @@ export interface Gym {
   stats?: GymStats | null;
 }
 
+/** A payment taken outside Stripe and recorded by hand (GET /gyms/:id/payments). */
+export interface GymPayment {
+  id: string;
+  amount: number;
+  currency: string;
+  method: string;
+  methodLabel: string;
+  receivedAt: string;
+  reference: string;
+  note: string;
+  periodFrom: string | null;
+  periodTo: string;
+  statusBefore: string;
+  recordedBy: string;
+  createdAt: string;
+}
+
+/** What the Record payment form starts from; `canRecord` is false for a gym that pays by card. */
+export interface PaymentTerms {
+  canRecord: boolean;
+  reason: string;
+  amount: number;
+  currency: string;
+  billingCycle: "monthly" | "yearly";
+  paidFrom: string;
+  paidUntil: string;
+  methods: { value: string; label: string }[];
+}
+
 /** GET /gyms/:id/domains/status -- one row per registered domain. */
 export interface DomainStatus {
   host: string;
