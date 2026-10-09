@@ -19,13 +19,26 @@ export function getPlatformToken(): string | null {
   }
 }
 
+/** When the token itself runs out, read from its payload; null when it cannot be read. */
+function tokenExpiry(token: string): Date | null {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof payload.exp === "number" ? new Date(payload.exp * 1000) : null;
+  } catch {
+    return null;
+  }
+}
+
 // Stored in localStorage for requests and mirrored in a cookie so the edge
-// middleware can turn away a signed-out visitor before the page loads.
+// middleware can turn away a signed-out visitor before the page loads. The
+// cookie lasts exactly as long as the token: a cookie that died with the
+// browser window sent a still-signed-in admin back to the sign-in page.
 export function setPlatformToken(token: string) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(TOKEN_KEY, token);
-    document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; samesite=lax${window.location.protocol === "https:" ? "; secure" : ""}`;
+    const expires = tokenExpiry(token);
+    document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; samesite=lax${expires ? `; expires=${expires.toUTCString()}` : ""}${window.location.protocol === "https:" ? "; secure" : ""}`;
   } catch {
     /* storage blocked -- the session lasts this page view only */
   }

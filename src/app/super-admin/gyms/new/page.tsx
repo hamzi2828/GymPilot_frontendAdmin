@@ -39,6 +39,12 @@ const COMMON_TIMEZONES = [
   "America/Sao_Paulo",
 ];
 
+// Where a new gym is assumed to be until the form says otherwise: GymPilot
+// sells in Pakistan. The currency follows the plans' own once they have
+// loaded (see below), so a price list in another currency moves it.
+const DEFAULT_TIMEZONE = "Asia/Karachi";
+const DEFAULT_CURRENCY = "PKR";
+
 // What a request's free-text "City / country" says about the gym's own money
 // and clock -- what it charges its members in, not what it pays us in.
 // Matched on words, so "Karachi, Pakistan" and "Lahore" both land on PK.
@@ -126,8 +132,8 @@ function NewGymForm() {
     ownerPhone: "",
     ownerPassword: "",
     planId: "",
-    timezone: "UTC",
-    currency: "USD",
+    timezone: DEFAULT_TIMEZONE,
+    currency: DEFAULT_CURRENCY,
     country: "",
     notes: "",
   });
@@ -145,7 +151,13 @@ function NewGymForm() {
 
   useEffect(() => {
     platformFetch<{ data: Plan[] }>("/plans")
-      .then((res) => setPlans(res.data.filter((p) => p.isActive)))
+      .then((res) => {
+        const active = res.data.filter((p) => p.isActive);
+        setPlans(active);
+        // The currency the platform sells in, unless one has been typed already.
+        const planCurrency = active[0]?.price.currency;
+        if (planCurrency) setForm((f) => (f.currency === DEFAULT_CURRENCY ? { ...f, currency: planCurrency } : f));
+      })
       .catch(() => setPlans([]))
       .finally(() => setPlansLoaded(true));
     platformFetch<{ data: Addon[] }>("/addons")
@@ -517,7 +529,7 @@ function NewGymForm() {
                   )}
                 </>
               )}
-              <Field label="Timezone" hint="IANA name. Attendance, timetables and reminders run on this clock.">
+              <Field label="Timezone" hint="Pick one from the list, such as Asia/Karachi. Attendance, timetables and reminders run on this clock.">
                 <Input list="tz-list" value={form.timezone} onChange={on("timezone")} />
                 <datalist id="tz-list">
                   {COMMON_TIMEZONES.map((tz) => (
@@ -527,10 +539,10 @@ function NewGymForm() {
               </Field>
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Currency" hint="What it charges its members in.">
-                  <Input value={form.currency} onChange={(e) => set("currency")(e.target.value.toUpperCase())} placeholder="USD" maxLength={3} />
+                  <Input value={form.currency} onChange={(e) => set("currency")(e.target.value.toUpperCase())} placeholder={DEFAULT_CURRENCY} maxLength={3} />
                 </Field>
                 <Field label="Country">
-                  <Input value={form.country} onChange={on("country")} placeholder="GB" />
+                  <Input value={form.country} onChange={on("country")} placeholder="PK" />
                 </Field>
               </div>
             </div>
