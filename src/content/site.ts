@@ -21,6 +21,26 @@ export const SITE = {
   heroPills: ["Memberships & billing", "Class booking", "Personal training", "Your own domain"],
 };
 
+// Who sells GymPilot, for the legal pages (/terms, /privacy, /refund-policy).
+// Every line is read from the environment and shown only when it is set, so
+// nothing invented ever appears as the seller's name or address. See
+// .env.example for what each one is.
+export const LEGAL = {
+  /** The person or company that sells GymPilot, as registered. */
+  name: process.env.NEXT_PUBLIC_LEGAL_NAME || "",
+  address: process.env.NEXT_PUBLIC_LEGAL_ADDRESS || "",
+  /** Where legal and privacy questions go; the contact email when not set. */
+  email: process.env.NEXT_PUBLIC_LEGAL_EMAIL || process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
+  /** The country whose law the terms follow, as it should read after "the laws of". */
+  governingLaw: process.env.NEXT_PUBLIC_LEGAL_GOVERNING_LAW || "",
+  /** The city or district whose courts hear a dispute, as it should read after "the courts of". */
+  jurisdiction: process.env.NEXT_PUBLIC_LEGAL_JURISDICTION || "",
+  /** Where the servers are, in plain words ("Singapore", "the European Union"). */
+  hostingRegion: process.env.NEXT_PUBLIC_LEGAL_HOSTING_REGION || "",
+  /** The date the legal pages were last changed, as it should be read ("9 October 2026"). */
+  updated: process.env.NEXT_PUBLIC_LEGAL_UPDATED || "",
+};
+
 // The header's menu. A "#…" target is a section of the landing page (the
 // header and footer prefix it with "/" everywhere else). Features opens the
 // features menu; `spy` is the landing-page section that lights it up.
@@ -252,5 +272,12 @@ export const FOOTER = {
       title: "Platform",
       links: [{ label: "Platform sign in", href: "/login" }],
     },
+  ],
+  // The small print, on the footer's last line on every page.
+  legal: [
+    { label: "Terms", href: "/terms" },
+    { label: "Privacy", href: "/privacy" },
+    { label: "Members' data", href: "/privacy#members-data" },
+    { label: "Refunds & cancelling", href: "/refund-policy" },
   ],
 };

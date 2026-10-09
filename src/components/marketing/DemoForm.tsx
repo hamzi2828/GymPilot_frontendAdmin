@@ -4,6 +4,7 @@
 // platform admins. The panel lists them under Demo requests.
 
 import { useState } from "react";
+import Link from "next/link";
 import { FiArrowRight, FiCheckCircle, FiMail, FiPhone } from "react-icons/fi";
 import { DEMO_FORM, SITE } from "@/content/site";
 import { publicFetch } from "@/lib/api";
@@ -123,7 +124,13 @@ export default function DemoForm() {
               {error && <p className="rounded-xl bg-rose-500/10 px-3 py-2 text-xs text-rose-200 sm:col-span-2">{error}</p>}
 
               <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-[11px] text-slate-500">We use these details only to arrange the demo.</p>
+                <p className="text-[11px] text-slate-500">
+                  We use these details only to reply to you. See our{" "}
+                  <Link href="/privacy" className="underline underline-offset-2 hover:text-slate-300">
+                    Privacy Policy
+                  </Link>
+                  .
+                </p>
                 <button type="submit" disabled={busy || !form.name.trim() || !form.email.trim() || !form.gymName.trim()} className="btn-shine btn-shine-dark group inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-slate-900 transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
                   {busy ? "Sending…" : "Book my demo"} <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </button>

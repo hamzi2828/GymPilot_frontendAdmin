@@ -482,11 +482,28 @@ export default function CheckoutClient() {
                   />
                 </div>
 
+                {/* Agreed to before the button, in one line, with the pages a tap away. */}
+                <p className="mt-7 text-center text-xs leading-relaxed text-slate-500">
+                  By continuing you agree to our{" "}
+                  <Link href="/terms" target="_blank" className="font-semibold text-slate-700 underline underline-offset-2 hover:text-slate-900">
+                    Terms
+                  </Link>
+                  ,{" "}
+                  <Link href="/privacy" target="_blank" className="font-semibold text-slate-700 underline underline-offset-2 hover:text-slate-900">
+                    Privacy Policy
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="/refund-policy" target="_blank" className="font-semibold text-slate-700 underline underline-offset-2 hover:text-slate-900">
+                    Refund Policy
+                  </Link>
+                  .
+                </p>
+
                 <button
                   type="button"
                   onClick={submit}
                   disabled={busy || !plan}
-                  className="btn-shine group mt-7 inline-flex h-13 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 py-4 text-base font-bold text-white shadow-lift transition-transform duration-300 hover:-translate-y-0.5 disabled:opacity-60"
+                  className="btn-shine group mt-3 inline-flex h-13 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 py-4 text-base font-bold text-white shadow-lift transition-transform duration-300 hover:-translate-y-0.5 disabled:opacity-60"
                 >
                   {busy
                     ? selfServe

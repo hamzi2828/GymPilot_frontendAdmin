@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FiMail, FiPhone } from "react-icons/fi";
 import Brand from "./Brand";
-import { FOOTER, SITE } from "@/content/site";
+import { FOOTER, LEGAL, SITE } from "@/content/site";
 
 export default function SiteFooter() {
   return (
@@ -43,11 +43,21 @@ export default function SiteFooter() {
             </div>
           ))}
         </div>
-        <div className="mt-12 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {SITE.name}. All rights reserved.
+            © {new Date().getFullYear()} {LEGAL.name || SITE.name}. All rights reserved.
           </p>
-          <p>Every gym on {SITE.name} runs in its own database on its own domain.</p>
+          <nav aria-label="Legal">
+            <ul className="flex flex-wrap gap-x-5 gap-y-2">
+              {FOOTER.legal.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="hover:text-white">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </div>
     </footer>
