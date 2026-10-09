@@ -18,6 +18,7 @@ export default function SiteFooter() {
           {FOOTER.columns.map((col) => (
             <div key={col.title}>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{col.title}</p>
+              {col.note && <p className="mt-4 text-sm leading-relaxed">{col.note}</p>}
               <ul className="mt-4 space-y-2.5 text-sm">
                 {col.links.map((l) => (
                   <li key={l.href + l.label}>
@@ -45,6 +46,11 @@ export default function SiteFooter() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link href={FOOTER.platform.href} className="text-slate-600 hover:text-slate-300">
+                  {FOOTER.platform.label}
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>

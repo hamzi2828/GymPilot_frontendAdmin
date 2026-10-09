@@ -251,6 +251,10 @@ export const FAQ = [
     a: "Your public website comes in English, Arabic, Urdu, Spanish and French, right-to-left included. You pick the default and visitors can switch. The screens your staff use are in English.",
   },
   {
+    q: "I am already a customer. Where do I sign in?",
+    a: "At your gym's own web address, not on this site. It is in your welcome email: open it and press Sign in. Lost it? Message us and we will send it again.",
+  },
+  {
     q: "Is there a contract?",
     a: "Plans are monthly or yearly and can be cancelled any time. Every plan starts with a free trial. The native member app is an add-on on Starter and Growth, and comes with Pro.",
   },
@@ -270,6 +274,8 @@ export const CONTACT = {
   title: "Talk to us",
   text: "Ask a question, book a demo or get help with a sign-up. Fill in the form and we reply by email or phone.",
   whatsapp: "Message us on WhatsApp",
+  // A gym's staff and members sign in on the gym's own website. This site
+  // only has the platform's sign-in, which is no use to them.
   existing: "Already a customer? Sign in at your gym's own web address, not here. It is in your welcome email.",
 };
 
@@ -288,10 +294,13 @@ export const FOOTER = {
       ],
     },
     {
-      title: "Platform",
-      links: [{ label: "Platform sign in", href: "/login" }],
+      title: "Customers",
+      note: CONTACT.existing,
+      links: [{ label: "Help signing in", href: "/contact" }],
     },
-  ],
+  ] as { title: string; note?: string; links: { label: string; href: string }[] }[],
+  // For GymPilot's own staff. One quiet link, so nobody takes it for theirs.
+  platform: { label: "Platform sign in", href: "/login" },
   // The small print, on the footer's last line on every page.
   legal: [
     { label: "Terms", href: "/terms" },
