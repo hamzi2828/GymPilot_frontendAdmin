@@ -7,7 +7,9 @@
 // goes on to Stripe, adds a card, and the gym is built the moment they
 // finish -- nobody in the panel involved (see /checkout/success). When it
 // cannot, no card is asked for: what this collects is sent as a request and
-// the panel turns it into a gym, as it always has.
+// the panel turns it into a gym, as it always has. The page says which of
+// the two it is, and in the second case what happens next and how the gym
+// will pay, so nobody thinks they have signed up when they have asked to.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -314,6 +316,9 @@ export default function CheckoutClient() {
               </span>
             </div>
             {plan?.trialDays ? <p className="mt-2 text-xs text-emerald-400">Free for the first {plan.trialDays} days. Nothing to pay today.</p> : null}
+            <p className="mt-3 border-t border-white/10 pt-3 text-xs leading-relaxed text-slate-400">
+              How you pay: we contact you with payment details before anything is due. Bank transfer, JazzCash or Easypaisa.
+            </p>
           </div>
           <Link
             href="/"
@@ -348,14 +353,14 @@ export default function CheckoutClient() {
         <div className="mx-auto max-w-6xl">
           <p className="a-rise text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">Checkout</p>
           <h1 className="a-rise mt-2 font-display text-3xl font-extrabold tracking-[-0.02em] text-slate-900 sm:text-4xl" style={stagger(1)}>
-            Start your free trial
+            {selfServe === false ? "Request your free trial" : "Start your free trial"}
           </h1>
           <p className="a-rise mt-3 max-w-2xl text-base text-slate-600" style={stagger(2)}>
             {selfServe === null
               ? "Pick a plan and tell us about your gym."
               : selfServe
               ? "Pick a plan, tell us about your gym, then add a card on Stripe's secure page. Your gym — website, admin and all — is set up the moment you finish."
-              : "No card needed. Tell us about your gym and we will have it running — website, admin and all — usually within one working day."}
+              : "No card needed. Send us your details and our team sets your gym up — website, admin and all — usually within one working day."}
           </p>
 
           {cancelled && (
@@ -390,7 +395,8 @@ export default function CheckoutClient() {
           ) : (
             <div className="mt-10 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
               {/* ---------------------------- details ---------------------------- */}
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-card sm:p-8">
+              {/* Second on a phone: what they are buying, and for how much, is read first. */}
+              <div className="order-2 rounded-3xl border border-slate-200 bg-white p-6 shadow-card sm:p-8 lg:order-1">
                 <h2 className="font-display text-lg font-bold text-slate-900">Your details</h2>
 
                 {error && <p className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
@@ -487,8 +493,32 @@ export default function CheckoutClient() {
                   />
                 </div>
 
-                {/* Agreed to before the button, in one line, with the pages a tap away. */}
-                <p className="mt-7 text-center text-xs leading-relaxed text-slate-500">
+                {/* On a phone the plan is a scroll back up by now: say it again beside the button. */}
+                <p className="mt-7 flex items-baseline justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3 text-sm lg:hidden">
+                  <span className="text-slate-600">
+                    {plan?.name || "Plan"} · {cycle}
+                  </span>
+                  <span className="font-display font-bold text-slate-900">
+                    {formatMoney(total, currency)} <span className="text-xs font-normal text-slate-500">/ {per}</span>
+                  </span>
+                </p>
+
+                {/* No payment page follows this form, so it says what does. */}
+                {selfServe === false && (
+                  <div className="mt-4 rounded-2xl border border-brand-100 bg-brand-50/60 p-4 lg:mt-7">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-700">What happens next</p>
+                    <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700">
+                      <li>You send this form. No card, and nothing to pay today.</li>
+                      <li>Our team sets your gym up and emails you your web address and a link to set your password, usually within one working day.</li>
+                      <li>
+                        {plan?.trialDays ? `Your ${plan.trialDays}-day free trial starts then. ` : ""}
+                        We contact you with payment details before anything is due: bank transfer, JazzCash or Easypaisa.
+                      </li>
+                    </ol>
+                  </div>
+                )}
+
+                <p className={`text-center text-xs leading-relaxed text-slate-500 ${selfServe === false ? "mt-4" : "mt-4 lg:mt-7"}`}>
                   By continuing you agree to our{" "}
                   <Link href="/terms" target="_blank" className="font-semibold text-slate-700 underline underline-offset-2 hover:text-slate-900">
                     Terms
@@ -514,6 +544,8 @@ export default function CheckoutClient() {
                     ? selfServe
                       ? "Opening secure payment…"
                       : "Sending…"
+                    : selfServe === false
+                    ? "Send my request"
                     : plan?.trialDays
                     ? `Start my ${plan.trialDays}-day free trial`
                     : selfServe
@@ -527,7 +559,7 @@ export default function CheckoutClient() {
                   <FiLock className="mt-px h-3.5 w-3.5 shrink-0" />
                   <span>
                     {!selfServe
-                      ? "No card today. We only use these details to set your gym up."
+                      ? "No card today. We only use these details to set your gym up and to contact you about it."
                       : plan?.trialDays
                       ? `Next, add a card on Stripe's secure page. Nothing is charged today: ${formatMoney(total, currency)} is taken on ${dayAfter(
                           plan.trialDays
@@ -543,7 +575,7 @@ export default function CheckoutClient() {
               </div>
 
               {/* ----------------------------- summary --------------------------- */}
-              <aside className="lg:sticky lg:top-8 lg:self-start">
+              <aside className="order-1 lg:sticky lg:top-8 lg:order-2 lg:self-start">
                 <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-card">
                   <h2 className="font-display text-lg font-bold text-slate-900">Your plan</h2>
 

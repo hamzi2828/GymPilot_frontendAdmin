@@ -189,7 +189,10 @@ export const PRICING = {
   ] as Linked[],
   // Under the plans, wherever the native app is sold or given away.
   appNote: "The native member app is not in the App Store or Google Play yet. Ask us where it stands before you add it. Every plan includes the member portal in the browser.",
+  // The price list loaded and is empty.
   fallback: "Plans are being set up. Book a demo and we will send you a quote the same day.",
+  // The price list would not load, after trying again by itself.
+  unavailable: "We could not load the prices just now. Try again in a moment, or ask us and we will send them to you.",
 };
 
 // Customer quotes. Only entries with `sample: false` are shown (see

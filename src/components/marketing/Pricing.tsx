@@ -5,13 +5,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FiArrowRight, FiCheck, FiPlus, FiSmartphone } from "react-icons/fi";
+import { FiArrowRight, FiCheck, FiPlus, FiRefreshCw, FiSmartphone } from "react-icons/fi";
 import { PRICING } from "@/content/site";
 import { formatMoney, publicFetch, recommendedPlanIndex, yearlySaving, type PublicAddon, type PublicPlan } from "@/lib/api";
 import { stagger } from "@/lib/motion";
 import LinkedText, { linkedKey } from "./LinkedText";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
+
+// A sleeping API answers on the second or third knock: the prices are asked
+// for again after each of these waits before the page admits it has none.
+const RETRY_AFTER_MS = [2000, 5000, 10000];
 
 function limit(n: number) {
   return n ? n.toLocaleString() : "Unlimited";
@@ -97,17 +101,48 @@ export default function Pricing() {
   const [addons, setAddons] = useState<PublicAddon[]>([]);
   const [failed, setFailed] = useState(false);
   const [yearly, setYearly] = useState(false);
+  // Bumped by "Try again": the effect below starts over.
+  const [round, setRound] = useState(0);
 
   useEffect(() => {
-    publicFetch<{ data: PublicPlan[] }>("/plans")
-      .then((res) => setPlans(res.data))
-      .catch(() => setFailed(true));
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let tries = 0;
+
+    const loadPlans = () => {
+      publicFetch<{ data: PublicPlan[] }>("/plans")
+        .then((res) => {
+          if (!stopped) setPlans(res.data);
+        })
+        .catch(() => {
+          if (stopped) return;
+          const wait = RETRY_AFTER_MS[tries++];
+          if (wait === undefined) setFailed(true);
+          else timer = setTimeout(loadPlans, wait);
+        });
+    };
+    loadPlans();
     // Add-ons are a bonus on the card: if this call fails the prices still
     // render, they just do not mention the extras.
     publicFetch<{ data: PublicAddon[] }>("/addons")
-      .then((res) => setAddons(res.data))
-      .catch(() => setAddons([]));
-  }, []);
+      .then((res) => {
+        if (!stopped) setAddons(res.data);
+      })
+      .catch(() => {
+        if (!stopped) setAddons([]);
+      });
+
+    return () => {
+      stopped = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [round]);
+
+  const retry = () => {
+    setFailed(false);
+    setPlans(null);
+    setRound((n) => n + 1);
+  };
 
   /** The add-ons a plan hands over for nothing. */
   const includedFor = (plan: PublicPlan) =>
@@ -166,7 +201,23 @@ export default function Pricing() {
             </div>
           )}
 
-          {(failed || (plans && plans.length === 0)) && (
+          {/* The prices would not load: say so, and offer another go. */}
+          {failed && (
+            <div className="mx-auto max-w-xl rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center" role="status">
+              <p className="text-base text-slate-600">{PRICING.unavailable}</p>
+              <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <button type="button" onClick={retry} className="btn-shine inline-flex h-11 items-center gap-2 rounded-full bg-slate-900 px-6 text-sm font-semibold text-white">
+                  <FiRefreshCw className="h-4 w-4" /> Try again
+                </button>
+                <a href="#demo" className="inline-flex h-11 items-center gap-2 rounded-full border border-slate-300 px-6 text-sm font-semibold text-slate-700 hover:border-slate-400">
+                  Ask us for the prices <FiArrowRight className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Loaded, and there is nothing on sale yet. */}
+          {!failed && plans && plans.length === 0 && (
             <div className="mx-auto max-w-xl rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
               <p className="text-base text-slate-600">{PRICING.fallback}</p>
               <a href="#demo" className="btn-shine mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-slate-900 px-6 text-sm font-semibold text-white">
