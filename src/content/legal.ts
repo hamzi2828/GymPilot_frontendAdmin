@@ -15,6 +15,7 @@
 // this file. They come from the environment (LEGAL in content/site.ts) and a
 // line that needs one is left out until it is set.
 
+import { GA_ID, META_PIXEL_ID } from "@/lib/analytics";
 import { LEGAL, SITE } from "./site";
 
 /** A paragraph, or a list of short points. */
@@ -45,6 +46,12 @@ export interface LegalDoc {
 const present = <T,>(items: (T | false | "" | null | undefined)[]): T[] => items.filter(Boolean) as T[];
 
 const NAME = SITE.name;
+
+// The trackers that are switched on in this deployment (lib/analytics.ts),
+// so the privacy policy names exactly what the site loads -- and says there
+// are none when there are none.
+const TRACKERS = present<string>([GA_ID && "Google Analytics", META_PIXEL_ID && "the Meta Pixel"]);
+const TRACKER_OWNERS = present<string>([GA_ID && "Google", META_PIXEL_ID && "Meta"]);
 
 /* --------------------------------- terms --------------------------------- */
 
@@ -274,7 +281,13 @@ const PRIVACY: LegalDoc = {
       kicker: "Part 1 · This website",
       heading: "Cookies",
       blocks: [
-        "This website does not set cookies for visitors, and has no analytics or advertising trackers.",
+        ...(TRACKERS.length
+          ? [
+              `We use ${TRACKERS.join(" and ")} to count visits and to see which adverts bring people here.`,
+              `${TRACKERS.length > 1 ? "They set" : "It sets"} cookies in your browser and ${TRACKERS.length > 1 ? "tell" : "tells"} ${TRACKER_OWNERS.join(" and ")} which pages you open and when you send a form or start a sign-up. What you type into our forms is not sent to ${TRACKERS.length > 1 ? "them" : "it"}.`,
+              "You can block these cookies in your browser's settings or with an ad blocker. The site still works.",
+            ]
+          : ["This website does not set cookies for visitors, and has no analytics or advertising trackers."]),
         "The checkout keeps what you typed in your own browser while you are on the payment page, so it is still there if you come back. It is cleared when you finish, and gone when you close the tab.",
         "Our hosting provider keeps ordinary server logs, such as IP addresses, to run and protect the site.",
       ],

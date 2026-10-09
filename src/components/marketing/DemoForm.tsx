@@ -11,6 +11,7 @@ import Link from "next/link";
 import { FiArrowRight, FiCheckCircle } from "react-icons/fi";
 import { CONTACT, DEMO_FORM, SITE } from "@/content/site";
 import { publicFetch } from "@/lib/api";
+import { trackConversion } from "@/lib/analytics";
 import { stagger } from "@/lib/motion";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
@@ -35,6 +36,7 @@ export default function DemoForm({ contact = false }: { contact?: boolean }) {
     try {
       await publicFetch("/demo-requests", { method: "POST", body: { ...form, source: typeof window !== "undefined" ? window.location.href : "landing" } });
       setDone(true);
+      trackConversion("demo_request");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not send your request. Please try again.");
     } finally {

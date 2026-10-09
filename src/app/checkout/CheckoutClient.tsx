@@ -27,6 +27,7 @@ import {
   type PublicPlan,
   type SignupStarted,
 } from "@/lib/api";
+import { trackConversion } from "@/lib/analytics";
 import { PRICING } from "@/content/site";
 import { stagger } from "@/lib/motion";
 import SiteFooter from "@/components/marketing/SiteFooter";
@@ -157,6 +158,15 @@ export default function CheckoutClient() {
   }, [cancelled]);
 
   const plan = useMemo(() => (plans || []).find((p) => p.slug === planSlug) || null, [plans, planSlug]);
+
+  // Checkout has started once there is a plan on the page to buy. Counted
+  // once, whichever plan they move to afterwards.
+  const startTracked = useRef(false);
+  useEffect(() => {
+    if (!plan || startTracked.current) return;
+    startTracked.current = true;
+    trackConversion("checkout_started", { plan: plan.slug, value: plan.price.monthly, currency: plan.price.currency });
+  }, [plan]);
   // Yearly is only on offer where the plan has a yearly price: a link that
   // says ?cycle=yearly for a monthly-only plan, or a switch to one, lands on
   // monthly rather than on a price of nothing.
@@ -260,6 +270,7 @@ export default function CheckoutClient() {
       const sent = await publicFetch<{ emailed?: boolean }>("/demo-requests", { method: "POST", body: { kind: "trial", ...details } });
       setEmailed(sent?.emailed !== false);
       setDone(true);
+      trackConversion("signup_completed", { plan: plan.slug, value: total, currency, method: "request" });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (e) {
       if (e instanceof ApiError && e.code === "SLUG_TAKEN") {

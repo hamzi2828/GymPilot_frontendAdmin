@@ -11,6 +11,7 @@ import { useSearchParams } from "next/navigation";
 import { FiAlertTriangle, FiArrowRight, FiCheckCircle, FiExternalLink, FiMail } from "react-icons/fi";
 import ContactLinks from "@/components/marketing/ContactLinks";
 import { ApiError, CHECKOUT_DRAFT_KEY, publicFetch, type SignupStatus } from "@/lib/api";
+import { trackConversionOnce } from "@/lib/analytics";
 import { SITE } from "@/content/site";
 import { stagger } from "@/lib/motion";
 import Glow from "@/components/marketing/Glow";
@@ -49,6 +50,9 @@ export default function SuccessClient() {
         const res = await publicFetch<{ data: SignupStatus }>(`/signup/${encodeURIComponent(id)}/status`);
         if (stopped) return;
         setState(res.data);
+        // Paid: the gym is being made or is ready. Once per sign-up, however
+        // often this page asks or is reloaded.
+        if (res.data.status === "provisioning" || res.data.status === "ready") trackConversionOnce(`signup.${id}`, "signup_completed", { method: "card" });
         if (res.data.status === "ready") return;
         if (res.data.status === "failed") wait = PATIENT_MS;
       } catch (e) {
