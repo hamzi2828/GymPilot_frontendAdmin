@@ -24,12 +24,12 @@ function BillingPicture() {
           </span>
         </div>
         <p className="mt-3 font-display text-2xl font-bold">
-          $59<span className="text-sm font-normal text-slate-400"> / month</span>
+          Rs 5,000<span className="text-sm font-normal text-slate-400"> / month</span>
         </p>
         <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
           <div className="v-fill h-full w-[72%] origin-left rounded-full bg-gradient-to-r from-brand-400 to-purple-400" style={stagger(4)} />
         </div>
-        <p className="mt-1.5 text-[11px] text-slate-400">Renews 4 Nov · card •••• 4242</p>
+        <p className="mt-1.5 text-[11px] text-slate-400">Paid to 4 Nov · JazzCash</p>
         <div className="mt-3 flex gap-2 text-[11px] font-semibold">
           {["Pause", "Upgrade", "Invoice PDF"].map((b, i) => (
             <span key={b} className="v-pop rounded-lg bg-white/10 px-2.5 py-1" style={stagger(5 + i)}>
@@ -40,7 +40,7 @@ function BillingPicture() {
       </div>
       <div className="mt-3 space-y-1.5 text-[11px]">
         {[
-          ["Invoice #1042 emailed", "Paid by card", "text-emerald-600"],
+          ["Invoice #1042 emailed", "Paid by JazzCash", "text-emerald-600"],
           ["Bank transfer receipt uploaded", "Waiting for a check", "text-amber-600"],
           ["Renewal reminder", "Sent 3 days before", "text-slate-500"],
         ].map(([a, b, c], i) => (
@@ -103,7 +103,7 @@ function PtPicture() {
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-[11px] font-bold text-white">MJ</span>
         <div>
           <p className="text-xs font-semibold text-slate-900">Coach Marcus · today</p>
-          <p className="text-[10px] text-slate-500">$45 a session · keeps 20%</p>
+          <p className="text-[10px] text-slate-500">Rs 1,500 a session · keeps 20%</p>
         </div>
       </div>
       <div className="mt-3 grid grid-cols-3 gap-1.5">
@@ -164,7 +164,7 @@ function MessagingPicture() {
           <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-emerald-500 px-3 py-2 text-[11px] text-white">Hi Sara, HIIT Blast is tonight at 18:00 in Studio A. See you there!</div>
         </div>
         <div className="v-bubble-r flex items-end justify-end gap-2" style={stagger(3)}>
-          <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-slate-900 px-3 py-2 text-[11px] text-white">Your membership renews tomorrow. Nothing to do — your card •••• 4242 will be charged $59.</div>
+          <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-slate-900 px-3 py-2 text-[11px] text-white">Your fee of Rs 5,000 is due tomorrow. Pay at the desk, or by bank transfer on our website.</div>
           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-700 text-[10px] font-bold text-white">S</span>
         </div>
         <div className="v-rise flex items-center gap-2.5 rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200" style={stagger(6)}>
@@ -190,9 +190,9 @@ function MessagingPicture() {
 
 function PosPicture() {
   const lines = [
-    ["Protein shake × 2", "$12.00"],
-    ["Whey 1kg", "$42.00"],
-    ["Locker · Oct", "$10.00"],
+    ["Protein shake × 2", "Rs 1,200"],
+    ["Whey 1kg", "Rs 8,500"],
+    ["Locker · Oct", "Rs 1,000"],
   ];
   return (
     <Frame>
@@ -208,8 +208,8 @@ function PosPicture() {
         </div>
         <div className="mt-2 space-y-1 border-t border-dashed border-slate-200 pt-2 text-slate-500">
           {[
-            ["Discount", "−$4.00"],
-            ["Tax included (5%)", "$2.86"],
+            ["Discount", "−Rs 1,200"],
+            ["Tax included (5%)", "Rs 452"],
           ].map(([a, b], i) => (
             <p key={a} className="v-rise flex justify-between" style={stagger(4 + i)}>
               <span>{a}</span>
@@ -218,18 +218,18 @@ function PosPicture() {
           ))}
           <p className="v-rise flex justify-between font-display text-sm font-bold text-slate-900" style={stagger(6)}>
             <span>Total</span>
-            <span>$60.00</span>
+            <span>Rs 9,500</span>
           </p>
         </div>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-1.5 text-[11px]">
         <div className="v-pop rounded-lg bg-white px-3 py-1.5 ring-1 ring-slate-200" style={stagger(7)}>
-          <p className="text-slate-500">Cash given $100</p>
-          <p className="font-semibold text-slate-900">Change $40.00</p>
+          <p className="text-slate-500">Cash given Rs 10,000</p>
+          <p className="font-semibold text-slate-900">Change Rs 500</p>
         </div>
         <div className="v-pop rounded-lg bg-emerald-50 px-3 py-1.5 ring-1 ring-emerald-100" style={stagger(8)}>
           <p className="text-emerald-700">Made on this sale</p>
-          <p className="font-semibold text-emerald-800">$17.10</p>
+          <p className="font-semibold text-emerald-800">Rs 2,150</p>
         </div>
       </div>
     </Frame>
@@ -244,9 +244,9 @@ function StaffPicture() {
     ["Accountant", "bg-emerald-500"],
   ];
   const rows = [
-    ["Salary", "$1,800", ""],
-    ["PT commission · 17 sessions", "$340", ""],
-    ["Unpaid day off", "−$82", "text-rose-600"],
+    ["Salary", "Rs 60,000", ""],
+    ["PT commission · 17 sessions", "Rs 5,100", ""],
+    ["Unpaid day off", "−Rs 2,000", "text-rose-600"],
   ];
   return (
     <Frame>
@@ -273,7 +273,7 @@ function StaffPicture() {
           ))}
           <p className="v-rise flex justify-between border-t border-slate-100 pt-1 font-semibold text-slate-900" style={stagger(8)}>
             <span>Take home</span>
-            <span>$2,058</span>
+            <span>Rs 63,100</span>
           </p>
         </div>
       </div>
@@ -351,7 +351,7 @@ function ReportsPicture() {
       <div className="flex items-start justify-between">
         <div className="v-rise" style={stagger(0)}>
           <p className="text-[10px] uppercase tracking-wider text-slate-400">This month</p>
-          <p className="font-display text-xl font-bold text-slate-900">$38,420</p>
+          <p className="font-display text-xl font-bold text-slate-900">Rs 3,742,000</p>
         </div>
         <span className="v-pop inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700" style={stagger(6)}>
           <FiTrendingUp className="h-3 w-3" /> +4.2%
@@ -418,7 +418,7 @@ function WebsitePicture() {
           <FiSmartphone className="h-3 w-3" /> Installs as an app
         </span>
         <span className="v-pop rounded-full bg-white px-2 py-0.5 text-slate-700 ring-1 ring-slate-200" style={stagger(8)}>
-          Padlock (SSL) automatic
+          Padlock (SSL) included
         </span>
         <span className="v-pop rounded-full bg-white px-2 py-0.5 text-slate-700 ring-1 ring-slate-200" style={stagger(9)}>
           Found on Google
@@ -476,8 +476,8 @@ function OffersPicture() {
       </div>
       <p className="v-rise mt-3 flex items-center justify-center gap-2 text-[11px] font-semibold text-slate-600" style={stagger(6)}>
         <FiTag className="h-3.5 w-3.5 text-orange-500" />
-        <span className="text-slate-400 line-through">$59.00</span>
-        <span className="text-slate-900">$44.25 at checkout</span>
+        <span className="text-slate-400 line-through">Rs 5,000</span>
+        <span className="text-slate-900">Rs 3,750 at checkout</span>
       </p>
     </Frame>
   );
@@ -576,15 +576,15 @@ function ContentPicture() {
 
 function BooksPicture() {
   const lines: [string, string, string][] = [
-    ["Membership fees", "$24,600", "in"],
-    ["Admission fees", "$1,350", "in"],
-    ["Trainer fees", "$3,900", "in"],
-    ["Shop sales", "$4,210", "in"],
-    ["Refunds", "−$240", "in"],
-    ["Trainer commission", "−$2,150", "out"],
-    ["Expenses", "−$6,480", "out"],
-    ["Equipment bought", "−$2,900", "out"],
-    ["Salaries", "−$9,600", "out"],
+    ["Membership fees", "Rs 1,230,000", "in"],
+    ["Admission fees", "Rs 67,500", "in"],
+    ["Trainer fees", "Rs 195,000", "in"],
+    ["Shop sales", "Rs 210,500", "in"],
+    ["Refunds", "−Rs 12,000", "in"],
+    ["Trainer commission", "−Rs 107,500", "out"],
+    ["Expenses", "−Rs 324,000", "out"],
+    ["Equipment bought", "−Rs 145,000", "out"],
+    ["Salaries", "−Rs 480,000", "out"],
   ];
   return (
     <Frame>
@@ -602,7 +602,7 @@ function BooksPicture() {
       </div>
       <p className="v-pop mt-2 flex items-center justify-between rounded-lg bg-slate-950 px-3 py-2 text-white" style={stagger(11)}>
         <span className="text-[11px] font-semibold">Net profit</span>
-        <span className="font-display text-base font-bold text-emerald-300">$12,690</span>
+        <span className="font-display text-base font-bold text-emerald-300">Rs 634,500</span>
       </p>
     </Frame>
   );
@@ -633,7 +633,7 @@ function SecurityPicture() {
         ))}
       </div>
       <p className="v-rise mt-3 font-mono text-[10px] text-slate-500" style={stagger(7)}>
-        14:02 · Sara changed Unlimited monthly $59 → $62
+        14:02 · Sara changed Unlimited monthly Rs 5,000 → Rs 5,500
       </p>
     </Frame>
   );
@@ -1091,7 +1091,7 @@ function AssetsPicture() {
         ))}
       </ul>
       <p className="v-rise mt-2.5 text-[10px] text-slate-500" style={stagger(6)}>
-        Bought 12 Mar 2025 · $3,400 · invoice INV-2291
+        Bought 12 Mar 2025 · Rs 450,000 · invoice INV-2291
       </p>
     </Frame>
   );
@@ -1140,8 +1140,8 @@ function ReceiptsPicture() {
 
 function TrainerPayPicture() {
   const trainers = [
-    ["MJ", "Coach Marcus", "Salary $1,200 + 20% a session", "Payslip", "from-amber-400 to-orange-500"],
-    ["LN", "Coach Lina", "Commission only · $15 a session", "Pay by hand", "from-sky-400 to-indigo-500"],
+    ["MJ", "Coach Marcus", "Salary Rs 40,000 + 20% a session", "Payslip", "from-amber-400 to-orange-500"],
+    ["LN", "Coach Lina", "Commission only · Rs 500 a session", "Pay by hand", "from-sky-400 to-indigo-500"],
   ];
   return (
     <Frame>
@@ -1163,7 +1163,7 @@ function TrainerPayPicture() {
         <span className="flex items-center gap-1.5 text-orange-800">
           <FiPercent className="h-3.5 w-3.5" /> 17 sessions this month
         </span>
-        <span className="font-semibold text-orange-900">$340 commission</span>
+        <span className="font-semibold text-orange-900">Rs 5,100 commission</span>
       </div>
     </Frame>
   );

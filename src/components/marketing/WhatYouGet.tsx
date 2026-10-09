@@ -8,7 +8,7 @@ const ICONS = [FiGlobe, FiSmartphone, FiSettings];
 const TINTS = ["from-orange-500 to-rose-500", "from-brand-500 to-purple-500", "from-emerald-500 to-teal-500"];
 
 // The point a buyer has to get before anything else: this is not one more
-// piece of software for the desk. It is the website, the member app and the
+// piece of software for the desk. It is the website, the member portal and the
 // management system, set up together.
 export default function WhatYouGet() {
   return (

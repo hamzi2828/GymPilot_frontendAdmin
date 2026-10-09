@@ -7,7 +7,9 @@
 // goes on to Stripe, adds a card, and the gym is built the moment they
 // finish -- nobody in the panel involved (see /checkout/success). When it
 // cannot, no card is asked for: what this collects is sent as a request and
-// the panel turns it into a gym, as it always has.
+// the panel turns it into a gym, as it always has. The page says which of
+// the two it is, and in the second case what happens next and how the gym
+// will pay, so nobody thinks they have signed up when they have asked to.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -17,19 +19,21 @@ import {
   ApiError,
   CHECKOUT_DRAFT_KEY,
   formatMoney,
-  popularPlanIndex,
   publicFetch,
+  recommendedPlanIndex,
   yearlySaving,
   type PublicAddon,
   type PublicConfig,
   type PublicPlan,
   type SignupStarted,
 } from "@/lib/api";
+import { trackConversion } from "@/lib/analytics";
 import { PRICING } from "@/content/site";
 import { stagger } from "@/lib/motion";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import Brand from "@/components/marketing/Brand";
 import Glow from "@/components/marketing/Glow";
+import ContactLinks from "@/components/marketing/ContactLinks";
 
 type Cycle = "monthly" | "yearly";
 
@@ -110,9 +114,9 @@ export default function CheckoutClient() {
       .then((res) => {
         setPlans(res.data);
         // The plan the pricing page sent them with, while it is still sold;
-        // otherwise the one the pricing page marks most popular.
+        // otherwise the one the pricing page recommends.
         setPlanSlug((current) =>
-          current && res.data.some((p) => p.slug === current) ? current : res.data[popularPlanIndex(res.data.length)]?.slug || ""
+          current && res.data.some((p) => p.slug === current) ? current : res.data[recommendedPlanIndex(res.data)]?.slug || ""
         );
       })
       .catch((e) => setPlansError(e instanceof Error ? e.message : "Could not load the plans."));
@@ -154,6 +158,15 @@ export default function CheckoutClient() {
   }, [cancelled]);
 
   const plan = useMemo(() => (plans || []).find((p) => p.slug === planSlug) || null, [plans, planSlug]);
+
+  // Checkout has started once there is a plan on the page to buy. Counted
+  // once, whichever plan they move to afterwards.
+  const startTracked = useRef(false);
+  useEffect(() => {
+    if (!plan || startTracked.current) return;
+    startTracked.current = true;
+    trackConversion("checkout_started", { plan: plan.slug, value: plan.price.monthly, currency: plan.price.currency });
+  }, [plan]);
   // Yearly is only on offer where the plan has a yearly price: a link that
   // says ?cycle=yearly for a monthly-only plan, or a switch to one, lands on
   // monthly rather than on a price of nothing.
@@ -257,6 +270,7 @@ export default function CheckoutClient() {
       const sent = await publicFetch<{ emailed?: boolean }>("/demo-requests", { method: "POST", body: { kind: "trial", ...details } });
       setEmailed(sent?.emailed !== false);
       setDone(true);
+      trackConversion("signup_completed", { plan: plan.slug, value: total, currency, method: "request" });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (e) {
       if (e instanceof ApiError && e.code === "SLUG_TAKEN") {
@@ -313,6 +327,9 @@ export default function CheckoutClient() {
               </span>
             </div>
             {plan?.trialDays ? <p className="mt-2 text-xs text-emerald-400">Free for the first {plan.trialDays} days. Nothing to pay today.</p> : null}
+            <p className="mt-3 border-t border-white/10 pt-3 text-xs leading-relaxed text-slate-400">
+              How you pay: we contact you with payment details before anything is due. Bank transfer, JazzCash or Easypaisa.
+            </p>
           </div>
           <Link
             href="/"
@@ -320,6 +337,8 @@ export default function CheckoutClient() {
           >
             Back to the website <FiArrowRight className="h-4 w-4" />
           </Link>
+          <p className="mt-10 text-sm text-slate-400">Questions in the meantime?</p>
+          <ContactLinks layout="row" className="mt-3" />
         </div>
       </main>
     );
@@ -345,14 +364,14 @@ export default function CheckoutClient() {
         <div className="mx-auto max-w-6xl">
           <p className="a-rise text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">Checkout</p>
           <h1 className="a-rise mt-2 font-display text-3xl font-extrabold tracking-[-0.02em] text-slate-900 sm:text-4xl" style={stagger(1)}>
-            Start your free trial
+            {selfServe === false ? "Request your free trial" : "Start your free trial"}
           </h1>
           <p className="a-rise mt-3 max-w-2xl text-base text-slate-600" style={stagger(2)}>
             {selfServe === null
               ? "Pick a plan and tell us about your gym."
               : selfServe
               ? "Pick a plan, tell us about your gym, then add a card on Stripe's secure page. Your gym — website, admin and all — is set up the moment you finish."
-              : "No card needed. Tell us about your gym and we will have it running — website, admin and all — usually within one working day."}
+              : "No card needed. Send us your details and our team sets your gym up — website, admin and all — usually within one working day."}
           </p>
 
           {cancelled && (
@@ -372,6 +391,8 @@ export default function CheckoutClient() {
               >
                 Try again
               </button>
+              <p className="mt-6 text-sm text-slate-500">Still not loading? Reach us another way.</p>
+              <ContactLinks tone="light" layout="row" className="mt-3" />
             </div>
           ) : !plans ? (
             <div className="mt-10 h-64 animate-pulse rounded-3xl border border-slate-200 bg-white" />
@@ -385,7 +406,8 @@ export default function CheckoutClient() {
           ) : (
             <div className="mt-10 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
               {/* ---------------------------- details ---------------------------- */}
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-card sm:p-8">
+              {/* Second on a phone: what they are buying, and for how much, is read first. */}
+              <div className="order-2 rounded-3xl border border-slate-200 bg-white p-6 shadow-card sm:p-8 lg:order-1">
                 <h2 className="font-display text-lg font-bold text-slate-900">Your details</h2>
 
                 {error && <p className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
@@ -482,16 +504,59 @@ export default function CheckoutClient() {
                   />
                 </div>
 
+                {/* On a phone the plan is a scroll back up by now: say it again beside the button. */}
+                <p className="mt-7 flex items-baseline justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3 text-sm lg:hidden">
+                  <span className="text-slate-600">
+                    {plan?.name || "Plan"} · {cycle}
+                  </span>
+                  <span className="font-display font-bold text-slate-900">
+                    {formatMoney(total, currency)} <span className="text-xs font-normal text-slate-500">/ {per}</span>
+                  </span>
+                </p>
+
+                {/* No payment page follows this form, so it says what does. */}
+                {selfServe === false && (
+                  <div className="mt-4 rounded-2xl border border-brand-100 bg-brand-50/60 p-4 lg:mt-7">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-700">What happens next</p>
+                    <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700">
+                      <li>You send this form. No card, and nothing to pay today.</li>
+                      <li>Our team sets your gym up and emails you your web address and a link to set your password, usually within one working day.</li>
+                      <li>
+                        {plan?.trialDays ? `Your ${plan.trialDays}-day free trial starts then. ` : ""}
+                        We contact you with payment details before anything is due: bank transfer, JazzCash or Easypaisa.
+                      </li>
+                    </ol>
+                  </div>
+                )}
+
+                <p className={`text-center text-xs leading-relaxed text-slate-500 ${selfServe === false ? "mt-4" : "mt-4 lg:mt-7"}`}>
+                  By continuing you agree to our{" "}
+                  <Link href="/terms" target="_blank" className="font-semibold text-slate-700 underline underline-offset-2 hover:text-slate-900">
+                    Terms
+                  </Link>
+                  ,{" "}
+                  <Link href="/privacy" target="_blank" className="font-semibold text-slate-700 underline underline-offset-2 hover:text-slate-900">
+                    Privacy Policy
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="/refund-policy" target="_blank" className="font-semibold text-slate-700 underline underline-offset-2 hover:text-slate-900">
+                    Refund Policy
+                  </Link>
+                  .
+                </p>
+
                 <button
                   type="button"
                   onClick={submit}
                   disabled={busy || !plan}
-                  className="btn-shine group mt-7 inline-flex h-13 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 py-4 text-base font-bold text-white shadow-lift transition-transform duration-300 hover:-translate-y-0.5 disabled:opacity-60"
+                  className="btn-shine group mt-3 inline-flex h-13 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 py-4 text-base font-bold text-white shadow-lift transition-transform duration-300 hover:-translate-y-0.5 disabled:opacity-60"
                 >
                   {busy
                     ? selfServe
                       ? "Opening secure payment…"
                       : "Sending…"
+                    : selfServe === false
+                    ? "Send my request"
                     : plan?.trialDays
                     ? `Start my ${plan.trialDays}-day free trial`
                     : selfServe
@@ -505,7 +570,7 @@ export default function CheckoutClient() {
                   <FiLock className="mt-px h-3.5 w-3.5 shrink-0" />
                   <span>
                     {!selfServe
-                      ? "No card today. We only use these details to set your gym up."
+                      ? "No card today. We only use these details to set your gym up and to contact you about it."
                       : plan?.trialDays
                       ? `Next, add a card on Stripe's secure page. Nothing is charged today: ${formatMoney(total, currency)} is taken on ${dayAfter(
                           plan.trialDays
@@ -513,10 +578,15 @@ export default function CheckoutClient() {
                       : `Next, add a card on Stripe's secure page. You pay ${formatMoney(total, currency)} today, then every ${per} until you cancel.`}
                   </span>
                 </p>
+
+                <div className="mt-6 border-t border-slate-100 pt-5 text-center">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Stuck, or have a question?</p>
+                  <ContactLinks tone="light" layout="row" className="mt-3" />
+                </div>
               </div>
 
               {/* ----------------------------- summary --------------------------- */}
-              <aside className="lg:sticky lg:top-8 lg:self-start">
+              <aside className="order-1 lg:sticky lg:top-8 lg:order-2 lg:self-start">
                 <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-card">
                   <h2 className="font-display text-lg font-bold text-slate-900">Your plan</h2>
 
@@ -620,6 +690,9 @@ export default function CheckoutClient() {
                           );
                         })}
                       </div>
+                      {[...included, ...sellable].some((a) => a.slug.includes("app")) && (
+                        <p className="mt-2 text-xs leading-relaxed text-slate-500">{PRICING.appNote}</p>
+                      )}
                     </>
                   )}
 

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import SiteHeader from "@/components/marketing/SiteHeader";
 import Hero from "@/components/marketing/Hero";
 import WhatYouGet from "@/components/marketing/WhatYouGet";
@@ -13,6 +14,11 @@ import CtaBand from "@/components/marketing/CtaBand";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import JsonLd from "@/components/marketing/JsonLd";
 import ScrollProgress from "@/components/marketing/ScrollProgress";
+
+// The landing page is "/" whatever a link to it carried (?utm_source=…).
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function LandingPage() {
   return (

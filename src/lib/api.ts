@@ -93,13 +93,19 @@ export interface PublicAddon {
   planSlugs: string[];
 }
 
+/** The plan we recommend to most gyms: up to 300 members (scripts/platform/seedPlans.js). */
+const RECOMMENDED_PLAN_SLUG = "starter";
+
 /**
- * The plan the site points at: the middle of three, the second-from-top of
- * four -- the tier most gyms actually land on, never the cheapest or the
- * dearest. Pricing marks it "Most popular"; checkout starts on it.
+ * The plan the site points at. Pricing marks it "Recommended" and checkout
+ * starts on it. It is our advice, not a count of what others bought. When
+ * the price list has no plan by that name it is the second one up -- never
+ * the cheapest, never the dearest.
  */
-export function popularPlanIndex(count: number): number {
-  return count >= 4 ? 2 : count >= 3 ? 1 : 0;
+export function recommendedPlanIndex(plans: { slug: string }[]): number {
+  const named = plans.findIndex((p) => p.slug === RECOMMENDED_PLAN_SLUG);
+  if (named >= 0) return named;
+  return plans.length >= 3 ? 1 : 0;
 }
 
 /** What paying yearly saves on twelve monthly payments, in whole percent; 0 when there is no yearly price. */

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { FiMail, FiPhone } from "react-icons/fi";
 import Brand from "./Brand";
-import { FOOTER, SITE } from "@/content/site";
+import ContactLinks from "./ContactLinks";
+import { FOOTER, LEGAL, SITE } from "@/content/site";
 
 export default function SiteFooter() {
   return (
@@ -11,24 +11,14 @@ export default function SiteFooter() {
           <div>
             <Brand />
             <p className="mt-4 max-w-sm text-sm leading-relaxed">{FOOTER.blurb}</p>
-            {(SITE.contactEmail || SITE.contactPhone) && (
-              <div className="mt-5 flex flex-col gap-1.5 text-sm">
-                {SITE.contactEmail && (
-                  <a href={`mailto:${SITE.contactEmail}`} className="inline-flex items-center gap-2 hover:text-white">
-                    <FiMail className="h-4 w-4" /> {SITE.contactEmail}
-                  </a>
-                )}
-                {SITE.contactPhone && (
-                  <a href={`tel:${SITE.contactPhone}`} className="inline-flex items-center gap-2 hover:text-white">
-                    <FiPhone className="h-4 w-4" /> {SITE.contactPhone}
-                  </a>
-                )}
-              </div>
-            )}
+            {/* WhatsApp, email and phone when set. The contact form, which is
+                always there, is in the "For gyms" column. */}
+            <ContactLinks form={false} className="mt-5" />
           </div>
           {FOOTER.columns.map((col) => (
             <div key={col.title}>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{col.title}</p>
+              {col.note && <p className="mt-4 text-sm leading-relaxed">{col.note}</p>}
               <ul className="mt-4 space-y-2.5 text-sm">
                 {col.links.map((l) => (
                   <li key={l.href + l.label}>
@@ -43,11 +33,26 @@ export default function SiteFooter() {
             </div>
           ))}
         </div>
-        <div className="mt-12 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {SITE.name}. All rights reserved.
+            © {new Date().getFullYear()} {LEGAL.name || SITE.name}. All rights reserved.
           </p>
-          <p>Every gym on {SITE.name} runs in its own database on its own domain.</p>
+          <nav aria-label="Legal">
+            <ul className="flex flex-wrap gap-x-5 gap-y-2">
+              {FOOTER.legal.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="hover:text-white">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link href={FOOTER.platform.href} className="text-slate-600 hover:text-slate-300">
+                  {FOOTER.platform.label}
+                </Link>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </footer>

@@ -8,17 +8,66 @@ import type { FeatureKey } from "./features";
 /** A line of copy that can lead to a feature's own page. */
 export type Linked = string | { text: string; feature: FeatureKey };
 
+// Where this site lives, for canonical links, Open Graph, the sitemap and
+// robots.txt. NEXT_PUBLIC_SITE_URL says so; on Vercel without it, the
+// project's production domain does, then the deployment's own address. Only
+// `next dev` falls back to localhost: a production build with no address
+// stops with the reason, rather than publish a sitemap that points every
+// search engine at http://localhost:3001.
+function siteUrl(): string {
+  const vercel =
+    process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+    process.env.NEXT_PUBLIC_VERCEL_URL ||
+    process.env.VERCEL_URL;
+  const url = process.env.NEXT_PUBLIC_SITE_URL || (vercel ? `https://${vercel}` : "");
+  if (url) return url.replace(/\/+$/, "");
+  if (process.env.NODE_ENV !== "production") return "http://localhost:3001";
+  // In the browser the address is not in doubt, and nothing there reads it
+  // for search engines.
+  if (typeof window !== "undefined") return window.location.origin;
+  throw new Error(
+    "NEXT_PUBLIC_SITE_URL is not set. Set it to the address this site is served at (for example https://www.example.com) before building for production: canonical links, Open Graph, the sitemap and robots.txt are built from it."
+  );
+}
+
+// The WhatsApp number people message us on, digits only, country code first
+// (923001234567): the form wa.me links need.
+const WHATSAPP = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "").replace(/[^\d]/g, "").replace(/^0+/, "");
+
 export const SITE = {
   name: "GymPilot",
   tagline: "Run your whole gym from one place",
-  description:
-    "Memberships, billing, class booking, personal training, front desk, shop, messaging and your own website — with a private database for every gym. GymPilot is the gym management platform you can sell on your own domain.",
-  url: (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001").replace(/\/+$/, ""),
+  // For search results and link previews: one sentence, under 160 characters.
+  description: "Gym management software: collect fees, see who owes, check members in, run classes and reports, with your own gym website. Free trial on every plan.",
+  url: siteUrl(),
   contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
   contactPhone: process.env.NEXT_PUBLIC_CONTACT_PHONE || "",
-  whatsapp: (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "").replace(/[^\d]/g, ""),
+  whatsapp: WHATSAPP,
+  /** Opens a WhatsApp chat with us, the first message started. Empty when no number is set. */
+  whatsappUrl: WHATSAPP ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Hi GymPilot, I would like to know more for my gym.")}` : "",
   demoGymUrl: process.env.NEXT_PUBLIC_DEMO_GYM_URL || "",
   heroPills: ["Memberships & billing", "Class booking", "Personal training", "Your own domain"],
+};
+
+// Who sells GymPilot, for the legal pages (/terms, /privacy, /refund-policy).
+// Every line is read from the environment and shown only when it is set, so
+// nothing invented ever appears as the seller's name or address. See
+// .env.example for what each one is.
+export const LEGAL = {
+  /** The person or company that sells GymPilot, as registered. */
+  name: process.env.NEXT_PUBLIC_LEGAL_NAME || "",
+  address: process.env.NEXT_PUBLIC_LEGAL_ADDRESS || "",
+  /** Where legal and privacy questions go; the contact email when not set. */
+  email: process.env.NEXT_PUBLIC_LEGAL_EMAIL || process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
+  /** The country whose law the terms follow, as it should read after "the laws of". */
+  governingLaw: process.env.NEXT_PUBLIC_LEGAL_GOVERNING_LAW || "",
+  /** The city or district whose courts hear a dispute, as it should read after "the courts of". */
+  jurisdiction: process.env.NEXT_PUBLIC_LEGAL_JURISDICTION || "",
+  /** Where the servers are, in plain words ("Singapore", "the European Union"). */
+  hostingRegion: process.env.NEXT_PUBLIC_LEGAL_HOSTING_REGION || "",
+  /** The date the legal pages were last changed, as it should be read ("9 October 2026"). */
+  updated: process.env.NEXT_PUBLIC_LEGAL_UPDATED || "",
 };
 
 // The header's menu. A "#…" target is a section of the landing page (the
@@ -33,13 +82,13 @@ export const NAV: { label: string; href: string; menu?: "features"; spy?: string
 ];
 
 export const HERO = {
-  eyebrow: "Website + member app + management system",
+  eyebrow: "Website + member portal + management system",
   title: ["Not just gym software.", "Your gym's", "complete setup."],
   lead:
-    "GymPilot gives your gym its own website on its own web address, an app your members keep on their phone, and the system that runs everything behind the desk — memberships, payments, classes, staff and messages. One setup, live in a day, built to take your gym to the next level.",
+    "GymPilot gives your gym its own website on its own web address, a member portal your members add to their phone's home screen, and the system that runs everything behind the desk — memberships, payments, classes, staff and messages. One setup, live in a day, built to take your gym to the next level.",
   primary: { label: "Book a demo", href: "#demo" },
   secondary: { label: "See what's included", href: "#included" },
-  trust: ["Your own website included", "Member app on any plan", "Everything set up for you"],
+  trust: ["Your own website included", "Member portal in every plan", "Everything set up for you"],
 };
 
 export const WHAT_YOU_GET: {
@@ -57,13 +106,13 @@ export const WHAT_YOU_GET: {
       kicker: "For people finding you",
       title: "Your own website",
       text: "A fast, good-looking website on your own web address, with your logo and colours. People see your classes, trainers and prices, and join online.",
-      points: ["yourgym.com, with the padlock", "Classes, trainers, prices, blog, map, hours", "Join and pay online", "Found on Google"],
+      points: ["yourgym.com, connected for you", "Classes, trainers, prices, blog, map, hours", "Join and pay online", "Found on Google"],
     },
     {
       kicker: "For your members",
-      title: "A member app",
-      text: "Members book classes and PT, pay, check in at the door and get reminders — from an app they install on their phone in one tap.",
-      points: ["Book classes and PT", "Pay and see receipts", "Check in with a QR code", "Reminders by WhatsApp, SMS, email and push"],
+      title: "A member portal",
+      text: "Members book classes and PT, pay, check in at the door and get reminders — from a portal that opens in their browser and sits on their home screen like an app. No app store.",
+      points: ["Book classes and PT", "Pay and see receipts", "Check in with a QR code", "Reminders by email, push, SMS or WhatsApp"],
     },
     {
       kicker: "For you and your staff",
@@ -88,10 +137,10 @@ export const WHAT_YOU_GET: {
 export const AUDIENCES = ["Boutique studios", "24/7 gyms", "CrossFit boxes", "Martial arts & boxing", "Yoga & pilates", "Personal training teams", "Ladies-only gyms", "Multi-trainer clubs"];
 
 export const PROOF = [
-  { value: "1", label: "private online presence per gym", hint: "Your own website, member app and database." },
-  { value: "4", label: "messaging channels", hint: "Email, SMS, WhatsApp and push — with automations that run themselves." },
-  { value: "5", label: "languages, RTL included", hint: "English, Arabic, Urdu, Spanish and French out of the box." },
-  { value: "1", label: "optional add-on", hint: "Billing, booking, POS, payroll, reports — every plan is the full product. The member app is the one thing sold on top." },
+  { value: "1", label: "private online presence per gym", hint: "Your own website, member portal and database." },
+  { value: "4", label: "messaging channels", hint: "Email, push, SMS and WhatsApp. SMS and WhatsApp send through your own provider account, which you pay for. Email sends through your own mailbox." },
+  { value: "5", label: "website languages", hint: "Your public website in English, Arabic, Urdu, Spanish or French. The screens your staff use are in English." },
+  { value: "1", label: "optional add-on", hint: "Billing, booking, POS, payroll, reports — every plan is the full product. The native member app is the one thing sold on top." },
 ];
 
 // The feature list moved to content/features.ts: the landing page shows the
@@ -101,17 +150,17 @@ export const HOW_IT_WORKS = {
   eyebrow: "How it works",
   title: "Up and running in a day",
   text: "Three steps. We do the technical part.",
-  note: "No web address yet? Start on a free GymPilot address and add your own later.",
+  note: "No web address yet? We give you one when we set your gym up, and connect your own later.",
 };
 
 export const STEPS = [
   {
     title: "We set up your gym",
-    text: "Tell us your gym's name and pick a plan. Within one working day you have your own website, member app and admin area.",
+    text: "Tell us your gym's name and pick a plan. Within one working day you have your own website, member portal and admin area.",
   },
   {
-    title: "Connect your web address",
-    text: "Point your domain (like yourgym.com) at GymPilot. We handle the rest, padlock included.",
+    title: "We connect your web address",
+    text: "Have a domain like yourgym.com? Tell us after you sign up. Our team connects it for you, padlock included.",
   },
   {
     title: "Start selling",
@@ -124,20 +173,20 @@ export const SHOWCASES = [
     eyebrow: "Own brand, own domain",
     title: "A website members actually find — and it is yours",
     text: "Every gym on GymPilot gets a public website on its own domain: classes, trainers, memberships, blog, contact, opening hours and a map, with the colours and logo of the business. Search engines see a real business, not a subpage of someone else's platform.",
-    points: ["Custom domain with automatic SSL", "SEO title, description and structured data", "Themes, logo, social links, WhatsApp button", "Five languages including right-to-left"],
+    points: ["Your own domain, connected by our team", "SEO title, description and structured data", "Themes, logo, social links, WhatsApp button", "Public website in 5 languages"],
     visual: "website",
   },
   {
     eyebrow: "Billing",
     title: "Money that arrives without chasing",
-    text: "Stripe recurring billing through the gym's own account, renewal reminders, failed-payment recovery, bank transfer with receipt review, and invoices that go out by themselves. At the desk, part payments are recorded and the balance is tracked. When a membership lapses the member is told, and the desk sees it — and hears it — the next time they check in.",
-    points: ["Cards online, bank transfer, desk payments", "Freezes, upgrades and pro-rata", "Part payments and dues", "Sales, expenses and assets in one ledger"],
+    text: "At the desk, record each fee as cash, bank transfer, JazzCash or Easypaisa, take part payments and track the balance. Members can pay by bank transfer and upload the receipt for you to check. Renewal reminders and invoices go out by themselves. When a membership lapses the member is told, and the desk sees it — and hears it — the next time they check in. Card payments online work where Stripe is available to your business.",
+    points: ["Cash, bank transfer, JazzCash, Easypaisa", "Bank transfer with receipt review", "Part payments and dues", "Sales, expenses and assets in one ledger"],
     visual: "billing",
   },
   {
     eyebrow: "Members",
-    title: "An app they keep on their phone",
-    text: "Members book classes and PT, see their attendance, download receipts, manage notifications and sign the waiver — from an app they install straight from the browser. Push, WhatsApp and SMS bring them back when they drift.",
+    title: "A portal they keep on their phone",
+    text: "Members book classes and PT, see their attendance, download receipts, manage notifications and sign the waiver — from a portal they add to their home screen straight from the browser. Push notifications, and SMS or WhatsApp through your own provider, bring them back when they drift.",
     points: ["Class & PT booking with credits", "Health questionnaire and signed agreement", "Receipts, invoices and locker", "Absent-member nudges and win-back campaigns"],
     visual: "members",
   },
@@ -146,22 +195,27 @@ export const SHOWCASES = [
 export const PRICING = {
   eyebrow: "Pricing",
   title: "One price. The whole product.",
-  text: "Every plan includes billing, booking, PT, front desk, shop, messaging, staff, reports and the website. Plans differ by size; the member app is added to any of them. Prices come straight from your GymPilot account.",
+  text: "Every plan is the whole product: fee collection, check-in, classes, the shop, messaging, reports and your website. Plans differ only by size. Every plan starts with a free trial and includes the member portal. The native member app is an add-on on Starter and Growth, and comes with Pro.",
   included: [
     { text: "Own domain & website", feature: "website" },
-    { text: "Stripe & bank transfer billing", feature: "billing" },
+    { text: "Desk, bank transfer & card payments", feature: "billing" },
     { text: "Fee collection, expiry lists & dues", feature: "feedesk" },
     { text: "Check-in with spoken fee alerts", feature: "alerts" },
     { text: "Class & PT booking", feature: "booking" },
-    { text: "Messaging: email, SMS, WhatsApp, push", feature: "messaging" },
+    { text: "Email & push; SMS & WhatsApp via your provider", feature: "messaging" },
     { text: "POS with 80 / 58 mm thermal receipts", feature: "receipts" },
     { text: "Staff, trainer pay & payslips", feature: "trainerpay" },
     { text: "Daily sales & profit and loss", feature: "dailysales" },
     { text: "Reports in Excel & CSV", feature: "reports" },
-    { text: "5 languages", feature: "setup" },
+    { text: "Public website in 5 languages", feature: "setup" },
     { text: "Daily encrypted backups & private database", feature: "backups" },
   ] as Linked[],
+  // Under the plans, wherever the native app is sold or given away.
+  appNote: "The native member app is not in the App Store or Google Play yet. Ask us where it stands before you add it. Every plan includes the member portal in the browser.",
+  // The price list loaded and is empty.
   fallback: "Plans are being set up. Book a demo and we will send you a quote the same day.",
+  // The price list would not load, after trying again by itself.
+  unavailable: "We could not load the prices just now. Try again in a moment, or ask us and we will send them to you.",
 };
 
 // Customer quotes. Only entries with `sample: false` are shown (see
@@ -196,11 +250,11 @@ export const FAQ = [
   },
   {
     q: "Can I use my own domain?",
-    a: "Yes. Point your domain at GymPilot and it is verified with SSL issued automatically. Your website, member portal and admin panel all live on it.",
+    a: "Yes. Tell us your domain after you sign up and our team connects it for you, padlock (SSL) included. Your website, member portal and admin panel all live on it.",
   },
   {
     q: "How do payments work?",
-    a: "Card payments online run through your own Stripe account, so the money goes straight to you. Members can also pay by bank transfer and upload the receipt. At the desk you record cash, card-terminal, bank transfer, JazzCash, Easypaisa and other mobile-wallet payments — part payments too, with the balance tracked — and memberships get an invoice either way.",
+    a: "At the desk you record cash, bank transfer, JazzCash, Easypaisa, other mobile-wallet and card-terminal payments — part payments too, with the balance tracked. These are recorded, not processed: the money reaches you as it always has. Members can also pay by bank transfer and upload the receipt for you to check. Every membership gets an invoice. Card payments online run through your own Stripe account, where Stripe is available to your business.",
   },
   {
     q: "Can I bring my existing members across?",
@@ -208,11 +262,11 @@ export const FAQ = [
   },
   {
     q: "Do members need to download an app?",
-    a: "No app store. The member portal installs as an app from the browser on iPhone, Android and desktop, and receives push notifications.",
+    a: "No. Every plan includes the member portal. It opens in the browser on iPhone, Android and desktop, members add it to their home screen like an app, and it receives push notifications. A native member app is a separate add-on on Starter and Growth, and comes with Pro. It is not in the App Store or Google Play yet.",
   },
   {
     q: "What about the front desk hardware?",
-    a: "Any tablet or PC with a browser becomes a check-in kiosk: it scans members' QR codes with its camera or takes a typed member ID. For fingerprints there is a Windows desk app that works with DigitalPersona USB readers. Both play a different sound for each kind of check-in and can say “Fee expired, please renew” out loud.",
+    a: "Any tablet or PC with a browser becomes a check-in kiosk: it scans members' QR codes with its camera or takes a typed member ID. For fingerprints there is a Windows desk app that works with DigitalPersona USB readers; our team installs it on your front-desk PC. Wall-mounted fingerprint machines are not supported, and check-in needs an internet connection. Both play a different sound for each kind of check-in and can say “Fee expired, please renew” out loud.",
   },
   {
     q: "Is my data backed up?",
@@ -220,11 +274,15 @@ export const FAQ = [
   },
   {
     q: "Which languages are supported?",
-    a: "English, Arabic, Urdu, Spanish and French, including right-to-left layout. The gym picks its default; visitors can switch.",
+    a: "Your public website comes in English, Arabic, Urdu, Spanish and French, right-to-left included. You pick the default and visitors can switch. The screens your staff use are in English.",
+  },
+  {
+    q: "I am already a customer. Where do I sign in?",
+    a: "At your gym's own web address, not on this site. It is in your welcome email: open it and press Sign in. Lost it? Message us and we will send it again.",
   },
   {
     q: "Is there a contract?",
-    a: "Plans are monthly or yearly and can be cancelled any time. Every plan starts with a free trial. The member app is sold as an add-on on the plans that do not already include it.",
+    a: "Plans are monthly or yearly and can be cancelled any time. Every plan starts with a free trial. The native member app is an add-on on Starter and Growth, and comes with Pro.",
   },
 ];
 
@@ -233,6 +291,18 @@ export const DEMO_FORM = {
   title: "See GymPilot running on a gym like yours",
   text: "Tell us a little about the gym and we will set up a walkthrough on your numbers — memberships, timetable, billing and the website.",
   sizes: ["Under 100 members", "100 – 500 members", "500 – 2,000 members", "2,000+ members"],
+};
+
+// The contact page (/contact): the same form, asked as a question. It is the
+// way to reach us that always works, whatever else is or is not set.
+export const CONTACT = {
+  eyebrow: "Contact us",
+  title: "Talk to us",
+  text: "Ask a question, book a demo or get help with a sign-up. Fill in the form and we reply by email or phone.",
+  whatsapp: "Message us on WhatsApp",
+  // A gym's staff and members sign in on the gym's own website. This site
+  // only has the platform's sign-in, which is no use to them.
+  existing: "Already a customer? Sign in at your gym's own web address, not here. It is in your welcome email.",
 };
 
 export const FOOTER = {
@@ -244,13 +314,24 @@ export const FOOTER = {
       links: [
         { label: "All features", href: "/features" },
         { label: "Book a demo", href: "#demo" },
+        { label: "Contact us", href: "/contact" },
         { label: "Pricing", href: "#pricing" },
         { label: "Member app", href: "/features/member-app" },
       ],
     },
     {
-      title: "Platform",
-      links: [{ label: "Platform sign in", href: "/login" }],
+      title: "Customers",
+      note: CONTACT.existing,
+      links: [{ label: "Help signing in", href: "/contact" }],
     },
+  ] as { title: string; note?: string; links: { label: string; href: string }[] }[],
+  // For GymPilot's own staff. One quiet link, so nobody takes it for theirs.
+  platform: { label: "Platform sign in", href: "/login" },
+  // The small print, on the footer's last line on every page.
+  legal: [
+    { label: "Terms", href: "/terms" },
+    { label: "Privacy", href: "/privacy" },
+    { label: "Members' data", href: "/privacy#members-data" },
+    { label: "Refunds & cancelling", href: "/refund-policy" },
   ],
 };

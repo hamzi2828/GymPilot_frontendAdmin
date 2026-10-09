@@ -5,13 +5,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FiArrowRight, FiCheck, FiPlus, FiSmartphone } from "react-icons/fi";
+import { FiArrowRight, FiCheck, FiPlus, FiRefreshCw, FiSmartphone } from "react-icons/fi";
 import { PRICING } from "@/content/site";
-import { formatMoney, popularPlanIndex, publicFetch, yearlySaving, type PublicAddon, type PublicPlan } from "@/lib/api";
+import { formatMoney, publicFetch, recommendedPlanIndex, yearlySaving, type PublicAddon, type PublicPlan } from "@/lib/api";
 import { stagger } from "@/lib/motion";
 import LinkedText, { linkedKey } from "./LinkedText";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
+
+// A sleeping API answers on the second or third knock: the prices are asked
+// for again after each of these waits before the page admits it has none.
+const RETRY_AFTER_MS = [2000, 5000, 10000];
 
 function limit(n: number) {
   return n ? n.toLocaleString() : "Unlimited";
@@ -97,17 +101,48 @@ export default function Pricing() {
   const [addons, setAddons] = useState<PublicAddon[]>([]);
   const [failed, setFailed] = useState(false);
   const [yearly, setYearly] = useState(false);
+  // Bumped by "Try again": the effect below starts over.
+  const [round, setRound] = useState(0);
 
   useEffect(() => {
-    publicFetch<{ data: PublicPlan[] }>("/plans")
-      .then((res) => setPlans(res.data))
-      .catch(() => setFailed(true));
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let tries = 0;
+
+    const loadPlans = () => {
+      publicFetch<{ data: PublicPlan[] }>("/plans")
+        .then((res) => {
+          if (!stopped) setPlans(res.data);
+        })
+        .catch(() => {
+          if (stopped) return;
+          const wait = RETRY_AFTER_MS[tries++];
+          if (wait === undefined) setFailed(true);
+          else timer = setTimeout(loadPlans, wait);
+        });
+    };
+    loadPlans();
     // Add-ons are a bonus on the card: if this call fails the prices still
     // render, they just do not mention the extras.
     publicFetch<{ data: PublicAddon[] }>("/addons")
-      .then((res) => setAddons(res.data))
-      .catch(() => setAddons([]));
-  }, []);
+      .then((res) => {
+        if (!stopped) setAddons(res.data);
+      })
+      .catch(() => {
+        if (!stopped) setAddons([]);
+      });
+
+    return () => {
+      stopped = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [round]);
+
+  const retry = () => {
+    setFailed(false);
+    setPlans(null);
+    setRound((n) => n + 1);
+  };
 
   /** The add-ons a plan hands over for nothing. */
   const includedFor = (plan: PublicPlan) =>
@@ -125,7 +160,7 @@ export default function Pricing() {
     );
 
   // The one we point at (checkout starts on the same one).
-  const popular = popularPlanIndex(plans ? plans.length : 0);
+  const recommended = recommendedPlanIndex(plans || []);
   const anyYearly = !!plans?.some((p) => p.price.yearly > 0);
   // The toggle promises only what the prices actually give.
   const bestSaving = plans ? Math.max(0, ...plans.map((p) => yearlySaving(p.price))) : 0;
@@ -166,7 +201,23 @@ export default function Pricing() {
             </div>
           )}
 
-          {(failed || (plans && plans.length === 0)) && (
+          {/* The prices would not load: say so, and offer another go. */}
+          {failed && (
+            <div className="mx-auto max-w-xl rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center" role="status">
+              <p className="text-base text-slate-600">{PRICING.unavailable}</p>
+              <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <button type="button" onClick={retry} className="btn-shine inline-flex h-11 items-center gap-2 rounded-full bg-slate-900 px-6 text-sm font-semibold text-white">
+                  <FiRefreshCw className="h-4 w-4" /> Try again
+                </button>
+                <a href="#demo" className="inline-flex h-11 items-center gap-2 rounded-full border border-slate-300 px-6 text-sm font-semibold text-slate-700 hover:border-slate-400">
+                  Ask us for the prices <FiArrowRight className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Loaded, and there is nothing on sale yet. */}
+          {!failed && plans && plans.length === 0 && (
             <div className="mx-auto max-w-xl rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
               <p className="text-base text-slate-600">{PRICING.fallback}</p>
               <a href="#demo" className="btn-shine mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-slate-900 px-6 text-sm font-semibold text-white">
@@ -188,7 +239,7 @@ export default function Pricing() {
               }`}
             >
               {plans.map((plan, i) => {
-                const isPopular = i === popular;
+                const isPopular = i === recommended;
                 const perMonth = yearly && plan.price.yearly > 0 ? plan.price.yearly / 12 : plan.price.monthly;
                 const saving = yearlySaving(plan.price);
                 // Yearly only where the plan has a yearly price; a monthly-only
@@ -196,7 +247,7 @@ export default function Pricing() {
                 const cycle = yearly && plan.price.yearly > 0 ? "yearly" : "monthly";
                 return (
                   <article key={plan.id} className={`a-rise relative flex flex-col rounded-3xl border p-7 transition-transform duration-300 hover:-translate-y-1 ${isPopular ? "border-brand-500 bg-slate-950 text-white shadow-glow" : "border-slate-200 bg-white text-slate-900 shadow-card hover:shadow-lift"}`} style={stagger(i * 2)}>
-                    {isPopular && <span className="absolute -top-3 left-7 animate-pulse-soft rounded-full bg-gradient-to-r from-brand-500 to-purple-500 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">Most popular</span>}
+                    {isPopular && <span className="absolute -top-3 left-7 animate-pulse-soft rounded-full bg-gradient-to-r from-brand-500 to-purple-500 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">Recommended</span>}
                     <h3 className="font-display text-xl font-semibold">{plan.name}</h3>
                     {plan.description && <p className={`mt-1.5 text-sm ${isPopular ? "text-slate-300" : "text-slate-500"}`}>{plan.description}</p>}
                     <p key={yearly ? "yearly" : "monthly"} className="a-pop mt-6 flex origin-left items-baseline gap-1.5">
@@ -255,6 +306,12 @@ export default function Pricing() {
                 );
               })}
             </div>
+          )}
+
+          {/* The add-on is on the cards with a price, so the cards' own page
+              says where it stands today. */}
+          {plans && plans.length > 0 && addons.some((a) => a.slug.includes("app")) && (
+            <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-relaxed text-slate-500">{PRICING.appNote}</p>
           )}
         </div>
 

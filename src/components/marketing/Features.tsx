@@ -156,7 +156,7 @@ export default function Features() {
 
             <FaHandPointLeft aria-hidden="true" className="a-point-l h-7 w-7 shrink-0 text-brand-500 drop-shadow-sm sm:h-10 sm:w-10" />
           </div>
-          <p className="mt-4 text-sm font-medium text-slate-500">Every one of them is in every plan, bar the member app add-on.</p>
+          <p className="mt-4 text-sm font-medium text-slate-500">Every one of them is in every plan, bar the native member app add-on.</p>
         </Reveal>
       </div>
     </section>

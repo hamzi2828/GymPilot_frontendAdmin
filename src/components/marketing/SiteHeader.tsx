@@ -3,9 +3,10 @@
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { FaWhatsapp } from "react-icons/fa";
 import { FiArrowRight, FiChevronDown, FiMenu, FiX } from "react-icons/fi";
 import Brand from "./Brand";
-import { NAV } from "@/content/site";
+import { CONTACT, NAV, SITE } from "@/content/site";
 import { FEATURES, FEATURE_GROUPS, featuresIn } from "@/content/features";
 import { FEATURE_ICONS } from "./featureIcons";
 
@@ -126,7 +127,7 @@ function FeaturesMenu({ current }: { current: boolean }) {
           </div>
 
           <div className="mt-8 flex items-center justify-between gap-6 border-t border-white/10 pt-5">
-            <p className="text-sm text-slate-400">Everything here is in every plan, except the member app: that is the one add-on.</p>
+            <p className="text-sm text-slate-400">Everything here is in every plan, except the native member app: that is the one add-on.</p>
             <Link href="/features" onClick={() => setOpen(false)} className={`group inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-transform hover:-translate-y-0.5 motion-reduce:transition-none ${FOCUS}`}>
               All {FEATURES.length} features <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
             </Link>
@@ -221,9 +222,11 @@ export default function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <Link href="/login" className={`rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:text-white ${FOCUS}`}>
-            Sign in
-          </Link>
+          {SITE.whatsappUrl && (
+            <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-emerald-300 transition-colors hover:text-emerald-200 ${FOCUS}`}>
+              <FaWhatsapp className="h-4 w-4" aria-hidden="true" /> WhatsApp
+            </a>
+          )}
           <Link href={href("#demo")} className={`btn-shine btn-shine-dark group inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-white/10 transition-transform hover:-translate-y-0.5 ${FOCUS}`}>
             Book a demo <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
@@ -295,9 +298,17 @@ export default function SiteHeader() {
             <Link href={href("#demo")} onClick={close} className={`inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 ${FOCUS}`}>
               Book a demo <FiArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/login" className={`inline-flex items-center justify-center rounded-full border border-white/15 px-4 py-2.5 text-sm font-medium text-slate-200 ${FOCUS}`}>
-              Platform sign in
+            {SITE.whatsappUrl && (
+              <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white ${FOCUS}`}>
+                <FaWhatsapp className="h-4 w-4" aria-hidden="true" /> Message us on WhatsApp
+              </a>
+            )}
+            <Link href="/contact" onClick={close} className={`inline-flex items-center justify-center rounded-full border border-white/15 px-4 py-2.5 text-sm font-medium text-slate-200 ${FOCUS}`}>
+              Contact us
             </Link>
+            {/* No sign-in here: a gym signs in on its own website, and the
+                platform's own sign-in is one quiet link in the footer. */}
+            <p className="px-1 pt-1 text-center text-xs leading-relaxed text-slate-500">{CONTACT.existing}</p>
           </div>
         </div>
       )}

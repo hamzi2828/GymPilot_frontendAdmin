@@ -1,4 +1,5 @@
-import { FiArrowRight, FiCheck, FiPlay } from "react-icons/fi";
+import { FaWhatsapp } from "react-icons/fa";
+import { FiArrowDown, FiArrowRight, FiCheck } from "react-icons/fi";
 import { HERO, SITE } from "@/content/site";
 import { stagger } from "@/lib/motion";
 import ProductMock from "./ProductMock";
@@ -40,9 +41,18 @@ export default function Hero() {
               {HERO.primary.label} <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </a>
             <a href={HERO.secondary.href} className="btn-shine inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 text-sm font-semibold text-white transition-colors hover:bg-white/10">
-              <FiPlay className="h-4 w-4 text-brand-300" /> {HERO.secondary.label}
+              {HERO.secondary.label} <FiArrowDown className="h-4 w-4 text-brand-300" />
             </a>
           </div>
+
+          {SITE.whatsappUrl && (
+            <p className="a-rise mt-4 text-sm text-slate-400" style={stagger(5)}>
+              Prefer to chat?{" "}
+              <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold text-emerald-300 underline-offset-4 hover:underline">
+                <FaWhatsapp className="h-4 w-4" aria-hidden="true" /> Message us on WhatsApp
+              </a>
+            </p>
+          )}
 
           <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-400">
             {HERO.trust.map((t, i) => (

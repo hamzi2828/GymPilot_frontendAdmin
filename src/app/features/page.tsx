@@ -13,7 +13,8 @@ import FeatureCard from "@/components/marketing/FeatureCard";
 import Reveal from "@/components/marketing/Reveal";
 import Glow from "@/components/marketing/Glow";
 
-const DESCRIPTION = `All ${FEATURES.length} features in GymPilot, in plain English: one-screen sign-up and fee collection, part payments and dues, fee expiry lists, check-in with spoken fee alerts, online payments, daily sales and profit and loss, the shop with thermal receipts, class booking, personal training, staff and trainer pay, messaging, your own website and member app, and nightly encrypted backups.`;
+// For search results: one sentence, under 160 characters.
+const DESCRIPTION = `All ${FEATURES.length} ${SITE.name} features in plain English: fee collection, dues, check-in alerts, reports, the shop, classes, staff, messaging, your website and backups.`;
 
 export const metadata: Metadata = {
   title: "Features",
