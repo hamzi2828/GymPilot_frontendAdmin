@@ -137,7 +137,20 @@ export default function PlatformStripePage() {
     }
   };
 
-  if (!data) return <Spinner />;
+  if (!data) {
+    // Loading failed: say so, with a way to try again, rather than spin for ever.
+    if (error) {
+      return (
+        <>
+          <Alert tone="error">{error}</Alert>
+          <Button variant="secondary" onClick={load}>
+            Try again
+          </Button>
+        </>
+      );
+    }
+    return <Spinner />;
+  }
 
   const s = data.stripe;
 

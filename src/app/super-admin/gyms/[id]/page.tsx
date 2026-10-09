@@ -7,7 +7,8 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FiAlertTriangle, FiCalendar, FiCreditCard, FiExternalLink, FiGlobe, FiLayers, FiMail, FiShield, FiUsers } from "react-icons/fi";
 import { PageHeader, Crumbs, Panel, StatCard, KeyValue, Button, Field, Input, Select, Textarea, Modal, Spinner, Alert, Pill, StatusPill, Avatar } from "../../_shared/ui";
-import { platformFetch, formatDate, formatMoney, SUBSCRIPTION_STATUSES, BILLING_CYCLES, type Addon, type DomainStatus, type Gym, type GymStats, type Plan } from "../../_shared/api";
+import { PaymentsPanel } from "./Payments";
+import { platformFetch, PlatformApiError, formatDate, formatMoney, SUBSCRIPTION_STATUSES, BILLING_CYCLES, type Addon, type DomainStatus, type Gym, type GymStats, type Plan } from "../../_shared/api";
 
 type Detail = Gym & { plan: Plan | null; stats: GymStats };
 type Admin = { id: string; name: string; email: string; is_active: boolean; last_login: string | null };
@@ -59,9 +60,28 @@ function GymDetail() {
   const [addonSlugs, setAddonSlugs] = useState<string[]>([]);
   const [resetOpen, setResetOpen] = useState(false);
   const [reset, setReset] = useState({ email: "", password: "" });
+  const [suspendOpen, setSuspendOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [confirmSlug, setConfirmSlug] = useState("");
   const [dropDatabase, setDropDatabase] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  // Stripe would not cancel the gym's card subscription, so nothing was
+  // deleted; the admin may say they have cancelled it by hand.
+  const [stripeRefused, setStripeRefused] = useState(false);
+  const [cancelledByHand, setCancelledByHand] = useState(false);
+  // Members who pay the gym by card keep being charged after it is gone;
+  // the admin has to say they know. `membersRefused`: the API found some
+  // this page had not counted yet.
+  const [membersRefused, setMembersRefused] = useState(false);
+  const [membersAcknowledged, setMembersAcknowledged] = useState(false);
+  const closeDelete = useCallback(() => {
+    setDeleteOpen(false);
+    setDeleteError(null);
+    setStripeRefused(false);
+    setCancelledByHand(false);
+    setMembersRefused(false);
+    setMembersAcknowledged(false);
+  }, []);
 
   const hydrate = useCallback((g: Detail) => {
     setGym(g);
@@ -191,7 +211,31 @@ function GymDetail() {
   if (error && !gym) return <Alert tone="error">{error}</Alert>;
   if (!gym) return <Spinner />;
 
+  const paysByCard = !!gym.subscription.stripeSubscriptionId;
+  // Suspending and reactivating. The API pauses the gym's card subscription
+  // in Stripe with it; when Stripe refuses, the switch still happens and the
+  // warning says what is left to do by hand.
+  const setGymStatus = async (status: "active" | "suspended") => {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const res = await platformFetch<{ warnings?: string[] }>(`/gyms/${id}/status`, { method: "PATCH", body: { status } });
+      await load();
+      if (res.warnings?.length) setError(res.warnings.join(" "));
+      else if (status === "suspended") setNotice(paysByCard ? "Gym suspended. Its card is not charged while it is suspended." : "Gym suspended.");
+      else setNotice(paysByCard ? "Gym reactivated. Its card is charged again from its next billing date." : "Gym reactivated.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Request failed");
+    } finally {
+      setBusy(false);
+      setSuspendOpen(false);
+    }
+  };
+
   const stats = gym.stats || {};
+  const cardSubscriptions = stats.card_subscriptions || 0;
+  const membersStillPaying = cardSubscriptions > 0 || membersRefused;
   // Primary domain, else the platform subdomain, else the API's fallback --
   // computed by the API so it matches the links in the gym's emails.
   const siteUrl = gym.siteUrl || (gym.domains[0]?.host ? `https://${gym.domains[0].host}` : "");
@@ -224,11 +268,11 @@ function GymDetail() {
               </Button>
             )}
             {gym.status === "suspended" ? (
-              <Button disabled={busy} onClick={() => run("Gym reactivated", () => platformFetch(`/gyms/${id}/status`, { method: "PATCH", body: { status: "active" } }))}>
+              <Button disabled={busy} onClick={() => setGymStatus("active")}>
                 Reactivate
               </Button>
             ) : (
-              <Button variant="danger" disabled={busy} onClick={() => run("Gym suspended", () => platformFetch(`/gyms/${id}/status`, { method: "PATCH", body: { status: "suspended" } }))}>
+              <Button variant="danger" disabled={busy} onClick={() => setSuspendOpen(true)}>
                 Suspend
               </Button>
             )}
@@ -496,7 +540,7 @@ function GymDetail() {
           description={
             gym.subscription.stripeSubscriptionId
               ? "This gym pays by card through Stripe: a new plan, cycle, price or add-on is changed on its Stripe subscription first (prorated), and saved here only once Stripe accepts it."
-              : "Renewals are recorded here. When the period end passes the gym goes past due, and after the grace period it stops being served."
+              : "This gym is billed by hand. Each time it pays, use Record payment below: that moves the period end on for you. When the period end passes the gym goes past due, and after the grace period it stops being served."
           }
           footer={
             <>
@@ -643,6 +687,18 @@ function GymDetail() {
           </div>
         </Panel>
 
+        {/* Payments taken outside Stripe, and the form that records one. */}
+        <PaymentsPanel
+          gymId={id}
+          gymName={gym.name}
+          reloadKey={gym.updatedAt}
+          onRecorded={async (message, warnings) => {
+            await load();
+            setNotice(message);
+            setError(warnings.length ? warnings.join(" ") : null);
+          }}
+        />
+
         {/* Administrators */}
         <Panel
           title={
@@ -727,37 +783,92 @@ function GymDetail() {
         </div>
       </Modal>
 
-      <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)} title={`Delete ${gym.name}`} size="sm">
+      <Modal open={suspendOpen} onClose={() => setSuspendOpen(false)} title={`Suspend ${gym.name}?`} size="sm">
         <p className="text-sm text-slate-700">
-          Type <span className="font-mono font-semibold">{gym.slug}</span> to confirm.
+          Its website, admin and member app go offline straight away, for the owner, staff and members alike. Nothing is deleted, and you can switch it back on at any time.
         </p>
+        <p className="mt-2 text-sm text-slate-700">
+          {paysByCard
+            ? "Its card subscription is paused in Stripe, so the owner is not charged while the gym is suspended. Reactivating starts the charges again from its next billing date."
+            : "This gym does not pay by card, so nothing changes in Stripe. Its paid-until date does not move: time spent suspended still counts."}
+        </p>
+        <div className="mt-6 flex justify-end gap-2">
+          <Button variant="secondary" onClick={() => setSuspendOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" disabled={busy} onClick={() => setGymStatus("suspended")}>
+            Suspend gym
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal open={deleteOpen} onClose={closeDelete} title={`Delete ${gym.name}`} size="sm">
+        <p className="text-sm text-slate-700">
+          This takes {gym.name} off GymPilot. Its website, admin and member app stop working straight away.
+        </p>
+        <p className="mt-2 text-sm text-slate-700">
+          {paysByCard
+            ? "Its card subscription is cancelled in Stripe first, so the owner is not charged again. Nothing is refunded automatically."
+            : "This gym does not pay by card, so there is no card subscription to cancel."}
+        </p>
+        {cardSubscriptions > 0 && (
+          <div className="mt-4">
+            <Alert tone="warning">
+              {cardSubscriptions === 1 ? "1 member pays" : `${cardSubscriptions} members pay`} this gym by card on a subscription. Deleting the gym does not stop those charges. Ask the owner to cancel them first, in the gym&apos;s admin or its Stripe dashboard.
+            </Alert>
+          </div>
+        )}
+        {deleteError && (
+          <div className="mt-4">
+            <Alert tone="error">{deleteError}</Alert>
+          </div>
+        )}
         <div className="mt-4 space-y-4">
-          <Field label="Slug">
+          <Field label={`Type ${gym.slug} to confirm`}>
             <Input value={confirmSlug} onChange={(e) => setConfirmSlug(e.target.value)} className="font-mono" />
           </Field>
           <label className="flex items-start gap-2 text-sm text-rose-700">
             <input type="checkbox" checked={dropDatabase} onChange={(e) => setDropDatabase(e.target.checked)} className="mt-0.5 h-4 w-4 accent-rose-600" />
             <span>
-              Also drop the database <span className="font-mono text-xs">{gym.database.name}</span> (irreversible)
+              Also drop the database <span className="font-mono text-xs">{gym.database.name}</span> and delete the gym&apos;s uploaded files: ID scans, documents, payment proofs (irreversible)
             </span>
           </label>
+          {membersStillPaying && (
+            <label className="flex items-start gap-2 text-sm text-slate-700">
+              <input type="checkbox" checked={membersAcknowledged} onChange={(e) => setMembersAcknowledged(e.target.checked)} className="mt-0.5 h-4 w-4 accent-rose-600" />
+              <span>I understand members&apos; card subscriptions with this gym are not cancelled by deleting it</span>
+            </label>
+          )}
+          {/* Offered only once Stripe has refused to cancel the subscription. */}
+          {stripeRefused && (
+            <label className="flex items-start gap-2 text-sm text-slate-700">
+              <input type="checkbox" checked={cancelledByHand} onChange={(e) => setCancelledByHand(e.target.checked)} className="mt-0.5 h-4 w-4 accent-rose-600" />
+              <span>
+                I have cancelled <span className="font-mono text-xs">{gym.subscription.stripeSubscriptionId}</span> in Stripe myself
+              </span>
+            </label>
+          )}
         </div>
         <div className="mt-6 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setDeleteOpen(false)}>
+          <Button variant="secondary" onClick={closeDelete}>
             Cancel
           </Button>
           <Button
             variant="danger"
-            disabled={busy || confirmSlug !== gym.slug}
+            disabled={busy || confirmSlug !== gym.slug || (stripeRefused && !cancelledByHand) || (membersStillPaying && !membersAcknowledged)}
             onClick={async () => {
               setBusy(true);
+              setDeleteError(null);
               try {
-                await platformFetch(`/gyms/${id}`, { method: "DELETE", body: { confirmSlug, dropDatabase } });
+                await platformFetch(`/gyms/${id}`, { method: "DELETE", body: { confirmSlug, dropDatabase, subscriptionCancelled: stripeRefused && cancelledByHand, memberSubscriptionsAcknowledged: membersStillPaying && membersAcknowledged } });
                 router.replace("/super-admin/gyms");
               } catch (e) {
-                setError(e instanceof Error ? e.message : "Could not delete the gym");
+                // Nothing was deleted. The reason stays in front of the admin,
+                // with the way on when it is Stripe that said no.
+                if (e instanceof PlatformApiError && e.code === "SUBSCRIPTION_NOT_CANCELLED") setStripeRefused(true);
+                if (e instanceof PlatformApiError && e.code === "MEMBER_SUBSCRIPTIONS_ACTIVE") setMembersRefused(true);
+                setDeleteError(e instanceof Error ? e.message : "Could not delete the gym");
                 setBusy(false);
-                setDeleteOpen(false);
               }
             }}
           >

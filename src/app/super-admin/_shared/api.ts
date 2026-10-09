@@ -19,13 +19,26 @@ export function getPlatformToken(): string | null {
   }
 }
 
+/** When the token itself runs out, read from its payload; null when it cannot be read. */
+function tokenExpiry(token: string): Date | null {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof payload.exp === "number" ? new Date(payload.exp * 1000) : null;
+  } catch {
+    return null;
+  }
+}
+
 // Stored in localStorage for requests and mirrored in a cookie so the edge
-// middleware can turn away a signed-out visitor before the page loads.
+// middleware can turn away a signed-out visitor before the page loads. The
+// cookie lasts exactly as long as the token: a cookie that died with the
+// browser window sent a still-signed-in admin back to the sign-in page.
 export function setPlatformToken(token: string) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(TOKEN_KEY, token);
-    document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; samesite=lax${window.location.protocol === "https:" ? "; secure" : ""}`;
+    const expires = tokenExpiry(token);
+    document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; samesite=lax${expires ? `; expires=${expires.toUTCString()}` : ""}${window.location.protocol === "https:" ? "; secure" : ""}`;
   } catch {
     /* storage blocked -- the session lasts this page view only */
   }
@@ -138,6 +151,8 @@ export interface GymStats {
   trainers?: number;
   classes?: number;
   active_memberships?: number;
+  /** Members on a card subscription in the gym's own Stripe account that will charge again. */
+  card_subscriptions?: number;
   pending_orders?: number;
   revenue_this_month?: { currency: string; total: number; orders: number }[];
   last_visit_at?: string | null;
@@ -181,6 +196,35 @@ export interface Gym {
   /** Where its website is: primary domain, else platform subdomain, else the API's fallback. */
   siteUrl?: string;
   stats?: GymStats | null;
+}
+
+/** A payment taken outside Stripe and recorded by hand (GET /gyms/:id/payments). */
+export interface GymPayment {
+  id: string;
+  amount: number;
+  currency: string;
+  method: string;
+  methodLabel: string;
+  receivedAt: string;
+  reference: string;
+  note: string;
+  periodFrom: string | null;
+  periodTo: string;
+  statusBefore: string;
+  recordedBy: string;
+  createdAt: string;
+}
+
+/** What the Record payment form starts from; `canRecord` is false for a gym that pays by card. */
+export interface PaymentTerms {
+  canRecord: boolean;
+  reason: string;
+  amount: number;
+  currency: string;
+  billingCycle: "monthly" | "yearly";
+  paidFrom: string;
+  paidUntil: string;
+  methods: { value: string; label: string }[];
 }
 
 /** GET /gyms/:id/domains/status -- one row per registered domain. */
