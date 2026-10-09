@@ -19,7 +19,7 @@ export default function AuthShell({ title, subtitle, children, footer }: { title
         <Glow className="right-0 top-0 h-[520px] w-[520px] translate-x-1/3" color="rgba(217,70,239,0.22)" />
         <div className="relative">
           <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-white">
-            <FiArrowLeft className="h-3.5 w-3.5" /> gympilot.app
+            <FiArrowLeft className="h-3.5 w-3.5" /> Back to the site
           </Link>
         </div>
         <div className="relative">
