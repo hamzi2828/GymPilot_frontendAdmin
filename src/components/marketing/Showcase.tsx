@@ -64,10 +64,10 @@ function WebsiteVisual() {
 
 function BillingVisual() {
   const rows = [
-    { who: "Sara M.", plan: "Unlimited monthly", amount: "$59.00", status: "Paid", tone: "text-emerald-600 bg-emerald-50", icon: FiCreditCard },
-    { who: "Daniel K.", plan: "10-class pack", amount: "$120.00", status: "Bank transfer · receipt", tone: "text-sky-700 bg-sky-50", icon: FiFileText },
-    { who: "Priya R.", plan: "Annual", amount: "$540.00", status: "Renews in 3 days", tone: "text-amber-700 bg-amber-50", icon: FiRefreshCw },
-    { who: "Omar A.", plan: "Student monthly", amount: "$35.00", status: "Retry scheduled", tone: "text-rose-700 bg-rose-50", icon: FiClock },
+    { who: "Sara M.", plan: "Unlimited monthly", amount: "Rs 5,000", status: "Paid · JazzCash", tone: "text-emerald-600 bg-emerald-50", icon: FiCreditCard },
+    { who: "Daniel K.", plan: "10-class pack", amount: "Rs 8,000", status: "Bank transfer · receipt", tone: "text-sky-700 bg-sky-50", icon: FiFileText },
+    { who: "Priya R.", plan: "Annual", amount: "Rs 50,000", status: "Renews in 3 days", tone: "text-amber-700 bg-amber-50", icon: FiRefreshCw },
+    { who: "Omar A.", plan: "Student monthly", amount: "Rs 3,500", status: "Part paid · Rs 1,500 due", tone: "text-rose-700 bg-rose-50", icon: FiClock },
   ];
   return (
     <div className="relative">
@@ -75,7 +75,7 @@ function BillingVisual() {
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
           <p className="text-sm font-semibold text-slate-900">Payments · this week</p>
           <span className="v-pop rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700" style={stagger(7)}>
-            $9,410 collected
+            Rs 941,000 collected
           </span>
         </div>
         <ul className="divide-y divide-slate-100">

@@ -97,7 +97,7 @@ export default function DemoForm({ contact = false }: { contact?: boolean }) {
               </label>
               <label className="block sm:col-span-1">
                 <span className="text-xs font-semibold text-slate-300">Phone / WhatsApp</span>
-                <input type="tel" value={form.phone} onChange={set("phone")} autoComplete="tel" className={`${input} mt-1.5`} placeholder="+44 7…" />
+                <input type="tel" value={form.phone} onChange={set("phone")} autoComplete="tel" className={`${input} mt-1.5`} placeholder="+92 300 1234567" />
               </label>
               <label className="block sm:col-span-1">
                 <span className="text-xs font-semibold text-slate-300">Gym size</span>
@@ -110,8 +110,8 @@ export default function DemoForm({ contact = false }: { contact?: boolean }) {
                 </select>
               </label>
               <label className="block sm:col-span-1">
-                <span className="text-xs font-semibold text-slate-300">Country / city</span>
-                <input value={form.country} onChange={set("country")} autoComplete="country-name" className={`${input} mt-1.5`} placeholder="Manchester, UK" />
+                <span className="text-xs font-semibold text-slate-300">City / country</span>
+                <input value={form.country} onChange={set("country")} autoComplete="country-name" className={`${input} mt-1.5`} placeholder="Lahore, Pakistan" />
               </label>
               <label className="block sm:col-span-2">
                 <span className="text-xs font-semibold text-slate-300">{contact ? "Your message" : "Anything we should know?"}</span>

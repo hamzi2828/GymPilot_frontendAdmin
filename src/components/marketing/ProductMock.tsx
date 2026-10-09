@@ -79,7 +79,7 @@ export default function ProductMock() {
 
             <div className="mt-3 grid grid-cols-3 gap-2">
               <Stat label="Active members" value="1,248" delta="+4.2% this month" index={3} />
-              <Stat label="MRR" value="$38,420" delta="+$1,960" index={4} />
+              <Stat label="This month" value="Rs 3.74M" delta="+Rs 180k" index={4} />
               <Stat label="Bookings today" value="186" delta="94% capacity" index={5} />
             </div>
 
@@ -140,7 +140,7 @@ export default function ProductMock() {
       </div>
 
       {/* floating events: appear one after another, then float */}
-      <Event index={0} className="-right-3 top-10 animate-float lg:-right-10" style={{ animationDelay: "0.6s" }} tint="bg-emerald-500/15 text-emerald-300" icon={<FiCheckCircle className="h-4 w-4" />} title="Payment received" text="Sara M. · Unlimited monthly · $59" />
+      <Event index={0} className="-right-3 top-10 animate-float lg:-right-10" style={{ animationDelay: "0.6s" }} tint="bg-emerald-500/15 text-emerald-300" icon={<FiCheckCircle className="h-4 w-4" />} title="Payment received" text="Sara M. · Unlimited monthly · Rs 5,000" />
       <Event index={0} className="-left-3 bottom-16 animate-float-slow lg:-left-12" tint="bg-brand-500/15 text-brand-300" icon={<FiUserPlus className="h-4 w-4" />} title="New member from the website" text="Signed the waiver · booked HIIT Blast" />
       <Event index={0} className="-bottom-5 right-8 animate-float" style={{ animationDelay: "1.4s" }} tint="bg-fuchsia-500/15 text-fuchsia-300" icon={<FiMessageSquare className="h-4 w-4" />} title="WhatsApp reminder sent" text="Boxing Fundamentals · 24 members" />
     </div>
