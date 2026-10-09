@@ -95,7 +95,7 @@ function BillingVisual() {
             </li>
           ))}
         </ul>
-        <div className="border-t border-slate-100 bg-slate-50 px-5 py-3 text-xs text-slate-500">Invoices emailed automatically · Stripe payouts to the gym&apos;s own account</div>
+        <div className="border-t border-slate-100 bg-slate-50 px-5 py-3 text-xs text-slate-500">Invoices sent automatically · the money goes straight to the gym</div>
       </div>
       <div className="absolute -left-4 -top-5 hidden animate-float rounded-xl border border-slate-200 bg-white p-3 shadow-lift sm:block">
         <div className="v-pop flex items-center gap-2.5" style={stagger(8)}>

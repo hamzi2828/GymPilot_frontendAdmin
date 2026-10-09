@@ -77,13 +77,13 @@ export const WHAT_YOU_GET: {
       kicker: "For people finding you",
       title: "Your own website",
       text: "A fast, good-looking website on your own web address, with your logo and colours. People see your classes, trainers and prices, and join online.",
-      points: ["yourgym.com, with the padlock", "Classes, trainers, prices, blog, map, hours", "Join and pay online", "Found on Google"],
+      points: ["yourgym.com, connected for you", "Classes, trainers, prices, blog, map, hours", "Join and pay online", "Found on Google"],
     },
     {
       kicker: "For your members",
       title: "A member portal",
       text: "Members book classes and PT, pay, check in at the door and get reminders — from a portal that opens in their browser and sits on their home screen like an app. No app store.",
-      points: ["Book classes and PT", "Pay and see receipts", "Check in with a QR code", "Reminders by WhatsApp, SMS, email and push"],
+      points: ["Book classes and PT", "Pay and see receipts", "Check in with a QR code", "Reminders by email, push, SMS or WhatsApp"],
     },
     {
       kicker: "For you and your staff",
@@ -109,8 +109,8 @@ export const AUDIENCES = ["Boutique studios", "24/7 gyms", "CrossFit boxes", "Ma
 
 export const PROOF = [
   { value: "1", label: "private online presence per gym", hint: "Your own website, member portal and database." },
-  { value: "4", label: "messaging channels", hint: "Email, SMS, WhatsApp and push — with automations that run themselves." },
-  { value: "5", label: "languages, RTL included", hint: "English, Arabic, Urdu, Spanish and French out of the box." },
+  { value: "4", label: "messaging channels", hint: "Email, push, SMS and WhatsApp. SMS and WhatsApp send through your own provider account, which you pay for. Email sends through your own mailbox." },
+  { value: "5", label: "website languages", hint: "Your public website in English, Arabic, Urdu, Spanish or French. The screens your staff use are in English." },
   { value: "1", label: "optional add-on", hint: "Billing, booking, POS, payroll, reports — every plan is the full product. The native member app is the one thing sold on top." },
 ];
 
@@ -121,7 +121,7 @@ export const HOW_IT_WORKS = {
   eyebrow: "How it works",
   title: "Up and running in a day",
   text: "Three steps. We do the technical part.",
-  note: "No web address yet? Start on a free GymPilot address and add your own later.",
+  note: "No web address yet? We give you one when we set your gym up, and connect your own later.",
 };
 
 export const STEPS = [
@@ -130,8 +130,8 @@ export const STEPS = [
     text: "Tell us your gym's name and pick a plan. Within one working day you have your own website, member portal and admin area.",
   },
   {
-    title: "Connect your web address",
-    text: "Point your domain (like yourgym.com) at GymPilot. We handle the rest, padlock included.",
+    title: "We connect your web address",
+    text: "Have a domain like yourgym.com? Tell us after you sign up. Our team connects it for you, padlock included.",
   },
   {
     title: "Start selling",
@@ -144,20 +144,20 @@ export const SHOWCASES = [
     eyebrow: "Own brand, own domain",
     title: "A website members actually find — and it is yours",
     text: "Every gym on GymPilot gets a public website on its own domain: classes, trainers, memberships, blog, contact, opening hours and a map, with the colours and logo of the business. Search engines see a real business, not a subpage of someone else's platform.",
-    points: ["Custom domain with automatic SSL", "SEO title, description and structured data", "Themes, logo, social links, WhatsApp button", "Five languages including right-to-left"],
+    points: ["Your own domain, connected by our team", "SEO title, description and structured data", "Themes, logo, social links, WhatsApp button", "Public website in 5 languages"],
     visual: "website",
   },
   {
     eyebrow: "Billing",
     title: "Money that arrives without chasing",
-    text: "Stripe recurring billing through the gym's own account, renewal reminders, failed-payment recovery, bank transfer with receipt review, and invoices that go out by themselves. At the desk, part payments are recorded and the balance is tracked. When a membership lapses the member is told, and the desk sees it — and hears it — the next time they check in.",
-    points: ["Cards online, bank transfer, desk payments", "Freezes, upgrades and pro-rata", "Part payments and dues", "Sales, expenses and assets in one ledger"],
+    text: "At the desk, record each fee as cash, bank transfer, JazzCash or Easypaisa, take part payments and track the balance. Members can pay by bank transfer and upload the receipt for you to check. Renewal reminders and invoices go out by themselves. When a membership lapses the member is told, and the desk sees it — and hears it — the next time they check in. Card payments online work where Stripe is available to your business.",
+    points: ["Cash, bank transfer, JazzCash, Easypaisa", "Bank transfer with receipt review", "Part payments and dues", "Sales, expenses and assets in one ledger"],
     visual: "billing",
   },
   {
     eyebrow: "Members",
     title: "A portal they keep on their phone",
-    text: "Members book classes and PT, see their attendance, download receipts, manage notifications and sign the waiver — from a portal they add to their home screen straight from the browser. Push, WhatsApp and SMS bring them back when they drift.",
+    text: "Members book classes and PT, see their attendance, download receipts, manage notifications and sign the waiver — from a portal they add to their home screen straight from the browser. Push notifications, and SMS or WhatsApp through your own provider, bring them back when they drift.",
     points: ["Class & PT booking with credits", "Health questionnaire and signed agreement", "Receipts, invoices and locker", "Absent-member nudges and win-back campaigns"],
     visual: "members",
   },
@@ -166,19 +166,19 @@ export const SHOWCASES = [
 export const PRICING = {
   eyebrow: "Pricing",
   title: "One price. The whole product.",
-  text: "Every plan includes billing, booking, PT, front desk, shop, messaging, staff, reports and the website. Plans differ by size. The member portal in the browser is in every plan. The native member app is an add-on on Starter and Growth, and comes with Pro. Prices come straight from your GymPilot account.",
+  text: "Every plan is the whole product: fee collection, check-in, classes, the shop, messaging, reports and your website. Plans differ only by size. Every plan starts with a free trial and includes the member portal. The native member app is an add-on on Starter and Growth, and comes with Pro.",
   included: [
     { text: "Own domain & website", feature: "website" },
-    { text: "Stripe & bank transfer billing", feature: "billing" },
+    { text: "Desk, bank transfer & card payments", feature: "billing" },
     { text: "Fee collection, expiry lists & dues", feature: "feedesk" },
     { text: "Check-in with spoken fee alerts", feature: "alerts" },
     { text: "Class & PT booking", feature: "booking" },
-    { text: "Messaging: email, SMS, WhatsApp, push", feature: "messaging" },
+    { text: "Email & push; SMS & WhatsApp via your provider", feature: "messaging" },
     { text: "POS with 80 / 58 mm thermal receipts", feature: "receipts" },
     { text: "Staff, trainer pay & payslips", feature: "trainerpay" },
     { text: "Daily sales & profit and loss", feature: "dailysales" },
     { text: "Reports in Excel & CSV", feature: "reports" },
-    { text: "5 languages", feature: "setup" },
+    { text: "Public website in 5 languages", feature: "setup" },
     { text: "Daily encrypted backups & private database", feature: "backups" },
   ] as Linked[],
   // Under the plans, wherever the native app is sold or given away.
@@ -218,11 +218,11 @@ export const FAQ = [
   },
   {
     q: "Can I use my own domain?",
-    a: "Yes. Point your domain at GymPilot and it is verified with SSL issued automatically. Your website, member portal and admin panel all live on it.",
+    a: "Yes. Tell us your domain after you sign up and our team connects it for you, padlock (SSL) included. Your website, member portal and admin panel all live on it.",
   },
   {
     q: "How do payments work?",
-    a: "Card payments online run through your own Stripe account, so the money goes straight to you. Members can also pay by bank transfer and upload the receipt. At the desk you record cash, card-terminal, bank transfer, JazzCash, Easypaisa and other mobile-wallet payments — part payments too, with the balance tracked — and memberships get an invoice either way.",
+    a: "At the desk you record cash, bank transfer, JazzCash, Easypaisa, other mobile-wallet and card-terminal payments — part payments too, with the balance tracked. These are recorded, not processed: the money reaches you as it always has. Members can also pay by bank transfer and upload the receipt for you to check. Every membership gets an invoice. Card payments online run through your own Stripe account, where Stripe is available to your business.",
   },
   {
     q: "Can I bring my existing members across?",
@@ -234,7 +234,7 @@ export const FAQ = [
   },
   {
     q: "What about the front desk hardware?",
-    a: "Any tablet or PC with a browser becomes a check-in kiosk: it scans members' QR codes with its camera or takes a typed member ID. For fingerprints there is a Windows desk app that works with DigitalPersona USB readers. Both play a different sound for each kind of check-in and can say “Fee expired, please renew” out loud.",
+    a: "Any tablet or PC with a browser becomes a check-in kiosk: it scans members' QR codes with its camera or takes a typed member ID. For fingerprints there is a Windows desk app that works with DigitalPersona USB readers; our team installs it on your front-desk PC. Wall-mounted fingerprint machines are not supported, and check-in needs an internet connection. Both play a different sound for each kind of check-in and can say “Fee expired, please renew” out loud.",
   },
   {
     q: "Is my data backed up?",
@@ -242,7 +242,7 @@ export const FAQ = [
   },
   {
     q: "Which languages are supported?",
-    a: "English, Arabic, Urdu, Spanish and French, including right-to-left layout. The gym picks its default; visitors can switch.",
+    a: "Your public website comes in English, Arabic, Urdu, Spanish and French, right-to-left included. You pick the default and visitors can switch. The screens your staff use are in English.",
   },
   {
     q: "Is there a contract?",

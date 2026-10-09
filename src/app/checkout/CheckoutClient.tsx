@@ -17,8 +17,8 @@ import {
   ApiError,
   CHECKOUT_DRAFT_KEY,
   formatMoney,
-  popularPlanIndex,
   publicFetch,
+  recommendedPlanIndex,
   yearlySaving,
   type PublicAddon,
   type PublicConfig,
@@ -110,9 +110,9 @@ export default function CheckoutClient() {
       .then((res) => {
         setPlans(res.data);
         // The plan the pricing page sent them with, while it is still sold;
-        // otherwise the one the pricing page marks most popular.
+        // otherwise the one the pricing page recommends.
         setPlanSlug((current) =>
-          current && res.data.some((p) => p.slug === current) ? current : res.data[popularPlanIndex(res.data.length)]?.slug || ""
+          current && res.data.some((p) => p.slug === current) ? current : res.data[recommendedPlanIndex(res.data)]?.slug || ""
         );
       })
       .catch((e) => setPlansError(e instanceof Error ? e.message : "Could not load the plans."));

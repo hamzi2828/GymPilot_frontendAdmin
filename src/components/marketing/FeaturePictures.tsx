@@ -418,7 +418,7 @@ function WebsitePicture() {
           <FiSmartphone className="h-3 w-3" /> Installs as an app
         </span>
         <span className="v-pop rounded-full bg-white px-2 py-0.5 text-slate-700 ring-1 ring-slate-200" style={stagger(8)}>
-          Padlock (SSL) automatic
+          Padlock (SSL) included
         </span>
         <span className="v-pop rounded-full bg-white px-2 py-0.5 text-slate-700 ring-1 ring-slate-200" style={stagger(9)}>
           Found on Google
