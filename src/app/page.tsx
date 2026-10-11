@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
 import SiteHeader from "@/components/marketing/SiteHeader";
 import Hero from "@/components/marketing/Hero";
+import Benefits from "@/components/marketing/Benefits";
 import WhatYouGet from "@/components/marketing/WhatYouGet";
-import TrustStrip from "@/components/marketing/TrustStrip";
-import Features from "@/components/marketing/Features";
 import HowItWorks from "@/components/marketing/HowItWorks";
-import Showcase from "@/components/marketing/Showcase";
 import Pricing from "@/components/marketing/Pricing";
 import Testimonials from "@/components/marketing/Testimonials";
 import Faq from "@/components/marketing/Faq";
 import DemoForm from "@/components/marketing/DemoForm";
-import CtaBand from "@/components/marketing/CtaBand";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import JsonLd from "@/components/marketing/JsonLd";
 import ScrollProgress from "@/components/marketing/ScrollProgress";
@@ -20,6 +17,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
+// Written for a gym owner who has never heard of us: what it does for them,
+// what they get, how they start, what it costs, and how to talk to us. The
+// detail of each feature is on /features, not here.
 export default function LandingPage() {
   return (
     <>
@@ -27,16 +27,13 @@ export default function LandingPage() {
       <SiteHeader />
       <main>
         <Hero />
+        <Benefits />
         <WhatYouGet />
-        <TrustStrip />
-        <Features />
         <HowItWorks />
-        <Showcase />
         <Pricing />
         <Testimonials />
         <Faq />
         <DemoForm />
-        <CtaBand />
       </main>
       <SiteFooter />
       <ScrollProgress />

@@ -1,8 +1,8 @@
 // What GymPilot does, in the buyer's words.
 //
-// One list, used in three places: the landing page shows the six marked
-// `highlight`, /features shows all of them grouped, and every feature has a
-// page of its own at /features/<slug>. `screens` mirrors the real product
+// One list, used in two places: /features shows all of them grouped, and
+// every feature has a page of its own at /features/<slug>. The landing page
+// names six outcomes (content/site.ts) and links each to a feature here. `screens` mirrors the real product
 // (GymPilot_frontend, the member app and the Windows desk app), so nothing
 // here promises a screen that does not exist.
 //
@@ -61,8 +61,6 @@ export interface Feature {
   /** The page's address, /features/<slug>. Never change a published one. */
   slug: string;
   group: GroupKey;
-  /** On the landing page too. */
-  highlight?: boolean;
   /** Two or three words, for menus, breadcrumbs and cards. */
   name: string;
   /** The headline on its own page. */
@@ -91,13 +89,6 @@ export const FEATURE_GROUPS: { key: GroupKey; label: string; title: string; text
   { key: "reach", label: "Website, portal & messages", title: "Reaching your members", text: "Your website, the member portal, and the messages that bring people back." },
   { key: "control", label: "Data & security", title: "Set up, locked down, backed up", text: "Your settings, who sees what, and data that is only ever yours — with a fresh copy every night." },
 ];
-
-export const FEATURES_INTRO = {
-  eyebrow: "What's inside",
-  title: "Everything a gym needs, in one app",
-  text: "The six gyms buy us for. The rest are one click away, each with a page of its own — and every plan has them all, bar the native member app, which is an add-on.",
-  cta: "See all features",
-};
 
 export const FEATURES_PAGE = {
   eyebrow: "Every feature",
@@ -226,7 +217,6 @@ export const FEATURES: Feature[] = [
     key: "frontdesk",
     slug: "check-in",
     group: "checkin",
-    highlight: true,
     name: "Check-in",
     title: "Know who is in the gym",
     text: "Fingerprint, QR code or member ID at the desk — and a lapsed fee is called out the moment they arrive.",
@@ -277,7 +267,6 @@ export const FEATURES: Feature[] = [
     key: "billing",
     slug: "online-payments",
     group: "money",
-    highlight: true,
     name: "Payments",
     title: "Get paid, however your members pay",
     text: "Record cash, bank transfer, JazzCash and Easypaisa at the desk, check bank transfer receipts online, and take cards where Stripe is available to your business.",
@@ -310,7 +299,6 @@ export const FEATURES: Feature[] = [
     key: "reports",
     slug: "dashboard-and-reports",
     group: "money",
-    highlight: true,
     name: "Dashboard & reports",
     title: "See how the business is doing",
     text: "Today's money and visitors on the dashboard; any period, and every download, in Reports.",
@@ -411,7 +399,6 @@ export const FEATURES: Feature[] = [
     key: "booking",
     slug: "class-booking",
     group: "classes",
-    highlight: true,
     name: "Class booking",
     title: "Members book classes from their phone",
     text: "Your timetable goes up once; members tap to book and waitlists fill themselves.",
@@ -477,7 +464,6 @@ export const FEATURES: Feature[] = [
     key: "website",
     slug: "gym-website",
     group: "reach",
-    highlight: true,
     name: "Your own website",
     title: "Your own website, on your own address",
     text: "A real website at yourgym.com — classes, prices, trainers, blog, map — in your colours.",
@@ -542,7 +528,6 @@ export const FEATURES: Feature[] = [
     key: "messaging",
     slug: "messaging",
     group: "reach",
-    highlight: true,
     name: "Email, SMS & WhatsApp",
     title: "Talk to members where they already are",
     text: "Email and push notifications, plus SMS and WhatsApp through your own provider account — most of it sent for you.",
@@ -647,29 +632,6 @@ export function featureByKey(key: FeatureKey): Feature {
 export function featureBySlug(slug: string): Feature | undefined {
   return BY_SLUG.get(slug);
 }
-
-/**
- * The six on the landing page, in the order its grid lays them out (a wide
- * card and a narrow one per row, alternating -- see Features.tsx). Only
- * features marked `highlight` can appear.
- */
-const HIGHLIGHT_ORDER: FeatureKey[] = ["billing", "booking", "frontdesk", "messaging", "website", "reports"];
-export const HIGHLIGHTS = HIGHLIGHT_ORDER.map(featureByKey).filter((f) => f.highlight);
-
-/** The desk tools on the landing page, under the six highlights. */
-export const FEATURES_DESK: { eyebrow: string; title: string; text: string; items: { key: FeatureKey; title: string; text: string }[] } = {
-  eyebrow: "At the front desk",
-  title: "Made for a busy front desk",
-  text: "The jobs that fill a receptionist's day, each done in a few clicks — and each with a page of its own.",
-  items: [
-    { key: "feedesk", title: "Collect fees on one screen", text: "Find a member by name, phone or ID, renew or clear their dues, and print the receipt." },
-    { key: "renewals", title: "Fee expiry lists", text: "Who is expiring, who has lapsed or never paid, and who owes — each a click from Collect." },
-    { key: "alerts", title: "“Fee expired” said out loud", text: "A different sound for each kind of check-in, then your own words, spoken." },
-    { key: "receipts", title: "Thermal receipts", text: "Shop and membership receipts on 80 mm or 58 mm rolls, with your logo and tax number." },
-    { key: "dailysales", title: "Daily sales and profit & loss", text: "Each day's takings by heading and payment method, and a line-by-line P&L." },
-    { key: "backups", title: "Encrypted backups, every night", text: "The last seven kept, a download any time, and a restore that takes a safety copy first." },
-  ],
-};
 
 /** Where a feature's own page lives. */
 export function featureHref(key: FeatureKey): string {
