@@ -5,7 +5,7 @@
 // moves between pages that do not reload the browser; the conversions are
 // sent from the forms with trackConversion().
 //
-// Not on the platform panel or its sign-in pages: those are GymPilot's own
+// Not on the platform panel or its sign-in pages: those are GymsPilotPro's own
 // staff at work, not visitors an advert brought.
 
 import Script from "next/script";

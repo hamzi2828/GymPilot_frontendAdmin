@@ -1,6 +1,6 @@
-# GymPilot — marketing site & platform panel
+# GymsPilotPro — marketing site & platform panel
 
-The public face of GymPilot as a product, and the panel that runs it:
+The public face of GymsPilotPro as a product, and the panel that runs it:
 
 | Path | What |
 |---|---|

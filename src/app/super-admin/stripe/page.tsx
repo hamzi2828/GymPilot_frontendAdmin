@@ -1,6 +1,6 @@
 "use client";
 
-// GymPilot's own Stripe account -- the one gyms are charged into, not the one
+// GymsPilotPro's own Stripe account -- the one gyms are charged into, not the one
 // a gym charges its members into. Keys are typed here rather than deployed,
 // so they can be rotated without a release, and the "Test connection" button
 // is what proves a key reaches the account you meant.
@@ -159,7 +159,7 @@ export default function PlatformStripePage() {
       <PageHeader
         eyebrow="System"
         title="Stripe"
-        description="GymPilot's own Stripe account — where gyms pay for their plan. A gym's own keys, for taking its members' money, live in that gym's admin instead."
+        description="GymsPilotPro's own Stripe account — where gyms pay for their plan. A gym's own keys, for taking its members' money, live in that gym's admin instead."
         actions={
           <Button variant="secondary" onClick={test} disabled={testing || !s.secretKeySet}>
             <FiZap className="h-4 w-4" /> {testing ? "Testing…" : "Test connection"}

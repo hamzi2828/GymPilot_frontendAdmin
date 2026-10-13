@@ -1,4 +1,4 @@
-// What GymPilot does, in the buyer's words.
+// What GymsPilotPro does, in the buyer's words.
 //
 // One list, used in two places: /features shows all of them grouped, and
 // every feature has a page of its own at /features/<slug>. The landing page
@@ -8,7 +8,7 @@
 //
 // Honesty rule: every claim here is something the product does today. Money
 // taken at the desk (cash, card terminal, bank transfer, JazzCash, Easypaisa,
-// other wallets) is *recorded* as how the member paid -- GymPilot is not a
+// other wallets) is *recorded* as how the member paid -- GymsPilotPro is not a
 // payment gateway for those. Only cards online go through Stripe.
 //
 // House style: `text` is one sentence a busy owner reads in a glance,
@@ -92,7 +92,7 @@ export const FEATURE_GROUPS: { key: GroupKey; label: string; title: string; text
 
 export const FEATURES_PAGE = {
   eyebrow: "Every feature",
-  title: "What you get with GymPilot",
+  title: "What you get with GymsPilotPro",
   lead: "Every feature, in plain English. All of them are in every plan — plans differ only by how many members, staff and classes you have. The native member app is the one add-on.",
   note: "Nothing on this page is an upgrade or an extra monthly fee — except the native member app. It is an add-on on Starter and Growth, comes with Pro, and is not offered on Basic. Members on every plan use the member portal in their browser.",
 };
@@ -173,7 +173,7 @@ export const FEATURES: Feature[] = [
     body: [
       "Fee expiry is the desk's call list. Expiring shows whose membership ends in the next few days — pick 1, 3, 7, 15 or 30, or any number up to a year. Expired / unpaid shows whose has run out without a renewal, paid or never paid. Dues shows what each member still owes, with the total at the top. The dashboard's “fees due” card opens the same list.",
       "Every row has a Collect button that opens Collect fees on that member with the right form ready: a renewal for the expiring and expired, the dues payment for those who owe. Export any list as a CSV, or print it as a clean page for the desk.",
-      "Renew and the new term starts when the current one ends, so nobody loses days by paying early — and nobody pays the admission fee twice. Got a date wrong, or agreed a discount after the sale? Change the dates on a membership — or its discount, when it was paid at the desk — and every change is kept with who made it and when. GymPilot also reminds members before their fee runs out.",
+      "Renew and the new term starts when the current one ends, so nobody loses days by paying early — and nobody pays the admission fee twice. Got a date wrong, or agreed a discount after the sale? Change the dates on a membership — or its discount, when it was paid at the desk — and every change is kept with who made it and when. GymsPilotPro also reminds members before their fee runs out.",
     ],
     points: ["Expiring in the next N days", "Expired or never paid", "Dues with totals", "Collect straight from the list", "CSV and print"],
     screens: ["Admin → Fee expiry", "Admin → Dashboard (fees due)", "Admin → Package Orders → Renew, Edit terms", "Admin → Messaging → Campaigns"],
@@ -188,7 +188,7 @@ export const FEATURES: Feature[] = [
     text: "Add members with just a phone number, and give them a username and password yourself.",
     body: [
       "Not every member has an email address, or wants to hand one over. A phone number is enough to add them, at the desk or in an import.",
-      "They sign in with a username instead. Staff type a password for them, or have GymPilot make a strong one — shown once, with a copy button, to hand over there and then. No reset email needed, and any session they already had is signed out.",
+      "They sign in with a username instead. Staff type a password for them, or have GymsPilotPro make a strong one — shown once, with a copy button, to hand over there and then. No reset email needed, and any session they already had is signed out.",
       "Staff accounts work the same way: sign in with an email or a username, and a manager can set a password without anyone waiting for an email.",
     ],
     points: ["A phone number is enough", "Sign in with a username", "Set or generate a password", "Shown once, never emailed", "Old sessions signed out"],
@@ -203,7 +203,7 @@ export const FEATURES: Feature[] = [
     title: "Bring your members across",
     text: "Import members and their memberships from a spreadsheet, and check the result before anything is saved.",
     body: [
-      "Export a CSV from the system you use now and import it into GymPilot. Column names are matched loosely — “First Name”, “firstname” and “first_name” all work — and there is a template to download if you are starting from a blank sheet.",
+      "Export a CSV from the system you use now and import it into GymsPilotPro. Column names are matched loosely — “First Name”, “firstname” and “first_name” all work — and there is a template to download if you are starting from a blank sheet.",
       "A preview comes first: how many members will be created, which columns were recognised, and every row with a problem, by line number. Nothing is saved until you say so.",
       "Members arrive with their joining date, their member number from the old system if it is free, and their package with its start and end dates — so renewals fall where they did before. Nobody is charged an admission fee for a gym they already belong to.",
     ],
@@ -221,7 +221,7 @@ export const FEATURES: Feature[] = [
     title: "Know who is in the gym",
     text: "Fingerprint, QR code or member ID at the desk — and a lapsed fee is called out the moment they arrive.",
     body: [
-      "Three ways in, all writing to the same register. At the counter, the GymPilot desk app for Windows reads fingerprints on a DigitalPersona USB reader; our team installs it on your front-desk PC for you. Any tablet or PC with a browser becomes a kiosk that scans a member's QR code with its camera, takes a typed member ID, or lets staff pick a name. And members carry their own QR code on their phone.",
+      "Three ways in, all writing to the same register. At the counter, the GymsPilotPro desk app for Windows reads fingerprints on a DigitalPersona USB reader; our team installs it on your front-desk PC for you. Any tablet or PC with a browser becomes a kiosk that scans a member's QR code with its camera, takes a typed member ID, or lets staff pick a name. And members carry their own QR code on their phone.",
       "A member whose fee has run out is still checked in — so you know the visit happened — but the desk sees it in red and hears it, and can have a word there and then. Staff clock in on the same reader, against their rota.",
       "Fingerprints are only linked with the member's consent, and are stored encrypted. Check-in needs an internet connection, and wall-mounted fingerprint machines such as ZKTeco are not supported.",
     ],
@@ -271,7 +271,7 @@ export const FEATURES: Feature[] = [
     title: "Get paid, however your members pay",
     text: "Record cash, bank transfer, JazzCash and Easypaisa at the desk, check bank transfer receipts online, and take cards where Stripe is available to your business.",
     body: [
-      "Most fees are paid at the desk. Record each one as cash, bank transfer, JazzCash, Easypaisa, another mobile wallet or a card on your own terminal. GymPilot records how the member paid — it is not a payment gateway for these, so the money reaches you as it always has. The membership gets an invoice either way, and the desk prints a receipt.",
+      "Most fees are paid at the desk. Record each one as cash, bank transfer, JazzCash, Easypaisa, another mobile wallet or a card on your own terminal. GymsPilotPro records how the member paid — it is not a payment gateway for these, so the money reaches you as it always has. The membership gets an invoice either way, and the desk prints a receipt.",
       "Members can also pay by bank transfer from your website. They see your bank details at checkout and upload their receipt; you confirm it or reject it. Invoices go out by themselves, with the tax shown.",
       "Card payments online work where Stripe is available to your business. You connect your own Stripe account, card money goes straight into it and never through us, and recurring memberships renew by themselves with failed payments retried. Stripe does not open accounts in every country, so check before you count on it.",
       "Members can pause or cancel within the rules you set, and a change of package is priced fairly for the days that are left.",
@@ -452,7 +452,7 @@ export const FEATURES: Feature[] = [
     body: [
       "Every trainer can have a salary, commission only, or both. Commission is a percentage of the session or a fixed amount per session, set for each trainer — or left alone, so your gym's default percentage applies.",
       "Sell a trainer with a membership at the desk and their fee and commission are recorded on the sale. Completed personal training sessions carry the commission they earned.",
-      "Trainers with a staff account are paid through payslips, commission included; for the rest, GymPilot shows what they are owed so you can pay them by hand. Either way it lands in your profit and loss.",
+      "Trainers with a staff account are paid through payslips, commission included; for the rest, GymsPilotPro shows what they are owed so you can pay them by hand. Either way it lands in your profit and loss.",
     ],
     points: ["A salary, or commission only", "Percent or fixed commission per session", "Trainer sold with a membership", "Commission on every completed session", "Counted in profit and loss"],
     screens: ["Admin → Trainers", "Admin → Personal Training", "Admin → Staff → Payslips"],
@@ -532,8 +532,8 @@ export const FEATURES: Feature[] = [
     title: "Talk to members where they already are",
     text: "Email and push notifications, plus SMS and WhatsApp through your own provider account — most of it sent for you.",
     body: [
-      "Four ways to reach a member. Email goes out through your own email account, which you connect once in Settings. Push notifications are switched on in Settings. SMS and WhatsApp go through a provider account that you open and pay for — Twilio or WhatsApp Business from Meta, for example — and GymPilot sends through it.",
-      "Class reminders, renewal reminders, missed-you nudges, win-back offers and birthday messages go out by themselves. Write the wording once and GymPilot sends it on time, every time.",
+      "Four ways to reach a member. Email goes out through your own email account, which you connect once in Settings. Push notifications are switched on in Settings. SMS and WhatsApp go through a provider account that you open and pay for — Twilio or WhatsApp Business from Meta, for example — and GymsPilotPro sends through it.",
+      "Class reminders, renewal reminders, missed-you nudges, win-back offers and birthday messages go out by themselves. Write the wording once and GymsPilotPro sends it on time, every time.",
       "When you want to say something yourself, choose who hears it — everyone, members ending soon, lapsed members or one group — and members can opt out whenever they like.",
     ],
     points: ["Class and renewal reminders", "Missed-you and win-back nudges", "Everyone, or just one group", "Email through your own mailbox", "SMS and WhatsApp need your own provider account"],
@@ -595,7 +595,7 @@ export const FEATURES: Feature[] = [
     title: "Your private online presence",
     text: "Your gym gets its own website, its own member portal and its own private database.",
     body: [
-      "Every gym on GymPilot has a database of its own, never mixed with another gym's. That is unusual, and it is why we can promise nobody else's data is ever a query away from yours.",
+      "Every gym on GymsPilotPro has a database of its own, never mixed with another gym's. That is unusual, and it is why we can promise nobody else's data is ever a query away from yours.",
       "Export everything any time, and it is still yours if you leave.",
     ],
     points: ["A database per gym", "Never mixed with another gym", "Export everything any time", "Still yours if you leave"],
@@ -610,9 +610,9 @@ export const FEATURES: Feature[] = [
     title: "A backup every night, and a restore that is safe",
     text: "Download the whole gym whenever you like; every night an encrypted copy is kept, the last seven at a time.",
     body: [
-      "Every night GymPilot makes a backup of your gym, encrypts it before it is stored, and keeps the last seven. Need one right now — before a big import, say? Press Back up now.",
+      "Every night GymsPilotPro makes a backup of your gym, encrypts it before it is stored, and keeps the last seven. Need one right now — before a big import, say? Press Back up now.",
       "The whole gym is yours to download too, as one file any archive tool opens: members, memberships, payments, attendance, settings — everything. Keys for Stripe, email and messaging stay sealed inside it.",
-      "Restoring is careful. GymPilot reads the whole backup and shows you what is in it first, you confirm by typing your gym's short name, and a backup of the gym as it is now is taken before anything changes. If anything goes wrong on the way, the gym is left exactly as it was. Only administrators can do it, and the audit log keeps every step.",
+      "Restoring is careful. GymsPilotPro reads the whole backup and shows you what is in it first, you confirm by typing your gym's short name, and a backup of the gym as it is now is taken before anything changes. If anything goes wrong on the way, the gym is left exactly as it was. Only administrators can do it, and the audit log keeps every step.",
     ],
     points: ["Nightly encrypted backup, 7 kept", "Back up now, any time", "Download the whole gym", "Preview before restoring", "Safety copy before every restore"],
     screens: ["Settings → Data & backup"],

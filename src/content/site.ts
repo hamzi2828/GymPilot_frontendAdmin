@@ -36,7 +36,7 @@ function siteUrl(): string {
 const WHATSAPP = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "").replace(/[^\d]/g, "").replace(/^0+/, "");
 
 export const SITE = {
-  name: "GymPilot",
+  name: "GymsPilotPro",
   tagline: "Run your whole gym from one place",
   // For search results and link previews: one sentence, under 160 characters.
   description: "Gym management software: collect fees, see who owes, check members in, run classes and reports, with your own gym website. Free trial on every plan.",
@@ -45,17 +45,17 @@ export const SITE = {
   contactPhone: process.env.NEXT_PUBLIC_CONTACT_PHONE || "",
   whatsapp: WHATSAPP,
   /** Opens a WhatsApp chat with us, the first message started. Empty when no number is set. */
-  whatsappUrl: WHATSAPP ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Hi GymPilot, I would like to know more for my gym.")}` : "",
+  whatsappUrl: WHATSAPP ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Hi GymsPilotPro, I would like to know more for my gym.")}` : "",
   demoGymUrl: process.env.NEXT_PUBLIC_DEMO_GYM_URL || "",
   heroPills: ["Memberships & billing", "Class booking", "Personal training", "Your own domain"],
 };
 
-// Who sells GymPilot, for the legal pages (/terms, /privacy, /refund-policy).
+// Who sells GymsPilotPro, for the legal pages (/terms, /privacy, /refund-policy).
 // Every line is read from the environment and shown only when it is set, so
 // nothing invented ever appears as the seller's name or address. See
 // .env.example for what each one is.
 export const LEGAL = {
-  /** The person or company that sells GymPilot, as registered. */
+  /** The person or company that sells GymsPilotPro, as registered. */
   name: process.env.NEXT_PUBLIC_LEGAL_NAME || "",
   address: process.env.NEXT_PUBLIC_LEGAL_ADDRESS || "",
   /** Where legal and privacy questions go; the contact email when not set. */
@@ -82,7 +82,7 @@ export const NAV: { label: string; href: string; menu?: "features"; spy?: string
 ];
 
 // The first screen. A gym owner who has never heard of us reads this and
-// nothing else, so it says what GymPilot does for them in one breath.
+// nothing else, so it says what GymsPilotPro does for them in one breath.
 export const HERO = {
   eyebrow: "Fees, check-in, classes and your own website",
   title: ["Run your whole", "gym from", "one place."],
@@ -226,7 +226,7 @@ export const FAQ: { q: string; a: string; more?: boolean }[] = [
   },
   {
     q: "Is my data backed up?",
-    a: "Yes. Every night each gym gets an encrypted backup, and the last seven are kept. Owners can download the whole gym at any time, and restore from a backup after seeing what is in it — GymPilot takes a safety copy first.",
+    a: "Yes. Every night each gym gets an encrypted backup, and the last seven are kept. Owners can download the whole gym at any time, and restore from a backup after seeing what is in it — GymsPilotPro takes a safety copy first.",
     more: true,
   },
   {
@@ -243,7 +243,7 @@ export const FAQ: { q: string; a: string; more?: boolean }[] = [
 
 export const DEMO_FORM = {
   eyebrow: "Book a demo",
-  title: "See GymPilot running on a gym like yours",
+  title: "See GymsPilotPro running on a gym like yours",
   text: "Tell us a little about the gym and we will set up a walkthrough on your numbers — memberships, timetable, billing and the website.",
   sizes: ["Under 100 members", "100 – 500 members", "500 – 2,000 members", "2,000+ members"],
 };
@@ -280,7 +280,7 @@ export const FOOTER = {
       links: [{ label: "Help signing in", href: "/contact" }],
     },
   ] as { title: string; note?: string; links: { label: string; href: string }[] }[],
-  // For GymPilot's own staff. One quiet link, so nobody takes it for theirs.
+  // For GymsPilotPro's own staff. One quiet link, so nobody takes it for theirs.
   platform: { label: "Platform sign in", href: "/login" },
   // The small print, on the footer's last line on every page.
   legal: [

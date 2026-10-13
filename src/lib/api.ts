@@ -1,4 +1,4 @@
-// Where the GymPilot API lives. The marketing site uses the public routes
+// Where the GymsPilotPro API lives. The marketing site uses the public routes
 // under /api/platform/public; the panel uses the rest with a platform token.
 
 export const API_BASE = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000").replace(/\/+$/, "");

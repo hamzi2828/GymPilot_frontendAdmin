@@ -10,7 +10,7 @@ export default {
       },
       colors: {
         // The product's own colour. The panel and the marketing site share it
-        // so GymPilot looks like one thing everywhere it appears.
+        // so GymsPilotPro looks like one thing everywhere it appears.
         brand: {
           50: "#eef2ff",
           100: "#e0e7ff",

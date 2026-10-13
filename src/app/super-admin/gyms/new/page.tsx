@@ -39,7 +39,7 @@ const COMMON_TIMEZONES = [
   "America/Sao_Paulo",
 ];
 
-// Where a new gym is assumed to be until the form says otherwise: GymPilot
+// Where a new gym is assumed to be until the form says otherwise: GymsPilotPro
 // sells in Pakistan. The currency follows the plans' own once they have
 // loaded (see below), so a price list in another currency moves it.
 const DEFAULT_TIMEZONE = "Asia/Karachi";

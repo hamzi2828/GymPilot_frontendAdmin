@@ -804,7 +804,7 @@ function GymDetail() {
 
       <Modal open={deleteOpen} onClose={closeDelete} title={`Delete ${gym.name}`} size="sm">
         <p className="text-sm text-slate-700">
-          This takes {gym.name} off GymPilot. Its website, admin and member app stop working straight away.
+          This takes {gym.name} off GymsPilotPro. Its website, admin and member app stop working straight away.
         </p>
         <p className="mt-2 text-sm text-slate-700">
           {paysByCard

@@ -29,7 +29,7 @@ export default function AuthShell({ title, subtitle, children, footer }: { title
             </svg>
           </span>
           <h2 className="mt-8 font-display text-4xl font-bold leading-tight tracking-tight">
-            GymPilot
+            GymsPilotPro
             <br />
             <span className="text-gradient">Platform panel</span>
           </h2>
@@ -52,7 +52,7 @@ export default function AuthShell({ title, subtitle, children, footer }: { title
                 <path d="M3 10h2v4H3v-4Zm16 0h2v4h-2v-4ZM6 8h2v8H6V8Zm10 0h2v8h-2V8Zm-7 3h6v2H9v-2Z" />
               </svg>
             </span>
-            <span className="font-display text-lg font-bold text-slate-900">GymPilot</span>
+            <span className="font-display text-lg font-bold text-slate-900">GymsPilotPro</span>
           </Link>
           <h1 className="font-display text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
           {subtitle && <p className="mt-1.5 text-sm text-slate-500">{subtitle}</p>}

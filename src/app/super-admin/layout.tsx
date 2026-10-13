@@ -1,6 +1,6 @@
 "use client";
 
-// The platform panel: every gym on GymPilot, their plans and their numbers.
+// The platform panel: every gym on GymsPilotPro, their plans and their numbers.
 // It has its own session (see _shared/api.ts) and its own shell; the
 // marketing site around it is a plain public page.
 
@@ -22,7 +22,7 @@ function Brand() {
         </svg>
       </span>
       <span className="leading-tight">
-        <span className="block text-sm font-semibold text-white">GymPilot</span>
+        <span className="block text-sm font-semibold text-white">GymsPilotPro</span>
         <span className="block text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400">Platform</span>
       </span>
     </Link>

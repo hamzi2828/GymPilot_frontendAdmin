@@ -18,7 +18,7 @@ export default function CtaBand() {
                 Ready to run your gym from one place?
               </h2>
               <p className="v-rise mx-auto mt-4 max-w-xl text-base text-slate-200 sm:text-lg" style={stagger(1)}>
-                Book a demo and see your timetable, memberships and website on GymPilot before you decide anything.
+                Book a demo and see your timetable, memberships and website on GymsPilotPro before you decide anything.
               </p>
               <div className="v-rise mt-8 flex flex-col justify-center gap-3 sm:flex-row" style={stagger(2)}>
                 {/* Always absolute: this band appears on more than one page. */}
