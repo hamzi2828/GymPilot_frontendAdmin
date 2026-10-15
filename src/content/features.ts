@@ -96,7 +96,7 @@ export const FEATURE_GROUPS: { key: GroupKey; label: string; title: string; text
 export const FEATURES_PAGE = {
   eyebrow: "Every feature",
   title: "What you get with GymsPilotPro",
-  lead: "Every feature, in plain English. All of them are in every plan — plans differ only by how many members, staff and classes you have. The native member app is the one add-on.",
+  lead: "All in every plan. Only the member app is an add-on.",
   note: "Nothing on this page is an upgrade or an extra monthly fee — except the native member app. It is an add-on on Starter and Growth, comes with Pro, and is not offered on Basic. Members on every plan use the member portal in their browser.",
 };
 
@@ -686,11 +686,3 @@ export function relatedTo(feature: Feature): Feature[] {
   const picks = feature.related?.length ? feature.related.map(featureByKey) : featuresIn(feature.group).filter((f) => f.key !== feature.key);
   return picks.slice(0, 3);
 }
-
-/** Numbers on the features page. The first is counted, never typed. */
-export const FEATURE_STATS: { value: number; label: string }[] = [
-  { value: FEATURES.filter((f) => !f.addon).length, label: "features in every plan" },
-  { value: 5, label: "website languages, 2 right-to-left" },
-  { value: 8, label: "colour schemes" },
-  { value: FEATURES.filter((f) => f.addon).length, label: "optional add-on: the native member app" },
-];

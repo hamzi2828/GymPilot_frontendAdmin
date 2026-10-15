@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FiArrowRight, FiCheckCircle } from "react-icons/fi";
-import { FEATURES, FEATURE_GROUPS, FEATURES_PAGE, FEATURE_STATS, featuresIn } from "@/content/features";
+import { FEATURES, FEATURE_GROUPS, FEATURES_PAGE, featuresIn } from "@/content/features";
 import { SITE } from "@/content/site";
 import { stagger } from "@/lib/motion";
 import SiteHeader from "@/components/marketing/SiteHeader";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import CtaBand from "@/components/marketing/CtaBand";
 import ScrollProgress from "@/components/marketing/ScrollProgress";
-import CountUp from "@/components/marketing/CountUp";
 import FeatureCard from "@/components/marketing/FeatureCard";
 import Reveal from "@/components/marketing/Reveal";
 import Glow from "@/components/marketing/Glow";
@@ -42,7 +41,7 @@ export default function FeaturesPage() {
       <SiteHeader />
       <main>
         {/* Header */}
-        <section className="relative overflow-hidden bg-slate-950 pb-16 pt-32 text-white sm:pt-36">
+        <section className="relative overflow-hidden bg-slate-950 pb-6 pt-28 text-white sm:pb-8 sm:pt-32">
           <div className="bg-grid-dark absolute inset-0 [mask-image:radial-gradient(ellipse_at_top,black_30%,transparent_75%)]" aria-hidden="true" />
           <Glow className="left-1/2 top-0 h-[620px] w-[1100px] -translate-x-1/2 -translate-y-1/2" color="rgba(79,70,229,0.38)" drift="a" />
           <Glow className="-right-32 top-40 h-[420px] w-[520px]" color="rgba(217,70,239,0.22)" drift="b" />
@@ -50,13 +49,13 @@ export default function FeaturesPage() {
             <p className="a-rise text-xs font-semibold uppercase tracking-[0.18em] text-brand-300" style={stagger(0)}>
               {FEATURES_PAGE.eyebrow}
             </p>
-            <h1 className="a-rise mt-3 font-display text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl lg:text-6xl" style={stagger(1)}>
+            <h1 className="a-rise mt-3 font-display text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl lg:text-5xl" style={stagger(1)}>
               {FEATURES_PAGE.title}
             </h1>
-            <p className="a-rise mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-slate-300" style={stagger(2)}>
+            <p className="a-rise mx-auto mt-3 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg" style={stagger(2)}>
               {FEATURES_PAGE.lead}
             </p>
-            <div className="a-rise mt-8 flex flex-col justify-center gap-3 sm:flex-row" style={stagger(3)}>
+            <div className="a-rise mt-6 flex flex-col justify-center gap-3 sm:flex-row" style={stagger(3)}>
               <Link href="/#demo" className="btn-shine btn-shine-dark group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-slate-900 transition-transform hover:-translate-y-0.5">
                 Book a demo <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
@@ -64,28 +63,13 @@ export default function FeaturesPage() {
                 See pricing
               </Link>
             </div>
-
-            {/* Four numbers that say what kind of product this is. */}
-            <dl className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              {FEATURE_STATS.map((s, i) => (
-                <div key={s.label} className="a-pop rounded-2xl border border-white/10 bg-white/5 px-3 py-4 backdrop-blur-sm" style={stagger(4 + i)}>
-                  <dt className="sr-only">{s.label}</dt>
-                  <dd>
-                    <span className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                      <CountUp value={s.value} />
-                    </span>
-                    <span className="mt-1 block text-[11px] font-medium leading-snug text-slate-400">{s.label}</span>
-                  </dd>
-                </div>
-              ))}
-            </dl>
           </div>
         </section>
 
         {/* The groups on one screen, laid out like the header's Features
             menu: a buyer who wants one thing (do you do receipts?) jumps
             straight to its group or opens the feature itself. */}
-        <nav aria-label="Feature groups" className="border-b border-white/10 bg-slate-950 py-12 text-white sm:py-14">
+        <nav aria-label="Feature groups" className="border-b border-white/10 bg-slate-950 pb-12 pt-8 text-white sm:pb-14">
           <div className="mx-auto max-w-7xl px-5 sm:px-8">
             <p className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Jump to</p>
             <FeatureGroupsGrid className="mt-8" />
