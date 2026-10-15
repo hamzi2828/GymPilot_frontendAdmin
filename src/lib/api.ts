@@ -116,7 +116,7 @@ export function yearlySaving(price: { monthly: number; yearly: number }): number
 
 export function formatMoney(amount: number, currency: string, fractionDigits = 0): string {
   try {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency: currency || "USD", maximumFractionDigits: fractionDigits, minimumFractionDigits: 0 }).format(amount || 0);
+    return new Intl.NumberFormat(undefined, { style: "currency", currency: currency || "PKR", maximumFractionDigits: fractionDigits, minimumFractionDigits: 0 }).format(amount || 0);
   } catch {
     return `${currency} ${amount}`;
   }

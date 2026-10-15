@@ -1,11 +1,23 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import CheckoutClient from "./CheckoutClient";
+import { SITE } from "@/content/site";
+
+const DESCRIPTION = `Pick a plan, add what you want to it, and tell us about your gym to start your ${SITE.name} free trial.`;
 
 export const metadata: Metadata = {
   title: "Start your free trial",
-  description: "Pick a plan, add what you want to it, and tell us about your gym to start your GymsPilotPro free trial.",
+  description: DESCRIPTION,
   alternates: { canonical: "/checkout" },
+  // Its own card, so a shared checkout link names this page, not the homepage.
+  openGraph: {
+    type: "website",
+    siteName: SITE.name,
+    url: "/checkout",
+    title: `Start your free trial — ${SITE.name}`,
+    description: DESCRIPTION,
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${SITE.name} — ${SITE.tagline}` }],
+  },
   robots: { index: false, follow: true },
 };
 

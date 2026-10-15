@@ -29,6 +29,9 @@ const TONE: Record<string, string> = {
   password_changed: "warn",
   two_factor_enabled: "good",
   two_factor_disabled: "warn",
+  login_failed: "bad",
+  password_change_failed: "bad",
+  two_factor_disable_failed: "bad",
 };
 
 export default function AuditPage() {

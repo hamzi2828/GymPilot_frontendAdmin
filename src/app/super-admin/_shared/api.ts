@@ -103,6 +103,10 @@ export interface PlatformAdmin {
   email: string;
   last_login: string | null;
   two_factor?: boolean;
+  /** How the second step is done while two_factor is on. */
+  two_factor_method?: "email" | "app" | null;
+  /** Unused backup codes, when the authenticator app is on. */
+  backup_codes_left?: number | null;
 }
 
 export interface PlatformConfig {
@@ -253,6 +257,8 @@ export interface Overview {
   subscriptions: Record<string, number>;
   expiring_within_30_days: number;
   mrr: { currency: string; amount: number; gyms: number }[];
+  /** The plans' currency (PKR when there are none): what an empty MRR is shown in. */
+  currency?: string;
   attention?: { renewing: GymBrief[]; past_due: GymBrief[]; suspended: GymBrief[] };
   demo_requests_new?: number;
 }
@@ -331,9 +337,12 @@ export function formatDate(value?: string | null): string {
   return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
+/** What the platform sells in when nothing says otherwise: it sells in Pakistan. */
+export const DEFAULT_CURRENCY = "PKR";
+
 export function formatMoney(amount: number, currency: string): string {
   try {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency: currency || "USD", maximumFractionDigits: 0 }).format(amount || 0);
+    return new Intl.NumberFormat(undefined, { style: "currency", currency: currency || DEFAULT_CURRENCY, maximumFractionDigits: 0 }).format(amount || 0);
   } catch {
     return `${currency} ${amount}`;
   }

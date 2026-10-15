@@ -13,13 +13,20 @@ import AuthShell, { AuthButton, authInput } from "@/app/super-admin/_shared/Auth
 // account from non-public environment variables (see .env.example).
 type QuickAccount = { email: string; password: string };
 
+/** A 6-digit code, or -- on an app sign-in -- a 10-character backup code. */
+function codeReady(code: string, method: "email" | "app"): boolean {
+  if (/^\d{6}$/.test(code.replace(/\s/g, ""))) return true;
+  if (method === "email") return code.replace(/\D/g, "").length === 6;
+  return /^[a-z0-9]{10}$/i.test(code.replace(/[\s-]/g, ""));
+}
+
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
-  const [challenge, setChallenge] = useState<{ challengeId: string; message: string } | null>(null);
+  const [challenge, setChallenge] = useState<{ challengeId: string; message: string; method: "email" | "app" } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [quick, setQuick] = useState<QuickAccount | null>(null);
@@ -55,13 +62,20 @@ function LoginForm() {
     setError(null);
     try {
       if (challenge) {
-        const res = await platformFetch<{ token: string }>("/auth/login/2fa", { method: "POST", body: { challengeId: challenge.challengeId, code: code.replace(/\D/g, "") } });
+        // An app sign-in also takes a backup code (letters and a dash), so only an emailed code is cut to digits.
+        const sent = challenge.method === "app" ? code.trim() : code.replace(/\D/g, "");
+        const res = await platformFetch<{ token: string }>("/auth/login/2fa", { method: "POST", body: { challengeId: challenge.challengeId, code: sent } });
         finish(res.token);
         return;
       }
-      const res = await platformFetch<{ token?: string; requires2fa?: boolean; challengeId?: string; message?: string }>("/auth/login", { method: "POST", body: { email, password } });
+      const res = await platformFetch<{ token?: string; requires2fa?: boolean; method?: "email" | "app"; challengeId?: string; message?: string }>("/auth/login", { method: "POST", body: { email, password } });
       if (res.requires2fa && res.challengeId) {
-        setChallenge({ challengeId: res.challengeId, message: res.message || "Enter the code we emailed you." });
+        const method = res.method === "app" ? "app" : "email";
+        setChallenge({
+          challengeId: res.challengeId,
+          method,
+          message: res.message || (method === "app" ? "Enter the code from your authenticator app." : "Enter the code we emailed you."),
+        });
         setPassword("");
         return;
       }
@@ -75,7 +89,7 @@ function LoginForm() {
 
   return (
     <AuthShell
-      title={challenge ? "Check your email" : "Sign in"}
+      title={challenge ? (challenge.method === "app" ? "Enter your code" : "Check your email") : "Sign in"}
       subtitle={challenge ? challenge.message : "Platform administrators only."}
       footer={
         challenge ? (
@@ -103,7 +117,13 @@ function LoginForm() {
       }
     >
       <form onSubmit={submit} className="space-y-4">
-        {challenge ? (
+        {challenge && challenge.method === "app" ? (
+          <label className="block">
+            <span className="text-xs font-semibold text-slate-700">Code from your authenticator app</span>
+            <input autoFocus autoComplete="one-time-code" autoCapitalize="none" spellCheck={false} value={code} onChange={(e) => setCode(e.target.value)} className={`${authInput} mt-1.5 text-center text-xl tracking-[0.3em]`} placeholder="123456" />
+            <span className="mt-1.5 block text-[11px] text-slate-500">Lost your phone? Type one of your backup codes (like abcde-fghjk) instead.</span>
+          </label>
+        ) : challenge ? (
           <label className="block">
             <span className="text-xs font-semibold text-slate-700">6-digit code</span>
             <input autoFocus inputMode="numeric" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value)} className={`${authInput} mt-1.5 text-center text-2xl tracking-[0.4em]`} placeholder="••••••" />
@@ -142,7 +162,7 @@ function LoginForm() {
 
         {error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-700">{error}</p>}
 
-        <AuthButton disabled={busy || (challenge ? code.replace(/\D/g, "").length !== 6 : false)}>{busy ? "Please wait…" : challenge ? "Verify" : "Sign in"}</AuthButton>
+        <AuthButton disabled={busy || (challenge ? !codeReady(code, challenge.method) : false)}>{busy ? "Please wait…" : challenge ? "Verify" : "Sign in"}</AuthButton>
       </form>
     </AuthShell>
   );

@@ -8,7 +8,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FiAlertTriangle, FiCalendar, FiCreditCard, FiExternalLink, FiGlobe, FiLayers, FiMail, FiShield, FiUsers } from "react-icons/fi";
 import { PageHeader, Crumbs, Panel, StatCard, KeyValue, Button, Field, Input, Select, Textarea, Modal, Spinner, Alert, Pill, StatusPill, Avatar } from "../../_shared/ui";
 import { PaymentsPanel } from "./Payments";
-import { platformFetch, PlatformApiError, formatDate, formatMoney, SUBSCRIPTION_STATUSES, BILLING_CYCLES, type Addon, type DomainStatus, type Gym, type GymStats, type Plan } from "../../_shared/api";
+import { platformFetch, PlatformApiError, formatDate, formatMoney, DEFAULT_CURRENCY, SUBSCRIPTION_STATUSES, BILLING_CYCLES, type Addon, type DomainStatus, type Gym, type GymStats, type Plan } from "../../_shared/api";
 
 type Detail = Gym & { plan: Plan | null; stats: GymStats };
 type Admin = { id: string; name: string; email: string; is_active: boolean; last_login: string | null };
@@ -92,7 +92,7 @@ function GymDetail() {
       ownerEmail: g.owner.email || "",
       ownerPhone: g.owner.phone || "",
       timezone: g.locale.timezone || "UTC",
-      currency: g.locale.currency || "USD",
+      currency: g.locale.currency || DEFAULT_CURRENCY,
       country: g.locale.country || "",
       notes: g.notes || "",
     });
@@ -102,7 +102,7 @@ function GymDetail() {
       status: g.subscription.status,
       billingCycle: g.subscription.billingCycle,
       amount: String(g.subscription.planAmount ?? g.subscription.amount ?? ""),
-      currency: g.subscription.currency || "USD",
+      currency: g.subscription.currency || DEFAULT_CURRENCY,
       currentPeriodEnd: g.subscription.currentPeriodEnd ? String(g.subscription.currentPeriodEnd).slice(0, 10) : "",
       notes: g.subscription.notes || "",
     });
@@ -659,7 +659,7 @@ function GymDetail() {
             <div className="md:col-span-2 rounded-xl bg-slate-50 px-4 py-3 text-sm">
               <div className="flex justify-between text-slate-600">
                 <span>Plan</span>
-                <span className="font-medium text-slate-900">{formatMoney(planShare, sub.currency || "PKR")}</span>
+                <span className="font-medium text-slate-900">{formatMoney(planShare, sub.currency || DEFAULT_CURRENCY)}</span>
               </div>
               {includedAddons.map((addon) => (
                 <div key={addon.slug} className="mt-1 flex justify-between text-slate-600">

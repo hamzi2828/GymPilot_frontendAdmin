@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FiAlertCircle, FiArrowRight, FiClock, FiGrid, FiPlus, FiTrendingUp } from "react-icons/fi";
 import { PageHeader, Panel, StatCard, SegmentBar, Spinner, Alert, Button, Pill, Avatar } from "./_shared/ui";
-import { platformFetch, formatMoney, formatDate, type Overview } from "./_shared/api";
+import { platformFetch, formatMoney, formatDate, DEFAULT_CURRENCY, type Overview } from "./_shared/api";
 import GymsTable from "./gyms/GymsTable";
 
 function greeting() {
@@ -49,7 +49,7 @@ export default function SuperAdminOverviewPage() {
         <StatCard label="Need attention" value={attentionCount} hint={`${subs.past_due || 0} past due · ${subs.expired || 0} expired · ${overview.gyms.suspended} suspended`} icon={<FiAlertCircle className="h-4.5 w-4.5" />} tone={attentionCount ? "bad" : "good"} />
         <StatCard
           label="Monthly recurring"
-          value={overview.mrr.length ? overview.mrr.map((row) => formatMoney(row.amount, row.currency)).join(" · ") : formatMoney(0, "USD")}
+          value={overview.mrr.length ? overview.mrr.map((row) => formatMoney(row.amount, row.currency)).join(" · ") : formatMoney(0, overview.currency || DEFAULT_CURRENCY)}
           hint="Active subscriptions; yearly plans divided by 12"
           icon={<FiTrendingUp className="h-4.5 w-4.5" />}
           tone="good"
