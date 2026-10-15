@@ -79,6 +79,15 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         ],
       },
+      // The desk app installer the gym admin panel links to: always saved as
+      // a file, never opened in the tab.
+      {
+        source: "/downloads/:path*",
+        headers: [
+          { key: "Content-Type", value: "application/octet-stream" },
+          { key: "Content-Disposition", value: "attachment" },
+        ],
+      },
     ];
   },
   // The sign-in pages used to live under /super-admin; old links and
