@@ -6,7 +6,8 @@ const FOCUS = "focus-visible:outline-none focus-visible:ring-2 focus-visible:rin
 
 // Every group, numbered, with how many features it has and each feature under
 // it, numbered within its group (1, 1.1, 1.2 … 2, 2.1) -- for a dark
-// background. The header's Features menu and the top of /features show
+// background. A feature leads to its card on /features (the page slides to
+// it); the card's Read more opens the feature's own page. The header's Features menu and the top of /features show
 // exactly this, so the two always match. The groups come in one after
 // another (a-rise), whenever the grid is shown.
 export default function FeatureGroupsGrid({ onNavigate, currentPath = "", className = "" }: { onNavigate?: () => void; currentPath?: string; className?: string }) {
@@ -29,7 +30,7 @@ export default function FeatureGroupsGrid({ onNavigate, currentPath = "", classN
                 return (
                   <li key={f.key}>
                     <Link
-                      href={`/features/${f.slug}`}
+                      href={`/features#${f.slug}`}
                       onClick={onNavigate}
                       aria-current={here ? "page" : undefined}
                       className={`group flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-colors ${FOCUS} ${here ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}

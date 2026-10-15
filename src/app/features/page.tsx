@@ -93,7 +93,7 @@ export default function FeaturesPage() {
                 <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {items.map((feature, i) => (
                     <Reveal key={feature.key} className="h-full">
-                      <FeatureCard feature={feature} index={i % 3} />
+                      <FeatureCard feature={feature} index={i % 3} anchored />
                     </Reveal>
                   ))}
                 </div>

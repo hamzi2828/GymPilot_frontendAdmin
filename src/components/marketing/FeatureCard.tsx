@@ -8,13 +8,16 @@ import { FEATURE_ICONS, FEATURE_TINTS } from "./featureIcons";
 // plain words, nothing more -- the detail is one tap away. The whole card
 // is the target (the heading's link is stretched over it), so a tap
 // anywhere lands, but screen readers still hear only the feature's name.
-export default function FeatureCard({ feature, index = 0, headingLevel = "h3" }: { feature: Feature; index?: number; headingLevel?: "h2" | "h3" }) {
+// `anchored` gives the card the feature's slug as its id, so /features#<slug>
+// slides straight to it (and it glows for a moment) -- used on /features only.
+export default function FeatureCard({ feature, index = 0, headingLevel = "h3", anchored = false }: { feature: Feature; index?: number; headingLevel?: "h2" | "h3"; anchored?: boolean }) {
   const Icon = FEATURE_ICONS[feature.key];
   const Heading = headingLevel;
 
   return (
     <article
-      className="v-rise group relative flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-card transition-all duration-300 focus-within:ring-2 focus-within:ring-brand-500 focus-within:ring-offset-2 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      id={anchored ? feature.slug : undefined}
+      className="feature-anchor v-rise group relative scroll-mt-24 flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-card transition-all duration-300 focus-within:ring-2 focus-within:ring-brand-500 focus-within:ring-offset-2 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0"
       style={stagger(index % 6)}
     >
       {/* Icon and name on one line keeps the card short. */}
