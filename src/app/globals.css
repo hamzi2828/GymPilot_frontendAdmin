@@ -215,6 +215,24 @@ details > summary::-webkit-details-marker {
 .btn-sweep::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 38%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent); transform: translateX(-160%) skewX(-20deg); pointer-events: none; animation: m-sweep 3.6s ease-in-out infinite; }
 .animate-marquee:hover { animation-play-state: paused; }
 
+/* "What you get": one 6s loop shared by the line and the three cards. A pulse
+   runs along the line, each node lights as it passes, and each card's little
+   scene builds itself (WhatYouGet.tsx sets the delays to the pulse's arrival). */
+@keyframes m-wyg-flow { 0% { left: 0%; opacity: 0; } 8% { opacity: 1; } 72% { opacity: 1; } 80%, 100% { left: 100%; opacity: 0; } }
+@keyframes m-wyg-node { 0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.45); } 7% { transform: translate(-50%, -50%) scale(1.15); } 18% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 14px rgba(124, 58, 237, 0); } 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); } }
+@keyframes m-wyg-bar { 0% { transform: scaleY(0.15); } 12%, 78% { transform: scaleY(1); } 92%, 100% { transform: scaleY(0.15); } }
+@keyframes m-wyg-build { 0% { opacity: 0; transform: translateY(6px); } 10%, 78% { opacity: 1; transform: none; } 90%, 100% { opacity: 0; transform: none; } }
+@keyframes m-wyg-type { 0% { width: 0; } 22%, 80% { width: 11ch; } 92%, 100% { width: 0; } }
+@keyframes m-wyg-row { 0%, 100% { background-color: rgb(241 245 249); color: rgb(71 85 105); transform: none; } 6%, 14% { background-color: rgb(237 233 254); color: rgb(109 40 217); transform: scale(1.05); } 24% { background-color: rgb(241 245 249); color: rgb(71 85 105); transform: none; } }
+@keyframes m-wyg-tick { 0% { opacity: 0; transform: scale(0.3); } 7% { opacity: 1; transform: scale(1.18); } 12%, 70% { opacity: 1; transform: scale(1); } 82%, 100% { opacity: 0; transform: scale(0.6); } }
+.a-wyg-flow { animation: m-wyg-flow 6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.a-wyg-node { animation: m-wyg-node 6s ease-out infinite both; }
+.a-wyg-bar { transform-origin: bottom; animation: m-wyg-bar 6s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
+.a-wyg-build { animation: m-wyg-build 6s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
+.a-wyg-type { animation: m-wyg-type 6s steps(11, end) infinite both; }
+.a-wyg-row { animation: m-wyg-row 6s ease-in-out infinite both; }
+.a-wyg-tick { animation: m-wyg-tick 6s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
+
 /* The header's menus drop in rather than blink on. */
 @keyframes m-menu { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .a-menu { animation: m-menu 0.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
@@ -237,6 +255,8 @@ details[open] > summary ~ * { animation: m-rise 0.45s cubic-bezier(0.22, 1, 0.36
   .edge-glow::before,
   .a-drift, .a-drift-2, .a-spin-slow, .a-float, .a-float-2, .a-scan, .a-blink, .a-halo,
   .a-point-r, .a-point-l, .a-ping-ring, .btn-sweep::after, .btn-shine:hover::after, .a-menu,
+  .a-wyg-node, .a-wyg-bar, .a-wyg-build, .a-wyg-type, .a-wyg-row, .a-wyg-tick,
   details[open] > summary ~ * { animation: none !important; }
+  .a-wyg-flow { display: none; }
   .reveal.is-visible .v-draw { stroke-dasharray: none; }
 }
