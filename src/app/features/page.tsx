@@ -52,10 +52,24 @@ export default function FeaturesPage() {
             <h1 className="a-rise mt-3 font-display text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl lg:text-5xl" style={stagger(1)}>
               {FEATURES_PAGE.title}
             </h1>
-            <p className="a-rise mx-auto mt-3 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg" style={stagger(2)}>
-              {FEATURES_PAGE.lead}
-            </p>
-            <div className="a-rise mt-6 flex flex-col justify-center gap-3 sm:flex-row" style={stagger(3)}>
+          </div>
+        </section>
+
+        {/* The groups on one screen, laid out like the header's Features
+            menu: a buyer who wants one thing (do you do receipts?) jumps
+            straight to its group or opens the feature itself. */}
+        <nav aria-label="Feature groups" className="bg-slate-950 pb-10 pt-8 text-white">
+          <div className="mx-auto max-w-7xl px-5 sm:px-8">
+            <p className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Jump to</p>
+            <FeatureGroupsGrid className="mt-8" />
+          </div>
+        </nav>
+
+        {/* After the list: the one thing to know about plans, and the way on. */}
+        <section className="border-b border-white/10 bg-slate-950 pb-12 text-center text-white">
+          <div className="mx-auto max-w-3xl px-5 sm:px-8">
+            <p className="text-base leading-relaxed text-slate-300 sm:text-lg">{FEATURES_PAGE.lead}</p>
+            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
               <Link href="/#demo" className="btn-shine btn-shine-dark group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-slate-900 transition-transform hover:-translate-y-0.5">
                 Book a demo <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
@@ -65,16 +79,6 @@ export default function FeaturesPage() {
             </div>
           </div>
         </section>
-
-        {/* The groups on one screen, laid out like the header's Features
-            menu: a buyer who wants one thing (do you do receipts?) jumps
-            straight to its group or opens the feature itself. */}
-        <nav aria-label="Feature groups" className="border-b border-white/10 bg-slate-950 pb-12 pt-8 text-white sm:pb-14">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8">
-            <p className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Jump to</p>
-            <FeatureGroupsGrid className="mt-8" />
-          </div>
-        </nav>
 
         {/* Every feature, by group */}
         {FEATURE_GROUPS.map((group, gi) => {
