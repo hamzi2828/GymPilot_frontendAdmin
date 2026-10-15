@@ -231,11 +231,6 @@ export const FAQ: { q: string; a: string; more?: boolean }[] = [
     more: true,
   },
   {
-    q: "Which languages are supported?",
-    a: "Your public website comes in English, Arabic, Urdu, Spanish and French, right-to-left included. You pick the default and visitors can switch. The screens your staff use are in English.",
-    more: true,
-  },
-  {
     q: "I am already a customer. Where do I sign in?",
     a: "At your gym's own web address, not on this site. It is in your welcome email: open it and press Sign in. Lost it? Message us and we will send it again.",
     more: true,
