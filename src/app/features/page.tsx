@@ -12,6 +12,7 @@ import CountUp from "@/components/marketing/CountUp";
 import FeatureCard from "@/components/marketing/FeatureCard";
 import Reveal from "@/components/marketing/Reveal";
 import Glow from "@/components/marketing/Glow";
+import FeatureGroupsGrid from "@/components/marketing/FeatureGroupsGrid";
 
 // For search results: one sentence, under 160 characters.
 const DESCRIPTION = `All ${FEATURES.length} ${SITE.name} features in plain English: fee collection, dues, check-in alerts, reports, the shop, classes, staff, messaging, your website and backups.`;
@@ -81,27 +82,13 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        {/* The groups on one screen: a buyer who wants one thing (do you do
-            receipts?) jumps straight to it. */}
-        <nav aria-label="Feature groups" className="border-b border-slate-200 bg-white py-10 sm:py-12">
+        {/* The groups on one screen, laid out like the header's Features
+            menu: a buyer who wants one thing (do you do receipts?) jumps
+            straight to its group or opens the feature itself. */}
+        <nav aria-label="Feature groups" className="border-b border-white/10 bg-slate-950 py-12 text-white sm:py-14">
           <div className="mx-auto max-w-7xl px-5 sm:px-8">
             <p className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Jump to</p>
-            <ul className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-              {FEATURE_GROUPS.map((group, gi) => (
-                <li key={group.key}>
-                  <a
-                    href={`#${group.key}`}
-                    className="group flex h-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-                  >
-                    <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[11px] font-bold text-slate-600 transition-colors group-hover:bg-brand-600 group-hover:text-white">{gi + 1}</span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold leading-snug text-slate-900">{group.label}</span>
-                      <span className="block text-[11px] text-slate-500">{featuresIn(group.key).length} features</span>
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <FeatureGroupsGrid className="mt-8" />
           </div>
         </nav>
 

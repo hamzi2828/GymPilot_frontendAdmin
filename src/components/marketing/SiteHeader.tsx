@@ -8,9 +8,8 @@ import { FaHandPointRight } from "react-icons/fa";
 import { FiArrowRight, FiChevronDown, FiMenu, FiX } from "react-icons/fi";
 import Brand from "./Brand";
 import { BENEFITS, CONTACT, NAV, SITE } from "@/content/site";
-import { stagger } from "@/lib/motion";
-import { FEATURES, FEATURE_GROUPS, featuresIn } from "@/content/features";
-import { FEATURE_ICONS } from "./featureIcons";
+import { FEATURES } from "@/content/features";
+import FeatureGroupsGrid from "./FeatureGroupsGrid";
 
 // How far below the top of the viewport a section has to reach before the
 // menu treats it as the current one (the header's own height plus a little).
@@ -24,14 +23,15 @@ const spyOf = (item: NavItem) => item.spy ?? (item.href.startsWith("#") ? item.h
 const FOCUS = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950";
 
 /**
- * The Features menu on wide screens: a button that opens a panel of every
- * feature, by group, under the header. A disclosure rather than an ARIA
+ * The Features menu on wide screens: the word takes you to the features on
+ * the landing page, and the arrow beside it opens a panel of every feature,
+ * by group, under the header. A disclosure rather than an ARIA
  * menu -- it is a set of links, so Tab walks through them as on any page.
  * Enter, Space or Arrow Down opens it (Arrow Down also moves into it), Esc
  * closes it and hands focus back to the button, and it closes when focus or
  * a click lands anywhere else.
  */
-function FeaturesMenu({ current }: { current: boolean }) {
+function FeaturesMenu({ current, labelHref }: { current: boolean; labelHref: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
@@ -70,25 +70,30 @@ function FeaturesMenu({ current }: { current: boolean }) {
         if (open && !wrap.current?.contains(e.relatedTarget as Node | null)) setOpen(false);
       }}
     >
-      <button
-        ref={button}
-        type="button"
-        aria-expanded={open}
-        aria-controls={panelId}
-        onClick={() => setOpen((o) => !o)}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowDown") {
-            e.preventDefault();
-            setOpen(true);
-            focusFirst();
-          }
-        }}
-        className={`relative inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${FOCUS} ${current || open ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}
-      >
-        Features
-        <FiChevronDown className={`h-4 w-4 transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`} aria-hidden="true" />
+      <div className={`relative inline-flex items-center rounded-full text-sm font-medium transition-colors ${current || open ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}>
+        <Link href={labelHref} onClick={() => setOpen(false)} className={`rounded-full py-2 pl-3.5 pr-1 ${FOCUS}`}>
+          Features
+        </Link>
+        <button
+          ref={button}
+          type="button"
+          aria-expanded={open}
+          aria-controls={panelId}
+          aria-label={open ? "Hide the list of features" : "Show the list of features"}
+          onClick={() => setOpen((o) => !o)}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              setOpen(true);
+              focusFirst();
+            }
+          }}
+          className={`rounded-full py-2 pl-1 pr-3 ${FOCUS}`}
+        >
+          <FiChevronDown className={`h-4 w-4 transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`} aria-hidden="true" />
+        </button>
         <span className={`absolute -bottom-[3px] left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-gradient-to-r from-brand-400 to-fuchsia-400 transition-opacity ${current ? "opacity-100" : "opacity-0"}`} aria-hidden="true" />
-      </button>
+      </div>
 
       {/* Placed against the header itself (the nearest positioned box), so
           it spans the page under the bar rather than hanging off a button. */}
@@ -99,38 +104,7 @@ function FeaturesMenu({ current }: { current: boolean }) {
         className="a-menu absolute inset-x-0 top-full max-h-[calc(100vh-4rem)] overflow-y-auto border-b border-white/10 bg-slate-950 shadow-2xl shadow-black/40"
       >
         <div className="mx-auto max-w-7xl px-8 py-8">
-          <div className="grid grid-cols-4 gap-x-8 gap-y-8">
-            {FEATURE_GROUPS.map((group, gi) => (
-              <div key={group.key} className="a-rise" style={stagger(gi)}>
-                <Link href={`/features#${group.key}`} onClick={() => setOpen(false)} className={`group/head -mx-2 flex items-center gap-3 rounded-xl px-2 py-1.5 transition-colors hover:bg-white/5 ${FOCUS}`}>
-                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-[11px] font-bold text-slate-200 transition-colors group-hover/head:bg-brand-600 group-hover/head:text-white">{gi + 1}</span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold leading-snug text-white">{group.label}</span>
-                    <span className="block text-[11px] text-slate-400">{featuresIn(group.key).length} features</span>
-                  </span>
-                </Link>
-                <ul className="ml-[22px] mt-2 space-y-0.5 border-l border-white/10 pl-3">
-                  {featuresIn(group.key).map((f) => {
-                    const Icon = FEATURE_ICONS[f.key];
-                    const here = pathname === `/features/${f.slug}`;
-                    return (
-                      <li key={f.key}>
-                        <Link
-                          href={`/features/${f.slug}`}
-                          onClick={() => setOpen(false)}
-                          aria-current={here ? "page" : undefined}
-                          className={`group flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-colors ${FOCUS} ${here ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}
-                        >
-                          <Icon className="h-4 w-4 shrink-0 text-slate-500 transition-colors group-hover:text-brand-300" aria-hidden="true" />
-                          {f.name}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
-          </div>
+          <FeatureGroupsGrid onNavigate={() => setOpen(false)} currentPath={pathname} />
 
           <div className="mt-8 flex items-center justify-between gap-6 border-t border-white/10 pt-5">
             <p className="text-sm text-slate-400">Everything here is in every plan, except the native member app: that is the one add-on.</p>
@@ -219,7 +193,7 @@ export default function SiteHeader() {
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
           {NAV.map((item) => {
             const current = isActive(item);
-            if (item.menu === "features") return <FeaturesMenu key={item.href} current={current} />;
+            if (item.menu === "features") return <FeaturesMenu key={item.href} current={current} labelHref={href("#features")} />;
             return (
               <Link key={item.href} href={href(item.href)} aria-current={current ? "true" : undefined} className={`relative rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${FOCUS} ${current ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}>
                 {item.label}
@@ -253,49 +227,27 @@ export default function SiteHeader() {
               if (item.menu === "features") {
                 return (
                   <div key={item.href}>
-                    <button
-                      type="button"
-                      aria-expanded={featuresOpen}
-                      aria-controls={mobileFeaturesId}
-                      onClick={() => setFeaturesOpen((o) => !o)}
-                      className={`flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-base font-medium ${FOCUS} ${current ? "bg-white/10 text-white" : "text-slate-200 hover:bg-white/5"}`}
-                    >
-                      Features
-                      <FiChevronDown className={`h-5 w-5 transition-transform duration-200 motion-reduce:transition-none ${featuresOpen ? "rotate-180" : ""}`} aria-hidden="true" />
-                    </button>
+                    <div className={`flex items-center rounded-lg ${current ? "bg-white/10" : ""}`}>
+                      <Link href={href("#features")} onClick={close} className={`flex-1 rounded-lg px-3 py-3 text-base font-medium ${FOCUS} ${current ? "text-white" : "text-slate-200 hover:bg-white/5"}`}>
+                        Features
+                      </Link>
+                      <button
+                        type="button"
+                        aria-expanded={featuresOpen}
+                        aria-controls={mobileFeaturesId}
+                        aria-label={featuresOpen ? "Hide the list of features" : "Show the list of features"}
+                        onClick={() => setFeaturesOpen((o) => !o)}
+                        className={`rounded-lg px-3 py-3 text-slate-200 hover:bg-white/5 ${FOCUS}`}
+                      >
+                        <FiChevronDown className={`h-5 w-5 transition-transform duration-200 motion-reduce:transition-none ${featuresOpen ? "rotate-180" : ""}`} aria-hidden="true" />
+                      </button>
+                    </div>
                     <div id={mobileFeaturesId} hidden={!featuresOpen} className="a-menu mb-2 ml-3 border-l border-white/10 pl-3">
                       <Link href="/features" onClick={close} aria-current={pathname === "/features" ? "page" : undefined} className={`btn-sweep mt-2 flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-600 via-purple-600 to-fuchsia-600 px-4 py-2.5 text-sm font-bold text-white ${FOCUS}`}>
                         <FaHandPointRight className="a-point-r h-4 w-4 text-amber-300" aria-hidden="true" />
                         {BENEFITS.cta} ({FEATURES.length}) <FiArrowRight className="h-4 w-4" aria-hidden="true" />
                       </Link>
-                      {FEATURE_GROUPS.map((group, gi) => (
-                        <div key={group.key} className="a-rise mt-3" style={stagger(gi)}>
-                          <Link href={`/features#${group.key}`} onClick={close} className={`flex items-center gap-3 rounded-lg px-2 py-1.5 ${FOCUS}`}>
-                            <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-[11px] font-bold text-slate-200">{gi + 1}</span>
-                            <span className="min-w-0">
-                              <span className="block text-sm font-semibold text-white">{group.label}</span>
-                              <span className="block text-[11px] text-slate-400">{featuresIn(group.key).length} features</span>
-                            </span>
-                          </Link>
-                          <ul className="ml-[22px] border-l border-white/10 pl-2">
-                            {featuresIn(group.key).map((f) => {
-                              const here = pathname === `/features/${f.slug}`;
-                              return (
-                                <li key={f.key}>
-                                  <Link
-                                    href={`/features/${f.slug}`}
-                                    onClick={close}
-                                    aria-current={here ? "page" : undefined}
-                                    className={`block rounded-lg px-3 py-2 text-sm ${FOCUS} ${here ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5"}`}
-                                  >
-                                    {f.name}
-                                  </Link>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      ))}
+                      <FeatureGroupsGrid onNavigate={close} currentPath={pathname} className="mt-4 pl-2" />
                     </div>
                   </div>
                 );
