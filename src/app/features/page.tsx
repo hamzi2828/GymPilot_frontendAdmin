@@ -84,7 +84,7 @@ export default function FeaturesPage() {
         {FEATURE_GROUPS.map((group, gi) => {
           const items = featuresIn(group.key);
           return (
-            <section key={group.key} id={group.key} aria-labelledby={`${group.key}-title`} className={`scroll-mt-20 py-20 sm:py-24 ${gi % 2 === 1 ? "bg-slate-50" : "bg-white"}`}>
+            <section key={group.key} id={group.key} aria-labelledby={`${group.key}-title`} className={`scroll-mt-20 py-10 sm:py-12 ${gi % 2 === 1 ? "bg-slate-50" : "bg-white"}`}>
               <div className="mx-auto max-w-7xl px-5 sm:px-8">
                 <Reveal className="max-w-2xl">
                   <p className="v-rise flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-brand-600" style={stagger(0)}>
@@ -94,11 +94,11 @@ export default function FeaturesPage() {
                     {group.label}
                     <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold tracking-normal text-slate-500">{items.length} features</span>
                   </p>
-                  <h2 id={`${group.key}-title`} className="v-rise mt-3 font-display text-3xl font-bold tracking-[-0.02em] text-slate-900 sm:text-4xl" style={stagger(1)}>
+                  <h2 id={`${group.key}-title`} className="v-rise mt-2 font-display text-2xl font-bold tracking-[-0.02em] text-slate-900 sm:text-3xl" style={stagger(1)}>
                     {group.title}
                   </h2>
-                  <span className="v-fill mt-4 block h-1 w-12 origin-left rounded-full bg-gradient-to-r from-brand-500 to-fuchsia-500" style={stagger(2)} aria-hidden="true" />
-                  <p className="v-rise mt-4 text-base leading-relaxed text-slate-600 sm:text-lg" style={stagger(3)}>
+                  <span className="v-fill mt-2.5 block h-1 w-10 origin-left rounded-full bg-gradient-to-r from-brand-500 to-fuchsia-500" style={stagger(2)} aria-hidden="true" />
+                  <p className="v-rise mt-2.5 text-base leading-relaxed text-slate-600" style={stagger(3)}>
                     {group.text}
                   </p>
                 </Reveal>
@@ -106,7 +106,7 @@ export default function FeaturesPage() {
                 {/* Each card comes in as its own row scrolls into view, the
                     cards of a row one after another, so a long group builds
                     up step by step instead of appearing as one block. */}
-                <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {items.map((feature, i) => (
                     <Reveal key={feature.key} className="h-full">
                       <FeatureCard feature={feature} index={i % 3} />
@@ -119,7 +119,7 @@ export default function FeaturesPage() {
         })}
 
         {/* Everything is in every plan */}
-        <section className="bg-white pb-4 pt-12">
+        <section className="bg-white pb-2 pt-8">
           <div className="mx-auto max-w-3xl px-5 sm:px-8">
             <Reveal>
               <p className="v-rise flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-relaxed text-emerald-900" style={stagger(0)}>
