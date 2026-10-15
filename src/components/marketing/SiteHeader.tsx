@@ -70,8 +70,10 @@ function FeaturesMenu({ current, labelHref }: { current: boolean; labelHref: str
         if (open && !wrap.current?.contains(e.relatedTarget as Node | null)) setOpen(false);
       }}
     >
-      <div className={`relative inline-flex items-center rounded-full text-sm font-medium transition-colors ${current || open ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}>
-        <Link href={labelHref} onClick={() => setOpen(false)} className={`rounded-full py-2 pl-3.5 pr-1 ${FOCUS}`}>
+      {/* Two controls, and they look it: the word is a link like the rest of
+          the menu, the arrow is its own round button that opens the list. */}
+      <div className="relative inline-flex items-center gap-1 text-sm font-medium">
+        <Link href={labelHref} onClick={() => setOpen(false)} className={`rounded-full px-3.5 py-2 transition-colors ${FOCUS} ${current ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}>
           Features
         </Link>
         <button
@@ -88,11 +90,12 @@ function FeaturesMenu({ current, labelHref }: { current: boolean; labelHref: str
               focusFirst();
             }
           }}
-          className={`rounded-full py-2 pl-1 pr-3 ${FOCUS}`}
+          title="Show all features"
+          className={`inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${FOCUS} ${open ? "border-brand-400/60 bg-brand-500/20 text-white" : "border-white/15 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/15 hover:text-white"}`}
         >
           <FiChevronDown className={`h-4 w-4 transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`} aria-hidden="true" />
         </button>
-        <span className={`absolute -bottom-[3px] left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-gradient-to-r from-brand-400 to-fuchsia-400 transition-opacity ${current ? "opacity-100" : "opacity-0"}`} aria-hidden="true" />
+        <span className={`absolute -bottom-[3px] left-[2.6rem] h-1 w-1 -translate-x-1/2 rounded-full bg-gradient-to-r from-brand-400 to-fuchsia-400 transition-opacity ${current ? "opacity-100" : "opacity-0"}`} aria-hidden="true" />
       </div>
 
       {/* Placed against the header itself (the nearest positioned box), so
@@ -227,8 +230,8 @@ export default function SiteHeader() {
               if (item.menu === "features") {
                 return (
                   <div key={item.href}>
-                    <div className={`flex items-center rounded-lg ${current ? "bg-white/10" : ""}`}>
-                      <Link href={href("#features")} onClick={close} className={`flex-1 rounded-lg px-3 py-3 text-base font-medium ${FOCUS} ${current ? "text-white" : "text-slate-200 hover:bg-white/5"}`}>
+                    <div className="flex items-center gap-2">
+                      <Link href={href("#features")} onClick={close} className={`flex-1 rounded-lg px-3 py-3 text-base font-medium ${FOCUS} ${current ? "bg-white/10 text-white" : "text-slate-200 hover:bg-white/5"}`}>
                         Features
                       </Link>
                       <button
@@ -237,7 +240,7 @@ export default function SiteHeader() {
                         aria-controls={mobileFeaturesId}
                         aria-label={featuresOpen ? "Hide the list of features" : "Show the list of features"}
                         onClick={() => setFeaturesOpen((o) => !o)}
-                        className={`rounded-lg px-3 py-3 text-slate-200 hover:bg-white/5 ${FOCUS}`}
+                        className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border transition-colors ${FOCUS} ${featuresOpen ? "border-brand-400/60 bg-brand-500/20 text-white" : "border-white/15 bg-white/5 text-slate-200 hover:bg-white/15"}`}
                       >
                         <FiChevronDown className={`h-5 w-5 transition-transform duration-200 motion-reduce:transition-none ${featuresOpen ? "rotate-180" : ""}`} aria-hidden="true" />
                       </button>
