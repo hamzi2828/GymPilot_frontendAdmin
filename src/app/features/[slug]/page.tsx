@@ -204,13 +204,13 @@ export default async function FeaturePage({ params }: { params: Promise<Params> 
                 </div>
               </Reveal>
 
-              <Reveal delay={80} className="mt-8">
-                <div className="grid gap-5 md:grid-cols-3">
-                  {related.map((f, i) => (
-                    <FeatureCard key={f.key} feature={f} index={i} />
-                  ))}
-                </div>
-              </Reveal>
+              <div className="mt-8 grid gap-5 md:grid-cols-3">
+                {related.map((f, i) => (
+                  <Reveal key={f.key} className="h-full">
+                    <FeatureCard feature={f} index={i % 3} />
+                  </Reveal>
+                ))}
+              </div>
             </div>
           </section>
         )}

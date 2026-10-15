@@ -128,13 +128,16 @@ export default function FeaturesPage() {
                   </p>
                 </Reveal>
 
-                <Reveal delay={80} className="mt-10">
-                  <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                    {items.map((feature, i) => (
-                      <FeatureCard key={feature.key} feature={feature} index={i} />
-                    ))}
-                  </div>
-                </Reveal>
+                {/* Each card comes in as its own row scrolls into view, the
+                    cards of a row one after another, so a long group builds
+                    up step by step instead of appearing as one block. */}
+                <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                  {items.map((feature, i) => (
+                    <Reveal key={feature.key} className="h-full">
+                      <FeatureCard feature={feature} index={i % 3} />
+                    </Reveal>
+                  ))}
+                </div>
               </div>
             </section>
           );
