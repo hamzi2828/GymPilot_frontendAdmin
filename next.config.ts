@@ -1,5 +1,63 @@
 import type { NextConfig } from "next";
 
+// ---------------------------------------------------------------------------
+// Content-Security-Policy
+//
+// The panel's platform token lives in localStorage (the API is on its own
+// domain, so an HttpOnly cookie would be a third-party one, which browsers
+// block). Any script that runs on this origin can read it; this policy
+// narrows what can run and where anything it reads could be sent.
+//
+//   script-src  'self' plus 'unsafe-inline'. Next.js writes inline scripts
+//               into every page, and the analytics snippets are inline. A
+//               per-request nonce (the only alternative) would make every
+//               marketing page dynamic. No other host may serve script except
+//               Google Analytics / the Meta Pixel, and only when their ids
+//               are set. 'unsafe-eval' only under `next dev`.
+//   connect-src 'self', the API, and the analytics beacons when enabled --
+//               the exfiltration channel an injected script would use.
+//   object-src 'none', base-uri 'self', form-action 'self', and nobody may
+//               frame any of it.
+// Preview deployments also get Vercel's toolbar (vercel.live).
+// ---------------------------------------------------------------------------
+function originOf(value: string | undefined): string {
+  try {
+    return new URL(value || "").origin;
+  } catch {
+    return "";
+  }
+}
+
+const IS_DEV = process.env.NODE_ENV !== "production";
+const IS_PREVIEW = process.env.VERCEL_ENV === "preview";
+// lib/api.ts falls back to localhost:4000 when the variable is unset.
+const API_ORIGIN = originOf(process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000");
+const GA = (process.env.NEXT_PUBLIC_GA_ID || "").trim() !== "";
+const META = (process.env.NEXT_PUBLIC_META_PIXEL_ID || "").trim() !== "";
+
+function contentSecurityPolicy(): string {
+  const vercelLive = IS_PREVIEW ? ["https://vercel.live"] : [];
+  const ga = GA ? ["https://*.googletagmanager.com", "https://*.google-analytics.com", "https://*.analytics.google.com"] : [];
+  const directives: Record<string, string[]> = {
+    "default-src": ["'self'"],
+    "script-src": ["'self'", "'unsafe-inline'", ...(IS_DEV ? ["'unsafe-eval'"] : []), ...(GA ? ["https://*.googletagmanager.com"] : []), ...(META ? ["https://connect.facebook.net"] : []), ...vercelLive],
+    "style-src": ["'self'", "'unsafe-inline'", ...vercelLive],
+    "font-src": ["'self'", "data:", ...(IS_PREVIEW ? ["https://vercel.live", "https://assets.vercel.com"] : [])],
+    "img-src": ["'self'", "data:", "blob:", ...ga, ...(META ? ["https://www.facebook.com"] : []), ...(IS_PREVIEW ? ["https://vercel.live", "https://vercel.com"] : [])],
+    "connect-src": ["'self'", API_ORIGIN, ...ga, ...(META ? ["https://www.facebook.com", "https://connect.facebook.net"] : []), ...(IS_PREVIEW ? ["https://vercel.live", "wss://ws-us3.pusher.com"] : [])].filter(Boolean),
+    "frame-src": ["'self'", ...(GA ? ["https://*.googletagmanager.com"] : []), ...vercelLive],
+    "worker-src": ["'self'", "blob:"],
+    "manifest-src": ["'self'"],
+    "object-src": ["'none'"],
+    "base-uri": ["'self'"],
+    "form-action": ["'self'"],
+    "frame-ancestors": ["'none'"],
+  };
+  return Object.entries(directives)
+    .map(([name, values]) => `${name} ${values.join(" ")}`)
+    .join("; ");
+}
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
@@ -15,7 +73,7 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         headers: [
-          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "Content-Security-Policy", value: contentSecurityPolicy() },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
