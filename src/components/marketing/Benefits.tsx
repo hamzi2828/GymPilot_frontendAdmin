@@ -4,6 +4,7 @@ import { FiArrowRight } from "react-icons/fi";
 import { BENEFITS } from "@/content/site";
 import { stagger } from "@/lib/motion";
 import { FEATURE_ICONS, FEATURE_TINTS } from "./featureIcons";
+import { BENEFIT_SCENES } from "./BenefitScenes";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 
@@ -20,9 +21,16 @@ export default function Benefits() {
         <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {BENEFITS.items.map((item, i) => {
             const Icon = FEATURE_ICONS[item.key];
+            const Scene = BENEFIT_SCENES[item.key];
             return (
               <Reveal key={item.key} delay={(i % 3) * 80} as="li">
                 <div className="relative h-full rounded-2xl border border-slate-200 bg-slate-50 p-6">
+                  {/* The outcome, acted out in a small loop above the words. */}
+                  {Scene && (
+                    <div className="mb-5 h-28 overflow-hidden rounded-xl bg-white ring-1 ring-inset ring-slate-200" aria-hidden="true">
+                      <Scene />
+                    </div>
+                  )}
                   <span className={`v-pop inline-flex h-11 w-11 items-center justify-center rounded-xl ring-1 ring-inset ${FEATURE_TINTS[item.key]}`} style={stagger(0)}>
                     <Icon className="h-5 w-5" />
                   </span>

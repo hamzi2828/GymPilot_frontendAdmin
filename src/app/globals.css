@@ -233,6 +233,20 @@ details > summary::-webkit-details-marker {
 .a-wyg-row { animation: m-wyg-row 6s ease-in-out infinite both; }
 .a-wyg-tick { animation: m-wyg-tick 6s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
 
+/* "What changes for your gym": a scene per card, on the same 6s loop. */
+@keyframes m-bn-scan { 0%, 100% { top: 8%; } 50% { top: 88%; } }
+@keyframes m-bn-draw { 0% { stroke-dashoffset: 1; } 35%, 80% { stroke-dashoffset: 0; } 92%, 100% { stroke-dashoffset: 1; } }
+@keyframes m-bn-up { 0% { opacity: 0; transform: translate(-50%, 6px); } 8% { opacity: 1; } 28%, 100% { opacity: 0; transform: translate(-50%, -18px); } }
+@keyframes m-bn-slide { 0% { opacity: 0; transform: translateX(28px); } 10%, 74% { opacity: 1; transform: none; } 86%, 100% { opacity: 0; transform: translateX(-14px); } }
+@keyframes m-bn-ring { 0%, 12%, 100% { transform: rotate(0); } 2% { transform: rotate(16deg); } 4% { transform: rotate(-14deg); } 6% { transform: rotate(10deg); } 8% { transform: rotate(-6deg); } }
+@keyframes m-bn-seat { 0% { background-color: rgb(226 232 240); transform: scale(1); } 4% { background-color: rgb(124 58 237); transform: scale(1.25); } 8%, 80% { background-color: rgb(124 58 237); transform: scale(1); } 92%, 100% { background-color: rgb(226 232 240); transform: scale(1); } }
+.a-bn-scan { animation: m-bn-scan 2.4s ease-in-out infinite; }
+.a-bn-draw { stroke-dasharray: 1; animation: m-bn-draw 6s cubic-bezier(0.45, 0, 0.55, 1) infinite both; }
+.a-bn-up { animation: m-bn-up 6s ease-out infinite both; }
+.a-bn-slide { animation: m-bn-slide 6s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
+.a-bn-ring { transform-origin: 50% 0; animation: m-bn-ring 6s ease-in-out infinite both; }
+.a-bn-seat { animation: m-bn-seat 6s ease-out infinite both; }
+
 /* The header's menus drop in rather than blink on. */
 @keyframes m-menu { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .a-menu { animation: m-menu 0.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
@@ -256,7 +270,8 @@ details[open] > summary ~ * { animation: m-rise 0.45s cubic-bezier(0.22, 1, 0.36
   .a-drift, .a-drift-2, .a-spin-slow, .a-float, .a-float-2, .a-scan, .a-blink, .a-halo,
   .a-point-r, .a-point-l, .a-ping-ring, .btn-sweep::after, .btn-shine:hover::after, .a-menu,
   .a-wyg-node, .a-wyg-bar, .a-wyg-build, .a-wyg-type, .a-wyg-row, .a-wyg-tick,
+  .a-bn-scan, .a-bn-draw, .a-bn-slide, .a-bn-ring, .a-bn-seat,
   details[open] > summary ~ * { animation: none !important; }
-  .a-wyg-flow { display: none; }
+  .a-wyg-flow, .a-bn-up { display: none; }
   .reveal.is-visible .v-draw { stroke-dasharray: none; }
 }
