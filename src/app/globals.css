@@ -267,6 +267,11 @@ details > summary::-webkit-details-marker {
 .a-hero-ticker { animation: m-hero-ticker 12.5s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
 .a-hero-event { animation: m-hero-event 9s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
 
+/* View all features pops in with a bounce when it is shown or scrolls in. */
+@keyframes m-cta-in { 0% { opacity: 0; transform: translateY(16px) scale(0.6); } 55% { opacity: 1; transform: translateY(-4px) scale(1.08); } 75% { transform: scale(0.97); } 100% { opacity: 1; transform: none; } }
+.a-cta-in { animation: m-cta-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both; }
+.reveal.is-visible .v-cta-in { animation: m-cta-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both; }
+
 /* The header's menus drop in rather than blink on. */
 @keyframes m-menu { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .a-menu { animation: m-menu 0.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
@@ -291,7 +296,7 @@ details[open] > summary ~ * { animation: m-rise 0.45s cubic-bezier(0.22, 1, 0.36
   .a-point-r, .a-point-l, .a-ping-ring, .btn-sweep::after, .btn-shine:hover::after, .a-menu,
   .a-wyg-node, .a-wyg-bar, .a-wyg-build, .a-wyg-type, .a-wyg-row, .a-wyg-tick,
   .a-bn-scan, .a-bn-draw, .a-bn-slide, .a-bn-ring, .a-bn-seat, .a-hw-step, .a-hw-fill,
-  .a-hero-ticker, .a-hero-event,
+  .a-hero-ticker, .a-hero-event, .a-cta-in, .reveal.is-visible .v-cta-in,
   details[open] > summary ~ * { animation: none !important; }
   .a-wyg-flow, .a-bn-up { display: none; }
   .reveal.is-visible .v-draw { stroke-dasharray: none; }

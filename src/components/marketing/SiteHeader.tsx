@@ -4,12 +4,12 @@ import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaWhatsapp } from "react-icons/fa";
-import { FaHandPointRight } from "react-icons/fa";
 import { FiArrowRight, FiChevronDown, FiMenu, FiX } from "react-icons/fi";
 import Brand from "./Brand";
-import { BENEFITS, CONTACT, NAV, SITE } from "@/content/site";
+import { CONTACT, NAV, SITE } from "@/content/site";
 import { FEATURES } from "@/content/features";
 import FeatureGroupsGrid from "./FeatureGroupsGrid";
+import ViewAllFeaturesButton from "./ViewAllFeaturesButton";
 
 // How far below the top of the viewport a section has to reach before the
 // menu treats it as the current one (the header's own height plus a little).
@@ -111,11 +111,7 @@ function FeaturesMenu({ current, labelHref }: { current: boolean; labelHref: str
 
           <div className="mt-8 flex items-center justify-between gap-6 border-t border-white/10 pt-5">
             <p className="text-sm text-slate-400">Everything here is in every plan, except the native member app: that is the one add-on.</p>
-            <Link href="/features" onClick={() => setOpen(false)} className={`btn-sweep group inline-flex shrink-0 items-center gap-2.5 rounded-full bg-gradient-to-r from-brand-600 via-purple-600 to-fuchsia-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-600/30 transition-transform hover:-translate-y-0.5 motion-reduce:transition-none ${FOCUS}`}>
-              <FaHandPointRight className="a-point-r h-4 w-4 text-amber-300" aria-hidden="true" />
-              {BENEFITS.cta} ({FEATURES.length})
-              <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
-            </Link>
+            <ViewAllFeaturesButton count={FEATURES.length} onClick={() => setOpen(false)} className="shrink-0" />
           </div>
         </div>
       </div>
@@ -246,10 +242,7 @@ export default function SiteHeader() {
                       </button>
                     </div>
                     <div id={mobileFeaturesId} hidden={!featuresOpen} className="a-menu mb-2 ml-3 border-l border-white/10 pl-3">
-                      <Link href="/features" onClick={close} aria-current={pathname === "/features" ? "page" : undefined} className={`btn-sweep mt-2 flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-600 via-purple-600 to-fuchsia-600 px-4 py-2.5 text-sm font-bold text-white ${FOCUS}`}>
-                        <FaHandPointRight className="a-point-r h-4 w-4 text-amber-300" aria-hidden="true" />
-                        {BENEFITS.cta} ({FEATURES.length}) <FiArrowRight className="h-4 w-4" aria-hidden="true" />
-                      </Link>
+                      <ViewAllFeaturesButton count={FEATURES.length} onClick={close} aria-current={pathname === "/features" ? "page" : undefined} className="mt-2 w-full" />
                       <FeatureGroupsGrid onNavigate={close} currentPath={pathname} className="mt-4 pl-2" />
                     </div>
                   </div>
