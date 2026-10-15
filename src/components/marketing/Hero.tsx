@@ -1,9 +1,43 @@
 import { FaWhatsapp } from "react-icons/fa";
-import { FiArrowDown, FiArrowRight, FiCheck } from "react-icons/fi";
+import { FiArrowDown, FiArrowRight, FiBell, FiCheck, FiCheckCircle, FiGlobe, FiUsers } from "react-icons/fi";
 import { HERO, SITE } from "@/content/site";
 import { stagger } from "@/lib/motion";
 import ProductMock from "./ProductMock";
 import Glow from "./Glow";
+
+// What the product does, as things happening at a gym, one after another
+// under the headline (globals.css: .a-hero-ticker). The first line comes
+// again at the end so the loop wraps without a jump; reduced motion shows
+// the first one only.
+const LIVE = [
+  { icon: FiCheckCircle, tint: "text-emerald-400", text: "Ali paid Rs 4,900 at the desk" },
+  { icon: FiCheck, tint: "text-sky-400", text: "Sara checked in by QR code" },
+  { icon: FiUsers, tint: "text-amber-300", text: "HIIT at 18:00 is full" },
+  { icon: FiBell, tint: "text-fuchsia-300", text: "Fee reminder sent to 24 members" },
+  { icon: FiGlobe, tint: "text-brand-300", text: "New member joined from your website" },
+];
+
+function LiveTicker() {
+  return (
+    <div className="a-rise mt-6 inline-flex max-w-full items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-2 pr-4 text-sm" style={stagger(4)}>
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-emerald-300">
+        <span className="a-blink h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" /> Live
+      </span>
+      <span className="relative h-6 min-w-0 overflow-hidden" aria-label={LIVE.map((l) => l.text).join(". ")}>
+        <span className="a-hero-ticker block" aria-hidden="true">
+          {[...LIVE, LIVE[0]].map((l, i) => {
+            const Icon = l.icon;
+            return (
+              <span key={i} className="flex h-6 items-center gap-2 truncate text-slate-200">
+                <Icon className={`h-4 w-4 shrink-0 ${l.tint}`} /> {l.text}
+              </span>
+            );
+          })}
+        </span>
+      </span>
+    </div>
+  );
+}
 
 export default function Hero() {
   return (
@@ -32,7 +66,9 @@ export default function Hero() {
             </span>
           </h1>
 
-          <p className="a-rise mt-6 max-w-xl text-lg leading-relaxed text-slate-300" style={stagger(4)}>
+          <LiveTicker />
+
+          <p className="a-rise mt-5 max-w-xl text-lg leading-relaxed text-slate-300" style={stagger(4)}>
             {HERO.lead}
           </p>
 

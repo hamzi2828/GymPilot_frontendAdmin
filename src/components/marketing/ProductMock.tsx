@@ -1,10 +1,13 @@
 // The product, drawn in markup: a gym's admin dashboard in a browser frame
 // with a few live-looking events floating around it. No screenshots to go
 // stale, and it renders crisp at any size. Everything inside animates in on
-// page load, staggered, so the dashboard looks like it is waking up.
+// page load, staggered, so the dashboard looks like it is waking up; after
+// that it stays alive: the counts run up, a new face checks in now and then,
+// and the floating events take turns (globals.css: .a-hero-event).
 
 import { FiActivity, FiBarChart2, FiCalendar, FiCheckCircle, FiCreditCard, FiGrid, FiMessageSquare, FiSettings, FiUsers, FiUserPlus } from "react-icons/fi";
 import { stagger } from "@/lib/motion";
+import CountUp from "./CountUp";
 
 const BARS = [42, 58, 51, 66, 72, 64, 80, 74, 88, 83, 92, 97];
 const CLASSES = [
@@ -14,7 +17,7 @@ const CLASSES = [
 ];
 const CHECKINS = ["AR", "MK", "SJ", "DL", "PT", "+9"];
 
-function Stat({ label, value, delta, index, up = true }: { label: string; value: string; delta: string; index: number; up?: boolean }) {
+function Stat({ label, value, delta, index, up = true }: { label: string; value: React.ReactNode; delta: string; index: number; up?: boolean }) {
   return (
     <div className="a-pop rounded-xl border border-white/[0.06] bg-white/[0.03] p-3" style={stagger(index)}>
       <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">{label}</p>
@@ -24,10 +27,10 @@ function Stat({ label, value, delta, index, up = true }: { label: string; value:
   );
 }
 
-function Event({ icon, tint, title, text, className, style, index }: { icon: React.ReactNode; tint: string; title: string; text: string; className: string; style?: React.CSSProperties; index: number }) {
+function Event({ icon, tint, title, text, className, style, turn }: { icon: React.ReactNode; tint: string; title: string; text: string; className: string; style?: React.CSSProperties; turn: number }) {
   return (
-    <div className={`absolute hidden rounded-xl border border-white/10 bg-slate-900/95 p-3 shadow-lift ring-1 ring-white/5 md:block ${className}`} style={style}>
-      <div className="a-pop flex items-center gap-2.5" style={stagger(index)}>
+    <div className={`absolute hidden md:block ${className}`} style={style}>
+      <div className="a-hero-event flex items-center gap-2.5 rounded-xl border border-white/10 bg-slate-900/95 p-3 shadow-lift ring-1 ring-white/5" style={{ animationDelay: `${0.8 + turn * 3}s` }}>
         <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${tint}`}>{icon}</span>
         <div>
           <p className="text-xs font-semibold text-white">{title}</p>
@@ -73,14 +76,14 @@ export default function ProductMock() {
               </div>
               <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
                 <span className="a-blink mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
-                312 in today
+                <CountUp value={312} duration={1600} />&nbsp;in today
               </span>
             </div>
 
             <div className="mt-3 grid grid-cols-3 gap-2">
               <Stat label="Active members" value="1,248" delta="+4.2% this month" index={3} />
               <Stat label="This month" value="Rs 3.74M" delta="+Rs 180k" index={4} />
-              <Stat label="Bookings today" value="186" delta="94% capacity" index={5} />
+              <Stat label="Bookings today" value={<CountUp value={186} duration={1600} />} delta="94% capacity" index={5} />
             </div>
 
             <div className="mt-3 grid gap-2 sm:grid-cols-5">
@@ -100,6 +103,10 @@ export default function ProductMock() {
               <div className="a-rise rounded-xl border border-white/[0.06] bg-white/[0.03] p-3 sm:col-span-2" style={stagger(7)}>
                 <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Checked in now</p>
                 <div className="mt-3 flex -space-x-2">
+                  {/* Someone new walks in every few seconds. */}
+                  <span className="a-wyg-build flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-[9px] font-bold text-white ring-2 ring-slate-900" style={{ animationDelay: "2.5s" }}>
+                    NA
+                  </span>
                   {CHECKINS.map((c, i) => (
                     <span key={c} className={`a-pop flex h-7 w-7 items-center justify-center rounded-full text-[9px] font-bold ring-2 ring-slate-900 ${i === CHECKINS.length - 1 ? "bg-slate-700 text-slate-200" : "bg-gradient-to-br from-brand-400 to-purple-500 text-white"}`} style={stagger(i, 900)}>
                       {c}
@@ -139,10 +146,10 @@ export default function ProductMock() {
         </div>
       </div>
 
-      {/* floating events: appear one after another, then float */}
-      <Event index={0} className="-right-3 top-10 animate-float lg:-right-10" style={{ animationDelay: "0.6s" }} tint="bg-emerald-500/15 text-emerald-300" icon={<FiCheckCircle className="h-4 w-4" />} title="Payment received" text="Sara M. · Unlimited monthly · Rs 5,000" />
-      <Event index={0} className="-left-3 bottom-16 animate-float-slow lg:-left-12" tint="bg-brand-500/15 text-brand-300" icon={<FiUserPlus className="h-4 w-4" />} title="New member from the website" text="Signed the waiver · booked HIIT Blast" />
-      <Event index={0} className="-bottom-5 right-8 animate-float" style={{ animationDelay: "1.4s" }} tint="bg-fuchsia-500/15 text-fuchsia-300" icon={<FiMessageSquare className="h-4 w-4" />} title="WhatsApp reminder sent" text="Boxing Fundamentals · 24 members" />
+      {/* floating events: take turns popping up, while they float */}
+      <Event turn={0} className="-right-3 top-10 animate-float lg:-right-10" style={{ animationDelay: "0.6s" }} tint="bg-emerald-500/15 text-emerald-300" icon={<FiCheckCircle className="h-4 w-4" />} title="Payment received" text="Sara M. · Unlimited monthly · Rs 5,000" />
+      <Event turn={1} className="-left-3 bottom-16 animate-float-slow lg:-left-12" tint="bg-brand-500/15 text-brand-300" icon={<FiUserPlus className="h-4 w-4" />} title="New member from the website" text="Signed the waiver · booked HIIT Blast" />
+      <Event turn={2} className="-bottom-5 right-8 animate-float" style={{ animationDelay: "1.4s" }} tint="bg-fuchsia-500/15 text-fuchsia-300" icon={<FiMessageSquare className="h-4 w-4" />} title="WhatsApp reminder sent" text="Boxing Fundamentals · 24 members" />
     </div>
   );
 }
