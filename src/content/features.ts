@@ -96,7 +96,6 @@ export const FEATURE_GROUPS: { key: GroupKey; label: string; title: string; text
 export const FEATURES_PAGE = {
   eyebrow: "Every feature",
   title: "What you get with GymsPilotPro",
-  lead: "All in every plan. Only the member app is an add-on.",
   note: "Nothing on this page is an upgrade or an extra monthly fee — except the native member app. It is an add-on on Starter and Growth, comes with Pro, and is not offered on Basic. Members on every plan use the member portal in their browser.",
 };
 

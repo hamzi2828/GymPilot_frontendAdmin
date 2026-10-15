@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { FiArrowRight, FiCheckCircle } from "react-icons/fi";
+import { FiCheckCircle } from "react-icons/fi";
 import { FEATURES, FEATURE_GROUPS, FEATURES_PAGE, featuresIn } from "@/content/features";
 import { SITE } from "@/content/site";
 import { stagger } from "@/lib/motion";
@@ -58,27 +57,12 @@ export default function FeaturesPage() {
         {/* The groups on one screen, laid out like the header's Features
             menu: a buyer who wants one thing (do you do receipts?) jumps
             straight to its group or opens the feature itself. */}
-        <nav aria-label="Feature groups" className="bg-slate-950 pb-10 pt-8 text-white">
+        <nav aria-label="Feature groups" className="border-b border-white/10 bg-slate-950 pb-12 pt-8 text-white">
           <div className="mx-auto max-w-7xl px-5 sm:px-8">
             <p className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Jump to</p>
             <FeatureGroupsGrid className="mt-8" />
           </div>
         </nav>
-
-        {/* After the list: the one thing to know about plans, and the way on. */}
-        <section className="border-b border-white/10 bg-slate-950 pb-12 text-center text-white">
-          <div className="mx-auto max-w-3xl px-5 sm:px-8">
-            <p className="text-base leading-relaxed text-slate-300 sm:text-lg">{FEATURES_PAGE.lead}</p>
-            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link href="/#demo" className="btn-shine btn-shine-dark group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-slate-900 transition-transform hover:-translate-y-0.5">
-                Book a demo <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-              <Link href="/#pricing" className="btn-shine inline-flex h-12 items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 text-sm font-semibold text-white transition-colors hover:bg-white/10">
-                See pricing
-              </Link>
-            </div>
-          </div>
-        </section>
 
         {/* Every feature, by group */}
         {FEATURE_GROUPS.map((group, gi) => {
