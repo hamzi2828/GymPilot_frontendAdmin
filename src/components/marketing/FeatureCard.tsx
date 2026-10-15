@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { FiArrowRight, FiCheck } from "react-icons/fi";
+import { FiArrowRight } from "react-icons/fi";
 import type { Feature } from "@/content/features";
 import { stagger } from "@/lib/motion";
 import { FEATURE_ICONS, FEATURE_TINTS } from "./featureIcons";
 
-// One feature as a card that leads to its own page: what it is in a line,
-// three things it does, and the way in. The whole card is the target (the
-// heading's link is stretched over it), so a tap anywhere lands, but screen
-// readers still hear only the feature's name as the link.
+// One feature as a card that leads to its own page: its name and a few
+// plain words, nothing more -- the detail is one tap away. The whole card
+// is the target (the heading's link is stretched over it), so a tap
+// anywhere lands, but screen readers still hear only the feature's name.
 export default function FeatureCard({ feature, index = 0, headingLevel = "h3" }: { feature: Feature; index?: number; headingLevel?: "h2" | "h3" }) {
   const Icon = FEATURE_ICONS[feature.key];
   const Heading = headingLevel;
@@ -28,15 +28,8 @@ export default function FeatureCard({ feature, index = 0, headingLevel = "h3" }:
           {feature.name}
         </Link>
       </Heading>
-      <p className="mt-2 text-sm leading-relaxed text-slate-600">{feature.text}</p>
-      <ul className="mt-4 space-y-1.5 text-sm text-slate-700">
-        {feature.points.slice(0, 3).map((p) => (
-          <li key={p} className="flex items-start gap-2">
-            <FiCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" aria-hidden="true" /> {p}
-          </li>
-        ))}
-      </ul>
-      <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-brand-600" aria-hidden="true">
+      <p className="mt-1.5 text-[15px] leading-relaxed text-slate-600">{feature.short}</p>
+      <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-brand-600" aria-hidden="true">
         Read more <FiArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none" />
       </span>
     </article>

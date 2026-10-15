@@ -67,6 +67,9 @@ export interface Feature {
   title: string;
   /** One sentence: the short summary everywhere it appears. */
   text: string;
+  /** A few plain words for its card: what it does, for someone who has
+   *  never used gym software. The detail is on the feature's own page. */
+  short: string;
   /** Two or three short paragraphs, on the feature's own page. */
   body: string[];
   /** What it does, three to five short phrases. */
@@ -104,6 +107,7 @@ export const FEATURES: Feature[] = [
     slug: "member-records",
     group: "desk",
     name: "Member records",
+    short: "All member details in one place.",
     title: "Every member in one place",
     text: "Contact details, member ID, health form, signed agreement, documents and private notes on one page.",
     body: [
@@ -120,6 +124,7 @@ export const FEATURES: Feature[] = [
     slug: "desk-sign-up",
     group: "desk",
     name: "Desk sign-up",
+    short: "Join a new member in one quick form.",
     title: "Sign a member up on one screen",
     text: "Their details, the package, start date, discount, admission fee, trainer and payment — one form, and a receipt at the end.",
     body: [
@@ -136,6 +141,7 @@ export const FEATURES: Feature[] = [
     slug: "collect-fees",
     group: "desk",
     name: "Collect fees",
+    short: "Take fees and print a receipt.",
     title: "A till for membership fees",
     text: "Find a member by name, phone or member ID, then renew, clear their dues or sell a first membership — and print the receipt.",
     body: [
@@ -152,6 +158,7 @@ export const FEATURES: Feature[] = [
     slug: "part-payments-and-dues",
     group: "desk",
     name: "Part payments & dues",
+    short: "Take part now, see who still owes.",
     title: "Part payments, and who still owes",
     text: "Take part of the fee today, collect the rest as it comes in, and always know who owes what.",
     body: [
@@ -168,6 +175,7 @@ export const FEATURES: Feature[] = [
     slug: "renewals-and-fees-due",
     group: "desk",
     name: "Fee expiry & renewals",
+    short: "See whose fee is due and collect it.",
     title: "Whose fee is due, whose has run out, who owes",
     text: "Three lists to work through — expiring, expired or unpaid, and dues — each with a Collect button, a CSV and a print-out.",
     body: [
@@ -184,6 +192,7 @@ export const FEATURES: Feature[] = [
     slug: "members-without-email",
     group: "desk",
     name: "Members without email",
+    short: "Add members with just a phone number.",
     title: "Members without an email address",
     text: "Add members with just a phone number, and give them a username and password yourself.",
     body: [
@@ -200,6 +209,7 @@ export const FEATURES: Feature[] = [
     slug: "switch-from-other-software",
     group: "desk",
     name: "Switch from other software",
+    short: "Bring your members over from a spreadsheet.",
     title: "Bring your members across",
     text: "Import members and their memberships from a spreadsheet, and check the result before anything is saved.",
     body: [
@@ -218,6 +228,7 @@ export const FEATURES: Feature[] = [
     slug: "check-in",
     group: "checkin",
     name: "Check-in",
+    short: "Fingerprint, QR code or member ID at the door.",
     title: "Know who is in the gym",
     text: "Fingerprint, QR code or member ID at the desk — and a lapsed fee is called out the moment they arrive.",
     body: [
@@ -234,6 +245,7 @@ export const FEATURES: Feature[] = [
     slug: "check-in-alerts",
     group: "checkin",
     name: "Voice alerts",
+    short: "The desk speaks up when a fee is due.",
     title: "It says “Fee expired” out loud",
     text: "A different sound for each kind of check-in, then your own words spoken: “Fee expired, please renew”.",
     body: [
@@ -250,6 +262,7 @@ export const FEATURES: Feature[] = [
     slug: "live-attendance",
     group: "checkin",
     name: "Live attendance",
+    short: "See who is in the gym right now.",
     title: "Today's attendance, live",
     text: "Everyone who came in today, who is still inside, and who walked in paid or unpaid — updating as you watch.",
     body: [
@@ -268,6 +281,7 @@ export const FEATURES: Feature[] = [
     slug: "online-payments",
     group: "money",
     name: "Payments",
+    short: "Cash, bank, JazzCash and Easypaisa.",
     title: "Get paid, however your members pay",
     text: "Record cash, bank transfer, JazzCash and Easypaisa at the desk, check bank transfer receipts online, and take cards where Stripe is available to your business.",
     body: [
@@ -285,6 +299,7 @@ export const FEATURES: Feature[] = [
     slug: "discount-codes",
     group: "money",
     name: "Discount codes",
+    short: "Run offers with simple codes.",
     title: "Discount codes and joining offers",
     text: "Make a code, choose what it takes off, and set when it stops working.",
     body: [
@@ -300,6 +315,7 @@ export const FEATURES: Feature[] = [
     slug: "dashboard-and-reports",
     group: "money",
     name: "Dashboard & reports",
+    short: "Today's money and visitors at a glance.",
     title: "See how the business is doing",
     text: "Today's money and visitors on the dashboard; any period, and every download, in Reports.",
     body: [
@@ -316,6 +332,7 @@ export const FEATURES: Feature[] = [
     slug: "daily-sales-report",
     group: "money",
     name: "Daily sales report",
+    short: "Each day's takings, clearly split.",
     title: "What each day took, and how it was paid",
     text: "Every day's takings split into sign-ups, renewals, admission, trainer fees, dues and the shop — and by payment method.",
     body: [
@@ -332,6 +349,7 @@ export const FEATURES: Feature[] = [
     slug: "profit-and-loss",
     group: "money",
     name: "Profit & loss",
+    short: "See what you earn and what you spend.",
     title: "Profit and loss, line by line",
     text: "Membership, admission, trainer fees and the shop, set against commission, expenses, equipment and salaries.",
     body: [
@@ -348,6 +366,7 @@ export const FEATURES: Feature[] = [
     slug: "asset-register",
     group: "money",
     name: "Asset register",
+    short: "Keep track of machines and their servicing.",
     title: "Know what you own, and when it is due a service",
     text: "Every machine with its price, warranty and service dates — and a reminder before either comes round.",
     body: [
@@ -366,6 +385,7 @@ export const FEATURES: Feature[] = [
     slug: "point-of-sale",
     group: "shop",
     name: "Shop & till",
+    short: "Sell drinks and supplements at the desk.",
     title: "Sell drinks, kit and lockers",
     text: "Ring up a basket at the desk, see the tax and the change before you take payment, and know what each sale made.",
     body: [
@@ -382,6 +402,7 @@ export const FEATURES: Feature[] = [
     slug: "thermal-receipts",
     group: "shop",
     name: "Thermal receipts",
+    short: "Print neat receipts with your logo.",
     title: "Receipts from your receipt printer",
     text: "Till and membership receipts sized for 80 mm or 58 mm thermal rolls, with your logo, address and tax number on them.",
     body: [
@@ -400,6 +421,7 @@ export const FEATURES: Feature[] = [
     slug: "class-booking",
     group: "classes",
     name: "Class booking",
+    short: "Members book classes themselves.",
     title: "Members book classes from their phone",
     text: "Your timetable goes up once; members tap to book and waitlists fill themselves.",
     body: [
@@ -415,6 +437,7 @@ export const FEATURES: Feature[] = [
     slug: "personal-training",
     group: "classes",
     name: "Personal training",
+    short: "Members book sessions with trainers.",
     title: "Sell personal training",
     text: "Trainers set their free hours; members buy a pack and book the slots.",
     body: [
@@ -432,6 +455,7 @@ export const FEATURES: Feature[] = [
     slug: "staff-and-payroll",
     group: "team",
     name: "Staff & payslips",
+    short: "Staff rotas, leave and payslips.",
     title: "Run your team",
     text: "Rotas, time off and payslips — and everyone sees only their own part.",
     body: [
@@ -447,6 +471,7 @@ export const FEATURES: Feature[] = [
     slug: "trainer-pay",
     group: "team",
     name: "Trainer pay",
+    short: "Pay trainers a salary, commission or both.",
     title: "Trainers paid by salary, commission or both",
     text: "Give each trainer a salary, a commission per session — a percentage or a fixed amount — or both.",
     body: [
@@ -465,6 +490,7 @@ export const FEATURES: Feature[] = [
     slug: "gym-website",
     group: "reach",
     name: "Your own website",
+    short: "Your own gym website, ready to go.",
     title: "Your own website, on your own address",
     text: "A real website at yourgym.com — classes, prices, trainers, blog, map — in your colours.",
     body: [
@@ -480,6 +506,7 @@ export const FEATURES: Feature[] = [
     slug: "website-editor",
     group: "reach",
     name: "Website editor",
+    short: "Change your website yourself, no developer.",
     title: "Change your website yourself",
     text: "Edit the home page, slides, blog and FAQs without waiting on a developer.",
     body: [
@@ -496,6 +523,7 @@ export const FEATURES: Feature[] = [
     group: "reach",
     addon: true,
     name: "Member app",
+    short: "Your own app for members (add-on).",
     title: "A native phone app for your members",
     text: "An add-on: a native app in your colours, signed in with a username you issue. It is not in the app stores yet.",
     body: [
@@ -513,6 +541,7 @@ export const FEATURES: Feature[] = [
     slug: "member-accounts",
     group: "reach",
     name: "Member self-service",
+    short: "Members see their bookings and bills online.",
     title: "Members look after themselves",
     text: "Bookings, invoices, details and their check-in code — all in the member portal, in every plan.",
     body: [
@@ -529,6 +558,7 @@ export const FEATURES: Feature[] = [
     slug: "messaging",
     group: "reach",
     name: "Email, SMS & WhatsApp",
+    short: "Messages to members, sent for you.",
     title: "Talk to members where they already are",
     text: "Email and push notifications, plus SMS and WhatsApp through your own provider account — most of it sent for you.",
     body: [
@@ -545,6 +575,7 @@ export const FEATURES: Feature[] = [
     slug: "leads",
     group: "reach",
     name: "Leads & enquiries",
+    short: "Turn website enquiries into members.",
     title: "Turn enquiries into members",
     text: "Every website enquiry becomes a lead you can follow up and convert.",
     body: [
@@ -562,6 +593,7 @@ export const FEATURES: Feature[] = [
     slug: "setup-and-settings",
     group: "control",
     name: "Setup & settings",
+    short: "Set currency, language and colours easily.",
     title: "Set it up your way",
     text: "Country, currency, website language, colours and opening hours are all switches.",
     body: [
@@ -577,6 +609,7 @@ export const FEATURES: Feature[] = [
     slug: "security",
     group: "control",
     name: "Security & roles",
+    short: "Each staff member sees only what they should.",
     title: "Locked down by default",
     text: "Two-step sign-in, roles for staff, and a record of every change.",
     body: [
@@ -592,6 +625,7 @@ export const FEATURES: Feature[] = [
     slug: "private-database",
     group: "control",
     name: "Private database",
+    short: "Your gym's data is kept separate and private.",
     title: "Your private online presence",
     text: "Your gym gets its own website, its own member portal and its own private database.",
     body: [
@@ -607,6 +641,7 @@ export const FEATURES: Feature[] = [
     slug: "backups",
     group: "control",
     name: "Backups & restore",
+    short: "Download a full copy of your gym any time.",
     title: "A backup every night, and a restore that is safe",
     text: "Download the whole gym whenever you like; every night an encrypted copy is kept, the last seven at a time.",
     body: [
