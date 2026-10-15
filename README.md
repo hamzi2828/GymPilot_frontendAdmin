@@ -47,3 +47,14 @@ npm run typecheck
 npm run lint
 npm run build
 ```
+
+## The desk app download
+
+`public/downloads/` is served from the site root, so
+`public/downloads/GymsPilotPro-Desk-Setup.exe` is
+`https://gymspilotpro.com/downloads/GymsPilotPro-Desk-Setup.exe` — the link
+every gym's admin panel shows on **Admin → Desk app**.
+
+The installer is built in `GymPilot_desktopApp` (`build.cmd /installer`) and
+copied here by that repo's `publish-installer.cmd`. Commit the `.exe` and
+deploy to put a new version live; until then the link answers 404.
