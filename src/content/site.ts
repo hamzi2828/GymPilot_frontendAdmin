@@ -71,11 +71,12 @@ export const LEGAL = {
 };
 
 // The header's menu. A "#…" target is a section of the landing page (the
-// header and footer prefix it with "/" everywhere else). Features is a plain
-// link to the features page; `spy` is the landing-page section that lights it up.
+// header and footer prefix it with "/" everywhere else). Features scrolls to
+// the landing page's features section, whose button leads on to /features;
+// `menu` keeps it lit on the /features pages too.
 export const NAV: { label: string; href: string; menu?: "features"; spy?: string }[] = [
   { label: "Product", href: "#product" },
-  { label: "Features", href: "/features", menu: "features", spy: "#features" },
+  { label: "Features", href: "#features", menu: "features" },
   { label: "How it works", href: "#how-it-works" },
   { label: "Pricing", href: "#pricing" },
   { label: "FAQ", href: "#faq" },
@@ -107,7 +108,7 @@ export const BENEFITS: { eyebrow: string; title: string; text: string; items: { 
     { key: "messaging", title: "Bring members back", text: "Reach members by email and phone notification when a fee is due or they stop coming." },
     { key: "dailysales", title: "Know your numbers", text: "Each day's sales and your profit and loss, without a spreadsheet." },
   ],
-  cta: "See all features",
+  cta: "View all features",
 };
 
 export const WHAT_YOU_GET: { eyebrow: string; title: string; text: string; parts: { title: string; text: string }[] } = {
