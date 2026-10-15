@@ -39,30 +39,29 @@ export default function FeaturesPage() {
     <>
       <SiteHeader />
       <main>
-        {/* Header */}
-        <section className="relative overflow-hidden bg-slate-950 pb-6 pt-28 text-white sm:pb-8 sm:pt-32">
-          <div className="bg-grid-dark absolute inset-0 [mask-image:radial-gradient(ellipse_at_top,black_30%,transparent_75%)]" aria-hidden="true" />
+        {/* Header and Jump to, in one dark band: what the page is, then every
+            area as a card a buyer can jump into (do you do receipts?). */}
+        <section className="relative overflow-hidden border-b border-white/10 bg-slate-950 pb-14 pt-28 text-white sm:pt-32">
+          <div className="bg-grid-dark absolute inset-0 [mask-image:radial-gradient(ellipse_at_top,black_35%,transparent_80%)]" aria-hidden="true" />
           <Glow className="left-1/2 top-0 h-[620px] w-[1100px] -translate-x-1/2 -translate-y-1/2" color="rgba(79,70,229,0.38)" drift="a" />
           <Glow className="-right-32 top-40 h-[420px] w-[520px]" color="rgba(217,70,239,0.22)" drift="b" />
+          <Glow className="-left-40 bottom-0 h-[420px] w-[520px]" color="rgba(16,185,129,0.12)" drift="b" />
           <div className="relative mx-auto max-w-4xl px-5 text-center sm:px-8">
-            <p className="a-rise text-xs font-semibold uppercase tracking-[0.18em] text-brand-300" style={stagger(0)}>
-              {FEATURES_PAGE.eyebrow}
-            </p>
-            <h1 className="a-rise mt-3 font-display text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl lg:text-5xl" style={stagger(1)}>
-              {FEATURES_PAGE.title}
+            <span className="a-rise inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1 text-xs font-medium text-slate-300" style={stagger(0)}>
+              <span className="a-blink h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+              {FEATURES.length} features · {FEATURE_GROUPS.length} areas · all in every plan
+            </span>
+            <h1 className="a-rise mt-5 font-display text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl lg:text-6xl" style={stagger(1)}>
+              {FEATURES_PAGE.title} <span className="text-gradient">{SITE.name}</span>
             </h1>
+            <p className="a-rise mx-auto mt-4 max-w-xl text-base text-slate-400 sm:text-lg" style={stagger(2)}>
+              {FEATURES_PAGE.hint}
+            </p>
           </div>
+          <nav aria-label="Feature groups" className="relative mx-auto mt-10 max-w-7xl px-5 sm:px-8">
+            <FeatureGroupsGrid variant="cards" />
+          </nav>
         </section>
-
-        {/* The groups on one screen, laid out like the header's Features
-            menu: a buyer who wants one thing (do you do receipts?) jumps
-            straight to its group or opens the feature itself. */}
-        <nav aria-label="Feature groups" className="border-b border-white/10 bg-slate-950 pb-12 pt-8 text-white">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8">
-            <p className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Jump to</p>
-            <FeatureGroupsGrid className="mt-8" />
-          </div>
-        </nav>
 
         {/* Every feature, by group */}
         {FEATURE_GROUPS.map((group, gi) => {
